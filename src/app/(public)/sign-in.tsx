@@ -1,0 +1,246 @@
+import { Feather } from "@expo/vector-icons";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Link } from "expo-router";
+import { StatusBar } from "expo-status-bar";
+import { useColorScheme } from "nativewind";
+import { useRef, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { Alert, Image, Pressable, Text, TextInput, View } from "react-native";
+import {
+  KeyboardAwareScrollView,
+  KeyboardToolbar,
+} from "react-native-keyboard-controller";
+import { SafeAreaView } from "react-native-safe-area-context";
+
+import Button from "@/components/ui/button";
+import Input from "@/components/ui/input";
+import {
+  signInSchema,
+  type SignInFormValues,
+} from "@/lib/validation/sign-in-schema";
+
+export default function SignInPage() {
+  const { colorScheme } = useColorScheme();
+  const iconColor = colorScheme === "dark" ? "#94A3B8" : "#64748B";
+  const passwordInputRef = useRef<TextInput>(null);
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const {
+    control,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<SignInFormValues>({
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+    mode: "onTouched",
+    resolver: zodResolver(signInSchema),
+    shouldFocusError: false,
+  });
+
+  const onSubmit = handleSubmit(async () => {
+    Alert.alert(
+      "Sign in form is ready",
+      "Better Auth will be connected in the authentication integration step.",
+    );
+  });
+
+  const showAuthIntegrationMessage = (
+    provider: "Apple" | "Google" | "password reset",
+  ) => {
+    const title =
+      provider === "password reset" ? "Password reset" : `${provider} sign in`;
+
+    Alert.alert(
+      `${title} is coming next`,
+      "This action will be connected when the Better Auth client is added.",
+    );
+  };
+
+  return (
+    <SafeAreaView className="flex-1 bg-background">
+      <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
+      <KeyboardAwareScrollView
+        bottomOffset={24}
+        contentContainerClassName="flex-grow"
+        keyboardDismissMode="interactive"
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
+        <View className="min-h-full flex-1 px-5 pb-5 pt-12">
+          <View>
+            <Text
+              accessibilityRole="header"
+              className="font-inter-bold text-[28px] leading-9 tracking-[-0.6px] text-foreground"
+            >
+              Welcome back
+            </Text>
+            <Text className="mt-1 font-inter text-[14px] leading-5 text-muted-foreground">
+              Sign in to continue
+            </Text>
+          </View>
+
+          <View className="mt-10 gap-6">
+            <Controller
+              control={control}
+              name="email"
+              render={({ field: { onBlur, onChange, value } }) => (
+                <Input
+                  autoCapitalize="none"
+                  autoComplete="email"
+                  errorMessage={errors.email?.message}
+                  inputMode="email"
+                  label="Email"
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  onSubmitEditing={() => passwordInputRef.current?.focus()}
+                  placeholder="you@example.com"
+                  returnKeyType="next"
+                  textContentType="emailAddress"
+                  value={value}
+                />
+              )}
+            />
+
+            <View>
+              <Controller
+                control={control}
+                name="password"
+                render={({ field: { onBlur, onChange, value } }) => (
+                  <Input
+                    ref={passwordInputRef}
+                    autoCapitalize="none"
+                    autoComplete="current-password"
+                    errorMessage={errors.password?.message}
+                    label="Password"
+                    onBlur={onBlur}
+                    onChangeText={onChange}
+                    onSubmitEditing={onSubmit}
+                    placeholder="Enter your password"
+                    returnKeyType="done"
+                    rightIcon={
+                      <Pressable
+                        accessibilityLabel={
+                          isPasswordVisible ? "Hide password" : "Show password"
+                        }
+                        accessibilityRole="button"
+                        className="-mr-3 h-11 w-11 items-center justify-center"
+                        hitSlop={4}
+                        onPress={() =>
+                          setIsPasswordVisible((current) => !current)
+                        }
+                      >
+                        <Feather
+                          color={iconColor}
+                          name={isPasswordVisible ? "eye-off" : "eye"}
+                          size={22}
+                        />
+                      </Pressable>
+                    }
+                    secureTextEntry={!isPasswordVisible}
+                    textContentType="password"
+                    value={value}
+                  />
+                )}
+              />
+
+              <Pressable
+                accessibilityLabel="Reset forgotten password"
+                accessibilityRole="button"
+                className="mt-3 min-h-11 self-end justify-center"
+                onPress={() => showAuthIntegrationMessage("password reset")}
+              >
+                <Text className="font-inter-semibold text-[13px] text-primary">
+                  Forgot Password?
+                </Text>
+              </Pressable>
+            </View>
+          </View>
+
+          <Button
+            accessibilityLabel="Sign in"
+            className="mt-6"
+            disabled={isSubmitting}
+            onPress={onSubmit}
+          >
+            {isSubmitting ? "Signing In..." : "Sign In"}
+          </Button>
+
+          <View className="my-7 flex-row items-center gap-4">
+            <View className="h-px flex-1 bg-border" />
+            <Text className="font-inter text-[12px] text-muted-foreground">
+              or continue with
+            </Text>
+            <View className="h-px flex-1 bg-border" />
+          </View>
+
+          <View className="gap-3">
+            <Button
+              accessibilityLabel="Continue with Google"
+              className="shadow-sm"
+              leftIcon={
+                <View
+                  accessibilityElementsHidden
+                  className="absolute left-5 h-6 w-6 items-center justify-center"
+                  importantForAccessibility="no-hide-descendants"
+                >
+                  <Image
+                    className="h-5 w-5"
+                    resizeMode="contain"
+                    source={require("../../../assets/images/app-images/google-logo.png")}
+                  />
+                </View>
+              }
+              onPress={() => showAuthIntegrationMessage("Google")}
+              variant="outline"
+            >
+              Continue with Google
+            </Button>
+
+            <Button
+              accessibilityLabel="Continue with Apple"
+              className="shadow-sm"
+              leftIcon={
+                <View
+                  accessibilityElementsHidden
+                  className="absolute left-5 h-6 w-6 items-center justify-center"
+                  importantForAccessibility="no-hide-descendants"
+                >
+                  <Image
+                    className="h-5 w-5"
+                    resizeMode="contain"
+                    source={require("../../../assets/images/app-images/apple-logo.png")}
+                    style={{
+                      tintColor: colorScheme === "dark" ? "#F8FAFC" : "#0F172A",
+                    }}
+                  />
+                </View>
+              }
+              onPress={() => showAuthIntegrationMessage("Apple")}
+              variant="outline"
+            >
+              Continue with Apple
+            </Button>
+          </View>
+
+          <View className="mt-auto flex-row items-center justify-center pt-10">
+            <Text className="font-inter text-[13px] text-muted-foreground">
+              Don&apos;t have an account?{" "}
+            </Text>
+            <Link href="/(public)/sign-up" asChild>
+              <Pressable
+                accessibilityLabel="Create a new account"
+                className="-my-3 min-h-11 justify-center px-1"
+              >
+                <Text className="font-inter-semibold text-[13px] text-primary">
+                  Sign Up
+                </Text>
+              </Pressable>
+            </Link>
+          </View>
+        </View>
+      </KeyboardAwareScrollView>
+      <KeyboardToolbar />
+    </SafeAreaView>
+  );
+}

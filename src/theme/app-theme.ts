@@ -1,4 +1,32 @@
-import { vars } from "nativewind";
+import { useColorScheme, vars } from "nativewind";
+
+export const appThemeColors = {
+  light: {
+    background: "#FFFFFF",
+    border: "#E2E8F0",
+    foreground: "#0F172A",
+    mutedForeground: "#64748B",
+    primary: "#2563EB",
+    primaryForeground: "#FFFFFF",
+    warning: "#F59E0B",
+  },
+  dark: {
+    background: "#020617",
+    border: "#334155",
+    foreground: "#F8FAFC",
+    mutedForeground: "#94A3B8",
+    primary: "#2563EB",
+    primaryForeground: "#FFFFFF",
+    warning: "#FBBF24",
+  },
+} as const;
+
+export type AppThemeColor = keyof (typeof appThemeColors)["light"];
+
+export function useAppThemeColor(color: AppThemeColor) {
+  const { colorScheme } = useColorScheme();
+  return appThemeColors[colorScheme === "dark" ? "dark" : "light"][color];
+}
 
 const sharedBrandColors = {
   "--color-primary": "37 99 235",

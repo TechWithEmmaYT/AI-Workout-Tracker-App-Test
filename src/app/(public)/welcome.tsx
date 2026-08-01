@@ -1,10 +1,14 @@
+import { Feather } from "@expo/vector-icons";
 import { Link } from "expo-router";
 import { Image, Pressable, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import Button from "@/components/ui/button";
+import { useAppThemeColor } from "@/theme/app-theme";
 
 export default function WelcomePage() {
+  const foreground = useAppThemeColor("foreground");
+
   return (
     <SafeAreaView className="flex-1 bg-background">
       <View className="flex-1 px-5 pb-4 pt-5">
@@ -66,11 +70,7 @@ export default function WelcomePage() {
                   className="absolute left-5 h-6 w-6 items-center justify-center"
                   importantForAccessibility="no-hide-descendants"
                 >
-                  <Image
-                    className="h-[18px] w-[18px]"
-                    resizeMode="contain"
-                    source={require("../../../assets/images/app-images/email.png")}
-                  />
+                  <Feather color={foreground} name="mail" size={20} />
                 </View>
               }
               variant="outline"

@@ -1,7 +1,6 @@
-import { Feather } from "@expo/vector-icons";
+import { Feather, FontAwesome } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Link } from "expo-router";
-import { StatusBar } from "expo-status-bar";
 import { useColorScheme } from "nativewind";
 import { useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -19,11 +18,14 @@ import {
   type SignInFormValues,
 } from "@/lib/validation/sign-in-schema";
 
+const googleImg = require("../../../assets/images/app-images/google-logo.png");
+
 export default function SignInPage() {
   const { colorScheme } = useColorScheme();
   const iconColor = colorScheme === "dark" ? "#94A3B8" : "#64748B";
   const passwordInputRef = useRef<TextInput>(null);
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+
   const {
     control,
     handleSubmit,
@@ -59,7 +61,6 @@ export default function SignInPage() {
 
   return (
     <SafeAreaView className="flex-1 bg-background">
-      <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
       <KeyboardAwareScrollView
         bottomOffset={24}
         contentContainerClassName="flex-grow"
@@ -187,7 +188,7 @@ export default function SignInPage() {
                   <Image
                     className="h-5 w-5"
                     resizeMode="contain"
-                    source={require("../../../assets/images/app-images/google-logo.png")}
+                    source={googleImg}
                   />
                 </View>
               }
@@ -206,13 +207,10 @@ export default function SignInPage() {
                   className="absolute left-5 h-6 w-6 items-center justify-center"
                   importantForAccessibility="no-hide-descendants"
                 >
-                  <Image
-                    className="h-5 w-5"
-                    resizeMode="contain"
-                    source={require("../../../assets/images/app-images/apple-logo.png")}
-                    style={{
-                      tintColor: colorScheme === "dark" ? "#F8FAFC" : "#0F172A",
-                    }}
+                  <FontAwesome
+                    color={colorScheme === "dark" ? "#F8FAFC" : "#0F172A"}
+                    name="apple"
+                    size={22}
                   />
                 </View>
               }

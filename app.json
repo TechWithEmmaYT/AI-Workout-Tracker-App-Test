@@ -3,6 +3,7 @@
     "name": "AI-Workout-Tracker-App",
     "slug": "AI-Workout-Tracker-App",
     "version": "1.0.0",
+    "backgroundColor": "#FFFFFF",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "aiworkouttrackerapp",
@@ -11,6 +12,7 @@
       "icon": "./assets/expo.icon"
     },
     "android": {
+      "backgroundColor": "#FFFFFF",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",

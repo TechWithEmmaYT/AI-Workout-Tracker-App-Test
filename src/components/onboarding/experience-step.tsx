@@ -1,0 +1,77 @@
+import { Feather } from "@expo/vector-icons";
+import { Text, View } from "react-native";
+
+import OnboardingOptionCard from "@/components/onboarding/onboarding-option-card";
+import type { OnboardingExperience } from "@/lib/validation/onboarding-schema";
+import { useAppThemeColor } from "@/theme/app-theme";
+
+type ExperienceStepProps = {
+  onChange: (value: OnboardingExperience) => void;
+  value: OnboardingExperience;
+};
+
+const experienceOptions = [
+  {
+    description: "New to training",
+    icon: "zap",
+    label: "Beginner",
+    value: "beginner",
+  },
+  {
+    description: "Trained for a while",
+    icon: "target",
+    label: "Intermediate",
+    value: "intermediate",
+  },
+  {
+    description: "Very experienced",
+    icon: "award",
+    label: "Advanced",
+    value: "advanced",
+  },
+] as const;
+
+export default function ExperienceStep({
+  onChange,
+  value,
+}: ExperienceStepProps) {
+  const foreground = useAppThemeColor("foreground");
+  const primary = useAppThemeColor("primary");
+
+  return (
+    <View className="flex-1">
+      <Text
+        accessibilityRole="header"
+        className="mt-6 max-w-80 font-inter-bold text-[28px] leading-9 tracking-[-0.6px] text-foreground"
+      >
+        What&apos;s your training experience?
+      </Text>
+      <Text className="mt-2 max-w-72 font-inter text-[15px] leading-6 text-muted-foreground">
+        Select your current experience level.
+      </Text>
+
+      <View accessibilityRole="radiogroup" className="mt-6 gap-4">
+        {experienceOptions.map((option) => {
+          const selected = value === option.value;
+
+          return (
+            <OnboardingOptionCard
+              key={option.value}
+              description={option.description}
+              icon={
+                <Feather
+                  color={selected ? primary : foreground}
+                  name={option.icon}
+                  size={27}
+                />
+              }
+              label={option.label}
+              onPress={() => onChange(option.value)}
+              selected={selected}
+            />
+          );
+        })}
+      </View>
+    </View>
+  );
+}

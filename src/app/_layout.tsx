@@ -10,10 +10,10 @@ import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { useColorScheme } from "nativewind";
 import { useEffect } from "react";
-import { View } from "react-native";
+import { Platform, StatusBar as NativeStatusBar, View } from "react-native";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 
-import { appThemes } from "@/theme/app-theme";
+import { appThemeColors, appThemes } from "@/theme/app-theme";
 
 import "../global.css";
 
@@ -22,6 +22,7 @@ SplashScreen.preventAutoHideAsync();
 export default function RootLayout() {
   const { colorScheme } = useColorScheme();
   const scheme = colorScheme ?? "light";
+  const backgroundColor = appThemeColors[scheme].background;
   const [loaded, error] = useFonts({
     Inter_400Regular,
     Inter_500Medium,
@@ -35,6 +36,13 @@ export default function RootLayout() {
     }
   }, [loaded, error]);
 
+  useEffect(() => {
+    if (Platform.OS === "android" && Platform.Version < 35) {
+      NativeStatusBar.setBackgroundColor(backgroundColor, true);
+      NativeStatusBar.setTranslucent(false);
+    }
+  }, [backgroundColor]);
+
   if (!loaded && !error) {
     return null;
   }
@@ -42,9 +50,17 @@ export default function RootLayout() {
   return (
     <KeyboardProvider>
       <ThemeProvider value={scheme === "dark" ? DarkTheme : DefaultTheme}>
-        <View className="flex-1 bg-background" style={appThemes[scheme]}>
-          <StatusBar style={scheme === "dark" ? "light" : "dark"} />
-          <Stack screenOptions={{ headerShown: false }} />
+        <View
+          className="flex-1 bg-background"
+          style={[appThemes[scheme], { backgroundColor }]}
+        >
+          <StatusBar animated style={scheme === "dark" ? "light" : "dark"} />
+          <Stack
+            screenOptions={{
+              contentStyle: { backgroundColor },
+              headerShown: false,
+            }}
+          />
         </View>
       </ThemeProvider>
     </KeyboardProvider>

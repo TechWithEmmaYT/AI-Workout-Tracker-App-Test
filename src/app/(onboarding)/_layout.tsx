@@ -11,7 +11,6 @@ export default function OnboardingLayout() {
       }}
     >
       <Stack.Screen name="onboarding" />
-      <Stack.Screen name="plan-ready" />
       <Stack.Screen name="paywall" />
     </Stack>
   );

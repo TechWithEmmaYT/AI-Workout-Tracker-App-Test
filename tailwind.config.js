@@ -1,6 +1,5 @@
 /** @type {import('tailwindcss').Config} */
-const colorVariable = (name) =>
-  `rgb(var(--color-${name}) / <alpha-value>)`;
+const colorVariable = (name) => `rgb(var(--color-${name}) / <alpha-value>)`;
 
 const rootTheme = {
   "--color-primary": "37 99 235",

@@ -89,7 +89,7 @@ export default function WorkoutsPage() {
   return (
     <Screen edges={["top"]}>
       <FlatList
-        contentContainerClassName="px-5 pb-6"
+        contentContainerClassName="px-5 pb-24"
         data={filteredWorkouts}
         ItemSeparatorComponent={() => <View className="h-3" />}
         keyboardDismissMode="on-drag"
@@ -104,19 +104,9 @@ export default function WorkoutsPage() {
         }
         ListHeaderComponent={
           <View className="pb-5 pt-3">
-            <View className="flex-row items-center justify-between">
-              <Text className="font-inter-bold text-[24px] tracking-[-0.5px] text-foreground">
-                My Workouts
-              </Text>
-              <Pressable
-                accessibilityLabel="Create workout"
-                accessibilityRole="button"
-                className="h-11 w-11 items-center justify-center rounded-full bg-primary active:opacity-80"
-                onPress={() => router.push("/(app)/workout/create")}
-              >
-                <Feather color="white" name="plus" size={24} />
-              </Pressable>
-            </View>
+            <Text className="font-inter-bold text-[24px] tracking-[-0.5px] text-foreground">
+              My Workouts
+            </Text>
 
             <View className="mt-5 h-12 flex-row items-center rounded-xl bg-muted px-4
             border border-input-border
@@ -178,6 +168,14 @@ export default function WorkoutsPage() {
         )}
         showsVerticalScrollIndicator={false}
       />
+      <Pressable
+        accessibilityLabel="Create workout"
+        accessibilityRole="button"
+        className="absolute bottom-5 right-5 h-14 w-14 items-center justify-center rounded-full bg-primary shadow-lg active:opacity-80"
+        onPress={() => router.push("/(app)/workout/create")}
+      >
+        <Feather color="white" name="plus" size={27} />
+      </Pressable>
     </Screen>
   );
 }

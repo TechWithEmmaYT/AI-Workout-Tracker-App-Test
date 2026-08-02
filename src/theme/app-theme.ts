@@ -29,7 +29,7 @@ export const appThemeColors = {
     ...brand,
     accent: "#1E3A8A",
     background: "#020617",
-    border: "#334155",
+    border: "#1E293B",
     card: "#0F172A",
     foreground: "#F8FAFC",
     input: "#0F172A",

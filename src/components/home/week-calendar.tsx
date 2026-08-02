@@ -3,6 +3,7 @@ import {
   Pressable,
   ScrollView,
   Text,
+  TouchableOpacity,
   useWindowDimensions,
   View,
 } from "react-native";
@@ -30,7 +31,7 @@ export default function WeekCalendar() {
   return (
     <ScrollView
       ref={scrollRef}
-      className="-mx-1.5 mt-5 flex-grow-0"
+      className="-mx-4 mt-5 flex-grow-0 px-4"
       decelerationRate="fast"
       horizontal
       onContentSizeChange={() =>
@@ -45,7 +46,7 @@ export default function WeekCalendar() {
         const isFuture = time > today;
 
         return (
-          <Pressable
+          <TouchableOpacity
             key={time}
             accessibilityLabel={date.toLocaleDateString("en-US", {
               dateStyle: "full",
@@ -84,7 +85,7 @@ export default function WeekCalendar() {
                 {date.getDate()}
               </Text>
             </View>
-          </Pressable>
+          </TouchableOpacity>
         );
       })}
     </ScrollView>

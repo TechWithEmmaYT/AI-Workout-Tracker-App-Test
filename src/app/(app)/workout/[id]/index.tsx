@@ -1,73 +1,16 @@
 import { Feather } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { Alert, Image, Pressable, ScrollView, Text, View } from "react-native";
+import { Image, Pressable, ScrollView, Text, View } from "react-native";
 
 import Screen from "@/components/ui/screen";
+import { getWorkout } from "@/constants/workouts";
 import { useAppThemeColor } from "@/theme/app-theme";
 
-const images = {
-  legs: require("../../../../assets/images/workouts/leg-day.png"),
-  pull: require("../../../../assets/images/workouts/pull-day.png"),
-  push: require("../../../../assets/images/workouts/push-day.png"),
-};
-
-const workoutData = {
-  push: {
-    title: "Push Day",
-    muscles: "Chest • Shoulders • Triceps",
-    sets: 18,
-    duration: "50 min",
-    image: images.push,
-    exercises: [
-      "Barbell Bench Press",
-      "Incline Dumbbell Press",
-      "Overhead Press",
-      "Cable Fly",
-      "Tricep Pushdown",
-      "Lateral Raise",
-    ],
-  },
-  pull: {
-    title: "Pull Day",
-    muscles: "Back • Biceps",
-    sets: 18,
-    duration: "55 min",
-    image: images.pull,
-    exercises: [
-      "Lat Pulldown",
-      "Barbell Row",
-      "Seated Cable Row",
-      "Face Pull",
-      "Dumbbell Curl",
-      "Hammer Curl",
-    ],
-  },
-  legs: {
-    title: "Leg Day",
-    muscles: "Quads • Hamstrings • Calves",
-    sets: 18,
-    duration: "60 min",
-    image: images.legs,
-    exercises: [
-      "Barbell Squat",
-      "Romanian Deadlift",
-      "Leg Press",
-      "Leg Curl",
-      "Leg Extension",
-      "Calf Raise",
-    ],
-  },
-} as const;
-
-export default function WorkoutDetailPage() {
+export default function WorkoutDetailScreen() {
   const { id = "push-day" } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const muted = useAppThemeColor("mutedForeground");
-  const workout = id.startsWith("pull")
-    ? workoutData.pull
-    : id.startsWith("leg")
-      ? workoutData.legs
-      : workoutData.push;
+  const workout = getWorkout(id);
   const stats = [
     { icon: "list", label: `${workout.exercises.length} Exercises` },
     { icon: "layers", label: `${workout.sets} Sets` },
@@ -115,7 +58,12 @@ export default function WorkoutDetailPage() {
 
         <Pressable
           className="mt-5 h-12 flex-row items-center justify-center rounded-xl bg-primary active:opacity-80"
-          onPress={() => Alert.alert("Workout started", workout.title)}
+          onPress={() =>
+            router.push({
+              pathname: "/(app)/workout/[id]/active",
+              params: { id },
+            })
+          }
         >
           <Feather color="white" name="play" size={17} />
           <Text className="ml-2 font-inter-semibold text-[14px] text-primary-foreground">
@@ -130,7 +78,7 @@ export default function WorkoutDetailPage() {
           {workout.exercises.map((exercise, index) => (
             <View
               className="h-16 flex-row items-center border-b border-border px-4 last:border-b-0"
-              key={exercise}
+              key={exercise.name}
             >
               <View className="h-9 w-9 items-center justify-center rounded-lg bg-muted">
                 <Text className="font-inter-semibold text-[12px] text-muted-foreground">
@@ -139,10 +87,10 @@ export default function WorkoutDetailPage() {
               </View>
               <View className="ml-3 flex-1">
                 <Text className="font-inter-semibold text-[13px] text-foreground">
-                  {exercise}
+                  {exercise.name}
                 </Text>
                 <Text className="mt-1 font-inter text-[11px] text-muted-foreground">
-                  3 sets • 8–12 reps
+                  {exercise.sets} sets • {exercise.reps} reps • {exercise.rest}s rest
                 </Text>
               </View>
               <Feather color={muted} name="menu" size={17} />

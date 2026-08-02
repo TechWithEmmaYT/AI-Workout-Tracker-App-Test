@@ -1,9 +1,11 @@
 import { Feather } from "@expo/vector-icons";
+import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
 import { useMemo, useState } from "react";
 import {
   Alert,
   Image,
+  Linking,
   Modal,
   Pressable,
   ScrollView,
@@ -31,6 +33,7 @@ export default function CreateWorkoutPage() {
   const primary = useAppThemeColor("primary");
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [coverImage, setCoverImage] = useState<string | null>(null);
   const [query, setQuery] = useState("");
   const [sheetOpen, setSheetOpen] = useState(false);
   const [selected, setSelected] = useState<WorkoutExercise[]>([]);
@@ -39,6 +42,9 @@ export default function CreateWorkoutPage() {
     ...exercises.find(({ id }) => id === settings.id)!,
     ...settings,
   }));
+  const coverSource = coverImage
+    ? { uri: coverImage }
+    : selectedExercises[0]?.image;
   const filtered = useMemo(() => {
     const search = query.trim().toLowerCase();
     return exercises.filter(({ muscles, name }) =>
@@ -74,6 +80,31 @@ export default function CreateWorkoutPage() {
     Alert.alert("Workout created", name, [{ text: "Done", onPress: router.back }]);
   };
 
+  const pickImage = async () => {
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (!permission.granted) {
+      Alert.alert(
+        "Photo permission needed",
+        "Allow photo access in Settings to choose a workout cover.",
+        [
+          { text: "Cancel", style: "cancel" },
+          { text: "Open Settings", onPress: Linking.openSettings },
+        ],
+      );
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      allowsEditing: true,
+      aspect: [16, 9],
+      mediaTypes: ["images"],
+      quality: 0.8,
+    });
+
+    if (!result.canceled) setCoverImage(result.assets[0].uri);
+  };
+
   return (
     <Screen edges={["top"]}>
       <ScrollView
@@ -97,6 +128,29 @@ export default function CreateWorkoutPage() {
         </View>
 
         <View className="mt-4 gap-5">
+          <Pressable
+            className="h-44 items-center justify-center overflow-hidden rounded-xl border border-input-border bg-muted"
+            onPress={pickImage}
+          >
+            {coverSource ? (
+              <Image className="h-full w-full" source={coverSource} />
+            ) : (
+              <>
+                <Feather color={muted} name="image" size={28} />
+                <Text className="mt-2 font-inter-medium text-[13px] text-muted-foreground">
+                  Choose Cover Image
+                </Text>
+              </>
+            )}
+            {coverSource && (
+              <View className="absolute bottom-3 rounded-full bg-black/60 px-4 py-2">
+                <Text className="font-inter-semibold text-[12px] text-white">
+                  Change Image
+                </Text>
+              </View>
+            )}
+          </Pressable>
+
           <Input
             label="Workout Name"
             onChangeText={setName}

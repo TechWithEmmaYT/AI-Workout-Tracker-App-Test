@@ -42,7 +42,7 @@ const Button = forwardRef<ComponentRef<typeof Pressable>, ButtonProps>(
     },
     ref,
   ) => (
-    <Pressable
+    <Pressable 
       ref={ref}
       accessibilityRole="button"
       className={cn(
@@ -52,7 +52,7 @@ const Button = forwardRef<ComponentRef<typeof Pressable>, ButtonProps>(
         disabled && "opacity-50",
         className,
       )}
-      disabled={disabled}
+      disabled={Boolean(disabled)}
       {...props}
     >
       {leftIcon}

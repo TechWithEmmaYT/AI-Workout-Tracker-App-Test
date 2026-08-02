@@ -51,7 +51,9 @@ export default function RootLayout() {
     <KeyboardProvider>
       <ThemeProvider value={scheme === "dark" ? DarkTheme : DefaultTheme}>
         <View
-          className="flex-1 bg-background"
+          className={
+            scheme === "dark" ? "flex-1 bg-background" : "flex-1 light-gradient"
+          }
           style={[appThemes[scheme], { backgroundColor }]}
         >
           <StatusBar animated style={scheme === "dark" ? "light" : "dark"} />

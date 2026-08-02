@@ -2,32 +2,24 @@ import { forwardRef, useState } from "react";
 import type { ComponentRef, ReactNode } from "react";
 import { Text, TextInput, View } from "react-native";
 import type { TextInputProps } from "react-native";
-import { useColorScheme } from "nativewind";
 
 import { cn } from "@/lib/utils";
+import { useAppThemeColor } from "@/theme/app-theme";
 
-export interface InputProps extends TextInputProps {
-  containerClassName?: string;
+type InputProps = TextInputProps & {
   errorMessage?: string;
-  hint?: string;
-  inputClassName?: string;
-  label?: string;
-  leftIcon?: ReactNode;
+  label: string;
   rightIcon?: ReactNode;
-}
+};
 
 const Input = forwardRef<ComponentRef<typeof TextInput>, InputProps>(
   (
     {
       accessibilityLabel,
       className,
-      containerClassName,
       editable = true,
       errorMessage,
-      hint,
-      inputClassName,
       label,
-      leftIcon,
       onBlur,
       onFocus,
       placeholder,
@@ -37,72 +29,61 @@ const Input = forwardRef<ComponentRef<typeof TextInput>, InputProps>(
     },
     ref,
   ) => {
-    const { colorScheme } = useColorScheme();
-    const [isFocused, setIsFocused] = useState(false);
-    const hasError = Boolean(errorMessage);
-    const supportingText = errorMessage ?? hint;
+    const [focused, setFocused] = useState(false);
+    const muted = useAppThemeColor("mutedForeground");
+    const primary = useAppThemeColor("primary");
 
     return (
-      <View className={cn("gap-2", className)}>
-        {label ? (
-          <Text className="font-inter-medium text-[14px] text-foreground">
-            {label}
-          </Text>
-        ) : null}
+      <View className="gap-2">
+        <Text className="font-inter-medium text-[14px] text-foreground">
+          {label}
+        </Text>
 
         <View
           className={cn(
-            "h-14 flex-row items-center gap-3 rounded-xl border bg-input px-4",
-            hasError
+            "h-14 flex-row items-center rounded-xl border bg-input px-4",
+            errorMessage
               ? "border-destructive"
-              : isFocused
+              : focused
                 ? "border-ring"
                 : "border-input-border",
             !editable && "opacity-50",
-            containerClassName,
           )}
         >
-          {leftIcon}
           <TextInput
             ref={ref}
-            accessibilityLabel={accessibilityLabel ?? label ?? placeholder}
-            aria-invalid={hasError}
+            accessibilityLabel={accessibilityLabel ?? label}
+            aria-invalid={Boolean(errorMessage)}
             className={cn(
               "h-full flex-1 font-inter text-[14px] text-foreground",
-              inputClassName,
+              className,
             )}
             editable={editable}
             onBlur={(event) => {
-              setIsFocused(false);
+              setFocused(false);
               onBlur?.(event);
             }}
             onFocus={(event) => {
-              setIsFocused(true);
+              setFocused(true);
               onFocus?.(event);
             }}
             placeholder={placeholder}
-            placeholderTextColor={
-              placeholderTextColor ??
-              (colorScheme === "dark" ? "#94A3B8" : "#64748B")
-            }
-            selectionColor="#2563EB"
+            placeholderTextColor={placeholderTextColor ?? muted}
+            selectionColor={primary}
             {...props}
           />
           {rightIcon}
         </View>
 
-        {supportingText ? (
+        {errorMessage && (
           <Text
-            accessibilityLiveRegion={hasError ? "polite" : "none"}
-            className={cn(
-              "font-inter text-[12px] leading-4",
-              hasError ? "text-destructive" : "text-muted-foreground",
-            )}
-            role={hasError ? "alert" : undefined}
+            accessibilityLiveRegion="polite"
+            className="font-inter text-[12px] text-destructive"
+            role="alert"
           >
-            {supportingText}
+            {errorMessage}
           </Text>
-        ) : null}
+        )}
       </View>
     );
   },

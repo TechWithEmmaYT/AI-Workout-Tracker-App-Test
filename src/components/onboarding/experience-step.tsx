@@ -7,7 +7,7 @@ import { useAppThemeColor } from "@/theme/app-theme";
 
 type ExperienceStepProps = {
   onChange: (value: OnboardingExperience) => void;
-  value: OnboardingExperience;
+  value?: OnboardingExperience;
 };
 
 const experienceOptions = [

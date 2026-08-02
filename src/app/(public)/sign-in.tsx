@@ -1,7 +1,6 @@
 import { Feather, FontAwesome } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Link } from "expo-router";
-import { useColorScheme } from "nativewind";
 import { useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Alert, Image, Pressable, Text, TextInput, View } from "react-native";
@@ -9,20 +8,31 @@ import {
   KeyboardAwareScrollView,
   KeyboardToolbar,
 } from "react-native-keyboard-controller";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 import Button from "@/components/ui/button";
 import Input from "@/components/ui/input";
+import Screen from "@/components/ui/screen";
+import { answers } from "@/constants/onboarding";
+import { onboardingValuesSchema } from "@/lib/validation/onboarding-schema";
 import {
   signInSchema,
   type SignInFormValues,
 } from "@/lib/validation/sign-in-schema";
+import { useAppThemeColor } from "@/theme/app-theme";
 
 const googleImg = require("../../../assets/images/app-images/google-logo.png");
 
 export default function SignInPage() {
-  const { colorScheme } = useColorScheme();
-  const iconColor = colorScheme === "dark" ? "#94A3B8" : "#64748B";
+  const foreground = useAppThemeColor("foreground");
+  const iconColor = useAppThemeColor("mutedForeground");
+  const hasCompletedOnboarding =
+    onboardingValuesSchema.safeParse(answers).success;
+  const signUpHref = hasCompletedOnboarding
+    ? ("/(public)/sign-up" as const)
+    : ({
+        pathname: "/(public)/onboarding/[step]",
+        params: { step: "gender" },
+      } as const);
   const passwordInputRef = useRef<TextInput>(null);
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
@@ -60,7 +70,7 @@ export default function SignInPage() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-background">
+    <Screen>
       <KeyboardAwareScrollView
         bottomOffset={24}
         contentContainerClassName="flex-grow"
@@ -207,11 +217,7 @@ export default function SignInPage() {
                   className="absolute left-5 h-6 w-6 items-center justify-center"
                   importantForAccessibility="no-hide-descendants"
                 >
-                  <FontAwesome
-                    color={colorScheme === "dark" ? "#F8FAFC" : "#0F172A"}
-                    name="apple"
-                    size={22}
-                  />
+                  <FontAwesome color={foreground} name="apple" size={22} />
                 </View>
               }
               onPress={() => showAuthIntegrationMessage("Apple")}
@@ -225,7 +231,7 @@ export default function SignInPage() {
             <Text className="font-inter text-[13px] text-muted-foreground">
               Don&apos;t have an account?{" "}
             </Text>
-            <Link href="/(public)/sign-up" asChild>
+            <Link href={signUpHref} asChild replace>
               <Pressable
                 accessibilityLabel="Create a new account"
                 className="-my-3 min-h-11 justify-center px-1"
@@ -239,6 +245,6 @@ export default function SignInPage() {
         </View>
       </KeyboardAwareScrollView>
       <KeyboardToolbar />
-    </SafeAreaView>
+    </Screen>
   );
 }

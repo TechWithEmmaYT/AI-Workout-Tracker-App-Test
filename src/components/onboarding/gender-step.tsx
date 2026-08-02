@@ -7,7 +7,7 @@ import { useAppThemeColor } from "@/theme/app-theme";
 
 type GenderStepProps = {
   onChange: (value: OnboardingGender) => void;
-  value: OnboardingGender;
+  value?: OnboardingGender;
 };
 
 const genderOptions = [

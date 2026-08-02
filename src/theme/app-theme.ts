@@ -1,103 +1,84 @@
 import { useColorScheme, vars } from "nativewind";
 
+const brand = {
+  destructive: "#EF4444",
+  destructiveForeground: "#FFFFFF",
+  primary: "#2563EB",
+  primaryForeground: "#FFFFFF",
+  primaryHover: "#1D4ED8",
+} as const;
+
 export const appThemeColors = {
   light: {
+    ...brand,
+    accent: "#EFF6FF",
     background: "#FFFFFF",
     border: "#E2E8F0",
+    card: "#F8FAFC",
     foreground: "#0F172A",
+    input: "#FFFFFF",
+    inputBorder: "#E2E8F0",
+    muted: "#F1F5F9",
     mutedForeground: "#64748B",
-    primary: "#2563EB",
-    primaryForeground: "#FFFFFF",
-    warning: "#F59E0B",
+    overlay: "#0F172A",
+    ring: "#3B82F6",
+    secondary: "#F1F5F9",
+    secondaryForeground: "#0F172A",
   },
   dark: {
+    ...brand,
+    accent: "#1E3A8A",
     background: "#020617",
     border: "#334155",
+    card: "#0F172A",
     foreground: "#F8FAFC",
+    input: "#0F172A",
+    inputBorder: "#475569",
+    muted: "#1E293B",
     mutedForeground: "#94A3B8",
-    primary: "#2563EB",
-    primaryForeground: "#FFFFFF",
-    warning: "#FBBF24",
+    overlay: "#000000",
+    ring: "#3B82F6",
+    secondary: "#1E293B",
+    secondaryForeground: "#F1F5F9",
   },
 } as const;
 
 export type AppThemeColor = keyof (typeof appThemeColors)["light"];
+type ThemeColors = Record<AppThemeColor, string>;
+
+const rgb = (hex: string) => {
+  const value = Number.parseInt(hex.slice(1), 16);
+  return `${value >> 16} ${(value >> 8) & 255} ${value & 255}`;
+};
+
+const createTheme = (colors: ThemeColors) =>
+  vars({
+    "--color-accent": rgb(colors.accent),
+    "--color-background": rgb(colors.background),
+    "--color-border": rgb(colors.border),
+    "--color-card": rgb(colors.card),
+    "--color-destructive": rgb(colors.destructive),
+    "--color-destructive-foreground": rgb(colors.destructiveForeground),
+    "--color-foreground": rgb(colors.foreground),
+    "--color-input": rgb(colors.input),
+    "--color-input-border": rgb(colors.inputBorder),
+    "--color-muted": rgb(colors.muted),
+    "--color-muted-foreground": rgb(colors.mutedForeground),
+    "--color-overlay": rgb(colors.overlay),
+    "--color-primary": rgb(colors.primary),
+    "--color-primary-foreground": rgb(colors.primaryForeground),
+    "--color-primary-hover": rgb(colors.primaryHover),
+    "--color-ring": rgb(colors.ring),
+    "--color-secondary": rgb(colors.secondary),
+    "--color-secondary-foreground": rgb(colors.secondaryForeground),
+  });
+
+export const appThemes = {
+  dark: createTheme(appThemeColors.dark),
+  light: createTheme(appThemeColors.light),
+};
 
 export function useAppThemeColor(color: AppThemeColor) {
   const { colorScheme } = useColorScheme();
   return appThemeColors[colorScheme === "dark" ? "dark" : "light"][color];
 }
-
-const sharedBrandColors = {
-  "--color-primary": "37 99 235",
-  "--color-primary-hover": "29 78 216",
-  "--color-primary-foreground": "255 255 255",
-  "--color-success": "34 197 94",
-  "--color-success-foreground": "255 255 255",
-  "--color-warning": "245 158 11",
-  "--color-warning-foreground": "15 23 42",
-  "--color-destructive": "239 68 68",
-  "--color-destructive-foreground": "255 255 255",
-};
-
-export const appThemes = {
-  light: vars({
-    ...sharedBrandColors,
-    "--color-background": "255 255 255",
-    "--color-foreground": "15 23 42",
-    "--color-card": "248 250 252",
-    "--color-card-foreground": "15 23 42",
-    "--color-popover": "255 255 255",
-    "--color-popover-foreground": "15 23 42",
-    "--color-surface": "248 250 252",
-    "--color-surface-foreground": "15 23 42",
-    "--color-muted": "241 245 249",
-    "--color-muted-foreground": "100 116 139",
-    "--color-border": "226 232 240",
-    "--color-input": "255 255 255",
-    "--color-input-border": "226 232 240",
-    "--color-ring": "59 130 246",
-    "--color-secondary": "241 245 249",
-    "--color-secondary-foreground": "15 23 42",
-    "--color-accent": "239 246 255",
-    "--color-accent-foreground": "37 99 235",
-    "--color-chart-1": "37 99 235",
-    "--color-chart-2": "59 130 246",
-    "--color-chart-3": "34 197 94",
-    "--color-chart-4": "245 158 11",
-    "--color-chart-5": "239 68 68",
-    "--color-progress-track": "226 232 240",
-    "--color-progress-indicator": "37 99 235",
-    "--color-overlay": "15 23 42",
-  }),
-
-  dark: vars({
-    ...sharedBrandColors,
-    "--color-background": "2 6 23",
-    "--color-foreground": "248 250 252",
-    "--color-card": "15 23 42",
-    "--color-card-foreground": "248 250 252",
-    "--color-popover": "15 23 42",
-    "--color-popover-foreground": "248 250 252",
-    "--color-surface": "15 23 42",
-    "--color-surface-foreground": "241 245 249",
-    "--color-muted": "30 41 59",
-    "--color-muted-foreground": "148 163 184",
-    "--color-border": "51 65 85",
-    "--color-input": "15 23 42",
-    "--color-input-border": "71 85 105",
-    "--color-ring": "59 130 246",
-    "--color-secondary": "30 41 59",
-    "--color-secondary-foreground": "241 245 249",
-    "--color-accent": "30 58 138",
-    "--color-accent-foreground": "191 219 254",
-    "--color-chart-1": "59 130 246",
-    "--color-chart-2": "56 189 248",
-    "--color-chart-3": "45 212 191",
-    "--color-chart-4": "251 191 36",
-    "--color-chart-5": "248 113 113",
-    "--color-progress-track": "51 65 85",
-    "--color-progress-indicator": "59 130 246",
-    "--color-overlay": "0 0 0",
-  }),
-};

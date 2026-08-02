@@ -1,6 +1,12 @@
-import { Feather } from "@expo/vector-icons";
+import { Feather, FontAwesome6 } from "@expo/vector-icons";
 import type { ImageSourcePropType } from "react-native";
-import { Image, Pressable, Text, View } from "react-native";
+import {
+  Image,
+  Pressable,
+  Text,
+  useWindowDimensions,
+  View,
+} from "react-native";
 
 import { useAppThemeColor } from "@/theme/app-theme";
 
@@ -9,7 +15,6 @@ export type WorkoutCardData = {
   exercises: number;
   image: ImageSourcePropType;
   muscles: string;
-  sets: number;
   title: string;
 };
 
@@ -23,17 +28,18 @@ export default function WorkoutCard({
   image,
   muscles,
   onPress,
-  sets,
   title,
 }: WorkoutCardProps) {
+  const { width } = useWindowDimensions();
   const mutedForeground = useAppThemeColor("mutedForeground");
 
   return (
     <Pressable
       accessibilityLabel={`${title}, ${exercises} exercises, ${duration}`}
       accessibilityRole="button"
-      className="w-36 overflow-hidden rounded-xl border border-border bg-background active:opacity-85"
+      className="overflow-hidden rounded-xl border border-border bg-background active:opacity-80"
       onPress={onPress}
+      style={{ width: Math.max(108, (width - 56) / 3) }}
     >
       <Image
         accessibilityLabel=""
@@ -51,17 +57,11 @@ export default function WorkoutCard({
         >
           {muscles}
         </Text>
-        <View className="mt-2 flex-row items-center gap-1.5 justify-between">
+        <View className="mt-2 flex-row items-center justify-between gap-1">
           <View className="flex-row items-center gap-1">
-            <Feather color={mutedForeground} name="activity" size={12} />
+            <FontAwesome6 color={mutedForeground} name="dumbbell" size={11} />
             <Text className="font-inter text-[11px] text-muted-foreground">
               {exercises}
-            </Text>
-          </View>
-          <View className="flex-row items-center gap-1">
-            <Feather color={mutedForeground} name="layers" size={12} />
-            <Text className="font-inter text-[11px] text-muted-foreground">
-              {sets}
             </Text>
           </View>
           <View className="flex-row items-center gap-1">

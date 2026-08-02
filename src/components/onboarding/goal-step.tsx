@@ -7,7 +7,7 @@ import { useAppThemeColor } from "@/theme/app-theme";
 
 type GoalStepProps = {
   onChange: (value: OnboardingGoal) => void;
-  value: OnboardingGoal;
+  value?: OnboardingGoal;
 };
 
 const goalOptions = [

@@ -1,19 +1,36 @@
+import { Feather } from "@expo/vector-icons";
 import { Text, View } from "react-native";
 
+import { useAppThemeColor } from "@/theme/app-theme";
+
 type HomeStatCardProps = {
+  icon: keyof typeof Feather.glyphMap;
   label: string;
   value: string;
 };
 
-export default function HomeStatCard({ label, value }: HomeStatCardProps) {
+export default function HomeStatCard({
+  icon,
+  label,
+  value,
+}: HomeStatCardProps) {
+  const primary = useAppThemeColor("primary");
+
   return (
-    <View className="min-h-[64px] flex-1 items-center justify-center rounded-xl border border-border bg-background px-1.5 py-2">
-      <Text className="text-center font-inter text-[12px] leading-[14px] text-muted-foreground">
-        {label}
-      </Text>
-      <Text className="mt-1 text-center font-inter-bold text-[15px] tracking-[-0.3px] text-foreground">
+    <View className="min-h-[112px] flex-1 rounded-2xl border border-border bg-background px-3 py-4 shadow-sm">
+      <Text
+        adjustsFontSizeToFit
+        className="font-inter-bold text-[19px] tracking-[-0.4px] text-foreground"
+        numberOfLines={1}
+      >
         {value}
       </Text>
+      <Text className="mt-1 font-inter text-[11px] text-muted-foreground">
+        {label}
+      </Text>
+      <View className="mt-auto h-8 w-8 items-center justify-center rounded-full bg-accent">
+        <Feather color={primary} name={icon} size={16} />
+      </View>
     </View>
   );
 }

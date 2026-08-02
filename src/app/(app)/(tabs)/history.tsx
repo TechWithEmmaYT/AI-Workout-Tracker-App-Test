@@ -1,10 +1,12 @@
-import { Text, View } from "react-native";
+import { Text } from "react-native";
+
+import Screen from "@/components/ui/screen";
 
 const History = () => {
   return (
-    <View>
+    <Screen>
       <Text>History</Text>
-    </View>
+    </Screen>
   );
 };
 

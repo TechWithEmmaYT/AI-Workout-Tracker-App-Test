@@ -1,7 +1,6 @@
 import { Feather, FontAwesome } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Link, useRouter } from "expo-router";
-import { useColorScheme } from "nativewind";
 import { useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Alert, Image, Pressable, Text, TextInput, View } from "react-native";
@@ -9,21 +8,24 @@ import {
   KeyboardAwareScrollView,
   KeyboardToolbar,
 } from "react-native-keyboard-controller";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 import Button from "@/components/ui/button";
 import Input from "@/components/ui/input";
+import Screen from "@/components/ui/screen";
+import { answers } from "@/constants/onboarding";
+import { onboardingValuesSchema } from "@/lib/validation/onboarding-schema";
 import {
   signUpSchema,
   type SignUpFormValues,
 } from "@/lib/validation/sign-up-schema";
+import { useAppThemeColor } from "@/theme/app-theme";
 
 const googleImg = require("../../../assets/images/app-images/google-logo.png");
 
 export default function SignUpPage() {
   const router = useRouter();
-  const { colorScheme } = useColorScheme();
-  const iconColor = colorScheme === "dark" ? "#94A3B8" : "#64748B";
+  const foreground = useAppThemeColor("foreground");
+  const iconColor = useAppThemeColor("mutedForeground");
   const emailInputRef = useRef<TextInput>(null);
   const passwordInputRef = useRef<TextInput>(null);
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
@@ -43,7 +45,9 @@ export default function SignUpPage() {
   });
 
   const onSubmit = handleSubmit(() => {
-    router.push("/(onboarding)/onboarding");
+    const { success } = onboardingValuesSchema.safeParse(answers);
+
+    router.replace(success ? "/(app)/(tabs)" : "/(public)/welcome");
   });
 
   const showSocialIntegrationMessage = (provider: "Apple" | "Google") => {
@@ -54,7 +58,7 @@ export default function SignUpPage() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-background">
+    <Screen>
       <KeyboardAwareScrollView
         bottomOffset={24}
         contentContainerClassName="flex-grow"
@@ -121,40 +125,55 @@ export default function SignUpPage() {
               control={control}
               name="password"
               render={({ field: { onBlur, onChange, value } }) => (
-                <Input
-                  ref={passwordInputRef}
-                  autoCapitalize="none"
-                  autoComplete="new-password"
-                  errorMessage={errors.password?.message}
-                  label="Password"
-                  onBlur={onBlur}
-                  onChangeText={onChange}
-                  onSubmitEditing={onSubmit}
-                  placeholder="Create a password"
-                  returnKeyType="done"
-                  rightIcon={
-                    <Pressable
-                      accessibilityLabel={
-                        isPasswordVisible ? "Hide password" : "Show password"
-                      }
-                      accessibilityRole="button"
-                      className="-mr-3 h-11 w-11 items-center justify-center"
-                      hitSlop={4}
-                      onPress={() =>
-                        setIsPasswordVisible((current) => !current)
-                      }
-                    >
-                      <Feather
-                        color={iconColor}
-                        name={isPasswordVisible ? "eye-off" : "eye"}
-                        size={22}
-                      />
-                    </Pressable>
-                  }
-                  secureTextEntry={!isPasswordVisible}
-                  textContentType="newPassword"
-                  value={value}
-                />
+                <>
+                  {/* Start with a normal password input:
+                  <TextInput
+                    ref={passwordInputRef}
+                    className="h-14 rounded-xl border border-input-border px-4"
+                    onBlur={onBlur}
+                    onChangeText={onChange}
+                    placeholder="Create a password"
+                    secureTextEntry={!isPasswordVisible}
+                    value={value}
+                  />
+
+                  Then replace it with the reusable Input below to get the
+                  label, error message, theme colors, focus style and icon. */}
+                  <Input
+                    ref={passwordInputRef}
+                    autoCapitalize="none"
+                    autoComplete="new-password"
+                    errorMessage={errors.password?.message}
+                    label="Password"
+                    onBlur={onBlur}
+                    onChangeText={onChange}
+                    onSubmitEditing={onSubmit}
+                    placeholder="Create a password"
+                    returnKeyType="done"
+                    rightIcon={
+                      <Pressable
+                        accessibilityLabel={
+                          isPasswordVisible ? "Hide password" : "Show password"
+                        }
+                        accessibilityRole="button"
+                        className="-mr-3 h-11 w-11 items-center justify-center"
+                        hitSlop={4}
+                        onPress={() =>
+                          setIsPasswordVisible((current) => !current)
+                        }
+                      >
+                        <Feather
+                          color={iconColor}
+                          name={isPasswordVisible ? "eye-off" : "eye"}
+                          size={22}
+                        />
+                      </Pressable>
+                    }
+                    secureTextEntry={!isPasswordVisible}
+                    textContentType="newPassword"
+                    value={value}
+                  />
+                </>
               )}
             />
           </View>
@@ -205,11 +224,7 @@ export default function SignUpPage() {
                   className="absolute left-5 h-6 w-6 items-center justify-center"
                   importantForAccessibility="no-hide-descendants"
                 >
-                  <FontAwesome
-                    color={colorScheme === "dark" ? "#F8FAFC" : "#0F172A"}
-                    name="apple"
-                    size={22}
-                  />
+                  <FontAwesome color={foreground} name="apple" size={22} />
                 </View>
               }
               onPress={() => showSocialIntegrationMessage("Apple")}
@@ -222,7 +237,7 @@ export default function SignUpPage() {
             <Text className="font-inter text-[13px] text-muted-foreground">
               Already have an account?{" "}
             </Text>
-            <Link href="/(public)/sign-in" asChild>
+            <Link href="/(public)/sign-in" asChild replace>
               <Pressable
                 accessibilityLabel="Sign in to your account"
                 className="-my-3 min-h-11 justify-center px-1"
@@ -236,6 +251,6 @@ export default function SignUpPage() {
         </View>
       </KeyboardAwareScrollView>
       <KeyboardToolbar />
-    </SafeAreaView>
+    </Screen>
   );
 }

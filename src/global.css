@@ -1,3 +1,9 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.light-gradient {
+  -rn-background-image: "radial-gradient(circle at 15% 15%, rgba(234,243,255,.7) 0%, transparent 45%), radial-gradient(circle at 90% 10%, rgba(255,238,223,.7) 0%, transparent 40%), radial-gradient(circle at 10% 100%, rgba(241,238,255,.7) 0%, transparent 45%)";
+  background-color: #ffffff;
+  @rn-move background-image \&experimental_backgroundImage;
+}

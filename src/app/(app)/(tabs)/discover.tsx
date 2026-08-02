@@ -2,12 +2,12 @@ import { Feather } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useMemo, useState } from "react";
 import { Alert, FlatList, Text, TextInput, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 import ExerciseRow from "@/components/discover/exercise-row";
 import MuscleFilterChip from "@/components/discover/muscle-filter-chip";
 import HomeSectionHeader from "@/components/home/home-section-header";
 import WorkoutTemplateCard from "@/components/home/workout-template-card";
+import Screen from "@/components/ui/screen";
 import { exercises } from "@/lib/exercises";
 import type { Exercise } from "@/lib/exercises";
 import { useAppThemeColor } from "@/theme/app-theme";
@@ -73,7 +73,7 @@ export default function DiscoverPage() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-background" edges={["top"]}>
+    <Screen edges={["top"]}>
       <FlatList
         contentContainerClassName="px-5 pb-6"
         data={filteredExercises}
@@ -172,6 +172,6 @@ export default function DiscoverPage() {
         )}
         showsVerticalScrollIndicator={false}
       />
-    </SafeAreaView>
+    </Screen>
   );
 }

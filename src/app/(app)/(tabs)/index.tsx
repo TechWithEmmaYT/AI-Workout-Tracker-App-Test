@@ -79,7 +79,7 @@ export default function HomePage() {
         {/* {Header Section} */}
         <View className="flex-row items-center justify-between">
           <View className="flex-row items-center">
-            <View className="h-11 w-16 overflow-hidden">
+            <View className="-ml-4 h-11 w-16 overflow-hidden">
               <Image
                 accessibilityLabel="MyWorkout logo"
                 className="h-full w-full"

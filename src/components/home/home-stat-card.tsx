@@ -28,7 +28,7 @@ export default function HomeStatCard({
       <Text className="mt-1 font-inter text-[11px] text-muted-foreground">
         {label}
       </Text>
-      <View className="mt-auto h-8 w-8 items-center justify-center rounded-full bg-accent">
+      <View className="mt-auto h-8 w-8 items-center justify-center rounded-full! bg-accent dark:bg-accent/20">
         <Feather color={primary} name={icon} size={16} />
       </View>
     </View>

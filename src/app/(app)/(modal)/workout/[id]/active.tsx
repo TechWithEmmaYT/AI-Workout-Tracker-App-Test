@@ -19,7 +19,7 @@ import { useAppThemeColor } from "@/theme/app-theme";
 const formatTime = (seconds: number) =>
   new Date(seconds * 1000).toISOString().slice(11, 19);
 
-export default function ActiveWorkoutPage() {
+export default function ActiveWorkoutModal() {
   const { id = "push-day" } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const muted = useAppThemeColor("mutedForeground");
@@ -63,7 +63,7 @@ export default function ActiveWorkoutPage() {
       { text: "Cancel", style: "cancel" },
       {
         text: "Finish",
-        onPress: () => router.replace("/(app)/(tabs)/history"),
+        onPress: () => router.replace("/history"),
       },
     ]);
 
@@ -128,7 +128,7 @@ export default function ActiveWorkoutPage() {
                     <Text className="font-inter-bold text-[14px] text-foreground">
                       {exercise.name}
                     </Text>
-                    <Text className="mt-1 font-inter text-[11px] text-muted-foreground">
+                    <Text className="mt-1 font-inter text-[12px] text-muted-foreground">
                       {exercise.sets} sets • {exercise.reps} reps • {exercise.rest}s rest
                     </Text>
                   </View>
@@ -175,14 +175,16 @@ export default function ActiveWorkoutPage() {
                             {set}
                           </Text>
                           <TextInput
-                            className="mx-1 h-9 flex-1 rounded-lg bg-muted text-center font-inter text-[13px] text-foreground"
+                            className="mx-1 h-10 flex-1 rounded-lg bg-muted 
+                            text-center font-inter text-[13px] text-foreground"
                             keyboardType="decimal-pad"
                             placeholder="kg"
                             placeholderTextColor={muted}
                             selectionColor={primary}
                           />
                           <TextInput
-                            className="mx-1 h-9 flex-1 rounded-lg bg-muted text-center font-inter text-[13px] text-foreground"
+                            className="mx-1 h-10 flex-1 rounded-lg bg-muted 
+                            text-center font-inter text-[13px] text-foreground"
                             keyboardType="number-pad"
                             defaultValue={String(exercise.reps)}
                             placeholder="reps"

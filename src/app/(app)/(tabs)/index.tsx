@@ -1,6 +1,6 @@
 import { Feather } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { Alert, Pressable, ScrollView, Text, View } from "react-native";
+import { Image, Pressable, ScrollView, Text, View } from "react-native";
 
 import HomeSectionHeader from "@/components/home/home-section-header";
 import HomeStatCard from "@/components/home/home-stat-card";
@@ -10,9 +10,9 @@ import WorkoutCard, {
   type WorkoutCardData,
 } from "@/components/home/workout-card";
 import WorkoutTemplateCard from "@/components/home/workout-template-card";
-import Button from "@/components/ui/button";
 import Screen from "@/components/ui/screen";
-import { useAppThemeColor } from "@/theme/app-theme";
+
+const logo = require("../../../../assets/images/app-images/logo.png");
 
 const workoutImages = {
   legs: require("../../../../assets/images/workouts/leg-day.png"),
@@ -64,50 +64,63 @@ const templates = [
 
 export default function HomePage() {
   const router = useRouter();
-  const foreground = useAppThemeColor("foreground");
-  const primaryForeground = useAppThemeColor("primaryForeground");
 
-  const openWorkouts = () => router.push("/(app)/(tabs)/workouts");
-  const openDiscover = () => router.push("/(app)/(tabs)/discover");
+  const openWorkouts = () => router.push("/workouts");
+  const createWorkout = () => router.push("/workout/create");
 
   return (
     <Screen edges={["top"]}>
       <ScrollView
         className="flex-1"
-        contentContainerClassName="px-5 pb-5 pt-3"
+        contentContainerClassName="px-5 pb-5 pt-0"
         showsVerticalScrollIndicator={false}
       >
-        <View className="flex-row items-center">
-          <Text
-            accessibilityRole="header"
-            className="flex-1 font-inter-bold text-[24px] tracking-[-0.6px] text-foreground"
-          >
-            Good morning, John 👋
-          </Text>
-          <Pressable
-            accessibilityLabel="Notifications"
-            accessibilityRole="button"
-            className="h-11 w-11 items-center justify-center rounded-full active:bg-muted"
-            onPress={() =>
-              Alert.alert("Notifications", "You have no new notifications.")
-            }
-          >
-            <Feather color={foreground} name="bell" size={23} />
-          </Pressable>
+
+        {/* {Header Section} */}
+        <View className="flex-row items-center justify-between">
+          <View className="flex-row items-center">
+            <View className="h-11 w-16 overflow-hidden">
+              <Image
+                accessibilityLabel="MyWorkout logo"
+                className="h-full w-full"
+                resizeMode="cover"
+                source={logo}
+              />
+            </View>
+            <Text
+              accessibilityRole="header"
+              className="font-inter-bold text-[22px] tracking-[-0.5px] text-foreground"
+            >
+              MyWorkout
+            </Text>
+          </View>
+          <View className="h-10 flex-row items-center rounded-full border border-border bg-background px-4">
+            <Text className="text-[16px]">🔥</Text>
+            <Text className="ml-1.5 font-inter-bold text-[14px] text-foreground">
+              0
+            </Text>
+          </View>
         </View>
 
+        {/* {Week Calendar Section} */}
         <View>
           <WeekCalendar />
         </View>
 
-        <View className="mt-6 flex-row gap-2">
+        {/* {Stats Section} */}
+        <View className="mt-3 flex-row gap-2">
           <HomeStatCard icon="activity" label="Workouts" value="5" />
           <HomeStatCard icon="clock" label="Time" value="25h 30m" />
           <HomeStatCard icon="bar-chart-2" label="Avg Time" value="75 min" />
         </View>
 
-        <View className="mt-7">
-          <HomeSectionHeader onViewAll={openWorkouts} title="My Workouts" />
+      {/* {My Workouts Section} */}
+        <View className="mt-4">
+          <View className="mb-2">
+            <Text className="font-inter-bold text-[16px] tracking-[-0.2px] text-foreground">
+              My Workouts
+            </Text>
+          </View>
           <ScrollView
             className="-mx-5"
             contentContainerClassName="gap-2 px-5"
@@ -122,21 +135,40 @@ export default function HomePage() {
               />
             ))}
           </ScrollView>
+
+
+          {/* {Create Your Own Workout Section} */}
+          <Pressable
+            accessibilityLabel="Create your own workout"
+            accessibilityRole="button"
+            className="mt-3 flex-row items-center overflow-hidden rounded-2xl p-5 active:opacity-90"
+            onPress={createWorkout}
+            style={{
+              experimental_backgroundImage:
+                "linear-gradient(110deg, #0EA5E9 0%, #2563EB 55%, #1D4ED8 100%)",
+            }}
+          >
+            <View className="flex-1">
+              <Text className="font-inter-bold text-[22px] text-primary-foreground">
+                Create your own
+              </Text>
+              <Text className="mt-1 font-inter text-[12px] text-primary-foreground/80">
+                Pick exercises, sets and reps
+              </Text>
+              <View className="mt-4 self-start rounded-full bg-white px-5 py-2">
+                <Text className="font-inter-semibold text-[12px] text-primary">
+                  Create
+                </Text>
+              </View>
+            </View>
+            <View className="h-16 w-16 items-center justify-center rounded-2xl bg-white/20">
+              <Feather color="white" name="edit-3" size={29} />
+            </View>
+          </Pressable>
         </View>
 
-        <Button
-          accessibilityLabel="Start a workout"
-          className="mt-5 mb-2"
-          leftIcon={
-            <Feather color={primaryForeground} name="activity" size={21} />
-          }
-          onPress={openWorkouts}
-          size="default"
-        >
-          Start Workout
-        </Button>
-
-        <View className="mt-3">
+        {/* {Recent Workout Section} */}
+        <View className="mt-5">
           <HomeSectionHeader onViewAll={openWorkouts} title="Recent Workout" />
           <RecentWorkoutCard
             date="Mar 10, 2026 • 6 Exercises"
@@ -147,9 +179,10 @@ export default function HomePage() {
           />
         </View>
 
+
         <View className="mt-3">
           <HomeSectionHeader
-            onViewAll={openDiscover}
+            onViewAll={openWorkouts}
             title="Workout Templates"
           />
           <ScrollView
@@ -162,7 +195,7 @@ export default function HomePage() {
               <WorkoutTemplateCard
                 key={template.title}
                 {...template}
-                onPress={openDiscover}
+                onPress={openWorkouts}
               />
             ))}
           </ScrollView>

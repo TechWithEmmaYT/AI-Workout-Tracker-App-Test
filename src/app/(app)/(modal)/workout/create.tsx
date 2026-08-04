@@ -1,12 +1,11 @@
 import { Feather } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import {
   Alert,
   Image,
   Linking,
-  Modal,
   Pressable,
   ScrollView,
   Text,
@@ -15,28 +14,19 @@ import {
 } from "react-native";
 
 import Button from "@/components/ui/button";
-import Input from "@/components/ui/input";
 import Screen from "@/components/ui/screen";
+import { useWorkoutDraft } from "@/contexts/workout-draft-context";
 import { exercises } from "@/lib/exercises";
 import { useAppThemeColor } from "@/theme/app-theme";
 
-type WorkoutExercise = {
-  id: string;
-  reps: number;
-  rest: number;
-  sets: number;
-};
-
-export default function CreateWorkoutPage() {
+export default function CreateWorkoutModal() {
   const router = useRouter();
   const muted = useAppThemeColor("mutedForeground");
   const primary = useAppThemeColor("primary");
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [coverImage, setCoverImage] = useState<string | null>(null);
-  const [query, setQuery] = useState("");
-  const [sheetOpen, setSheetOpen] = useState(false);
-  const [selected, setSelected] = useState<WorkoutExercise[]>([]);
+  const { selected, toggleExercise, updateExercise } = useWorkoutDraft();
 
   const selectedExercises = selected.map((settings) => ({
     ...exercises.find(({ id }) => id === settings.id)!,
@@ -45,32 +35,6 @@ export default function CreateWorkoutPage() {
   const coverSource = coverImage
     ? { uri: coverImage }
     : selectedExercises[0]?.image;
-  const filtered = useMemo(() => {
-    const search = query.trim().toLowerCase();
-    return exercises.filter(({ muscles, name }) =>
-      `${name} ${muscles}`.toLowerCase().includes(search),
-    );
-  }, [query]);
-
-  const toggleExercise = (id: string) =>
-    setSelected((current) =>
-      current.some((exercise) => exercise.id === id)
-        ? current.filter((exercise) => exercise.id !== id)
-        : [...current, { id, reps: 10, rest: 90, sets: 3 }],
-    );
-
-  const updateExercise = (
-    id: string,
-    field: "reps" | "rest" | "sets",
-    amount: number,
-  ) =>
-    setSelected((current) =>
-      current.map((exercise) =>
-        exercise.id === id
-          ? { ...exercise, [field]: Math.max(1, exercise[field] + amount) }
-          : exercise,
-      ),
-    );
 
   const saveWorkout = () => {
     if (!name.trim() || selected.length === 0) {
@@ -113,7 +77,7 @@ export default function CreateWorkoutPage() {
       >
         <View className="h-14 flex-row items-center justify-between">
           <Pressable onPress={router.back}>
-            <Text className="font-inter-medium text-[13px] text-primary">
+            <Text className="font-inter-medium text-[13px] text-destructive">
               Cancel
             </Text>
           </Pressable>
@@ -151,12 +115,19 @@ export default function CreateWorkoutPage() {
             )}
           </Pressable>
 
-          <Input
-            label="Workout Name"
-            onChangeText={setName}
-            placeholder="e.g. Push Day"
-            value={name}
-          />
+          <View className="gap-2">
+            <Text className="font-inter-medium text-[14px] text-foreground">
+              Workout Name
+            </Text>
+            <TextInput
+              className="h-14 rounded-xl border border-input-border bg-input px-4 font-inter text-[14px] text-foreground"
+              onChangeText={setName}
+              placeholder="e.g. Push Day"
+              placeholderTextColor={muted}
+              selectionColor={primary}
+              value={name}
+            />
+          </View>
 
           <View className="gap-2">
             <Text className="font-inter-medium text-[14px] text-foreground">
@@ -241,7 +212,7 @@ export default function CreateWorkoutPage() {
 
             <Button
               leftIcon={<Feather color={primary} name="plus" size={18} />}
-              onPress={() => setSheetOpen(true)}
+              onPress={() => router.push("/workout/exercises")}
               size="sm"
               variant="outline"
             >
@@ -250,81 +221,6 @@ export default function CreateWorkoutPage() {
           </View>
         </View>
       </ScrollView>
-
-      <Modal
-        animationType="slide"
-        onRequestClose={() => setSheetOpen(false)}
-        statusBarTranslucent
-        transparent
-        visible={sheetOpen}
-      >
-        <Pressable
-          className="flex-1 justify-end bg-black/40"
-          onPress={() => setSheetOpen(false)}
-        >
-          <Pressable
-            className="max-h-[75%] rounded-t-3xl bg-background px-5 pb-8 pt-3"
-            onPress={() => {}}
-          >
-            <View className="mb-4 h-1 w-10 self-center rounded-full bg-border" />
-            <View className="mb-4 flex-row items-center justify-between">
-              <Text className="font-inter-bold text-[18px] text-foreground">
-                Add Exercise
-              </Text>
-              <Pressable onPress={() => setSheetOpen(false)}>
-                <Text className="font-inter-semibold text-[13px] text-primary">
-                  Done
-                </Text>
-              </Pressable>
-            </View>
-
-            <View className="mb-3 h-11 flex-row items-center rounded-xl bg-muted px-4">
-              <Feather color={muted} name="search" size={18} />
-              <TextInput
-                className="ml-3 flex-1 font-inter text-[13px] text-foreground"
-                onChangeText={setQuery}
-                placeholder="Search exercises..."
-                placeholderTextColor={muted}
-                selectionColor={primary}
-                value={query}
-              />
-            </View>
-
-            <ScrollView keyboardShouldPersistTaps="handled">
-              {filtered.map((exercise) => {
-                const isSelected = selected.some(
-                  ({ id }) => id === exercise.id,
-                );
-                return (
-                  <Pressable
-                    className="h-16 flex-row items-center border-b border-border"
-                    key={exercise.id}
-                    onPress={() => toggleExercise(exercise.id)}
-                  >
-                    <Image
-                      className="h-11 w-12 rounded-lg bg-muted"
-                      source={exercise.image}
-                    />
-                    <View className="ml-3 flex-1">
-                      <Text className="font-inter-semibold text-[13px] text-foreground">
-                        {exercise.name}
-                      </Text>
-                      <Text className="mt-1 font-inter text-[11px] text-muted-foreground">
-                        {exercise.muscles}
-                      </Text>
-                    </View>
-                    <Feather
-                      color={isSelected ? primary : muted}
-                      name={isSelected ? "check-circle" : "circle"}
-                      size={21}
-                    />
-                  </Pressable>
-                );
-              })}
-            </ScrollView>
-          </Pressable>
-        </Pressable>
-      </Modal>
     </Screen>
   );
 }

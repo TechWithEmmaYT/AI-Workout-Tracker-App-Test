@@ -22,7 +22,7 @@ export default function OnboardingStepPage() {
     ...answers,
   }));
 
-  if (!step) return <Redirect href="/(public)/welcome" />;
+  if (!step) return <Redirect href="/welcome" />;
 
   const select = (nextValue: OnboardingValues[typeof step.field]) => {
     const nextValues = { ...values, [step.field]: nextValue };
@@ -34,18 +34,18 @@ export default function OnboardingStepPage() {
   const goNext = () => {
     if (next) {
       router.push({
-        pathname: "/(public)/onboarding/[step]",
+        pathname: "/onboarding/[step]",
         params: { step: next.key },
       });
     } else {
-      router.push("/(public)/sign-up");
+      router.push("/sign-up");
     }
   };
 
   return (
     <Screen>
       <View className="flex-1 px-6 pb-5 pt-4">
-        <View className="flex-row items-center gap-4">
+        <View className="flex-row items-center gap-2">
           <Pressable
             accessibilityLabel="Go back"
             accessibilityRole="button"
@@ -54,13 +54,13 @@ export default function OnboardingStepPage() {
           >
             <Feather color={foreground} name="arrow-left" size={23} />
           </Pressable>
-          <View className="flex-1 flex-row gap-2">
-            {steps.map((item, itemIndex) => (
-              <View
-                key={item.key}
-                className={`h-1 flex-1 rounded-full ${itemIndex <= index ? "bg-primary" : "bg-border"}`}
-              />
-            ))}
+          <View className="h-2 flex-1 overflow-hidden rounded-full bg-border">
+            <View
+              className="h-full rounded-full bg-primary"
+              style={{
+                width: `${((index + 1) / steps.length) * 100}%`,
+              }}
+            />
           </View>
         </View>
 

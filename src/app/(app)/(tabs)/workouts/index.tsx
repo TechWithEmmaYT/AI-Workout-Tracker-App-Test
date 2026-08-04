@@ -14,9 +14,9 @@ import Screen from "@/components/ui/screen";
 import { useAppThemeColor } from "@/theme/app-theme";
 
 const images = {
-  legs: require("../../../../assets/images/workouts/leg-day.png"),
-  pull: require("../../../../assets/images/workouts/pull-day.png"),
-  push: require("../../../../assets/images/workouts/push-day.png"),
+  legs: require("../../../../../assets/images/workouts/leg-day.png"),
+  pull: require("../../../../../assets/images/workouts/pull-day.png"),
+  push: require("../../../../../assets/images/workouts/push-day.png"),
 };
 
 const workouts = [
@@ -123,6 +123,7 @@ export default function WorkoutsPage() {
                 value={query}
               />
             </View>
+
           </View>
         }
         renderItem={({ item }) => (
@@ -132,7 +133,7 @@ export default function WorkoutsPage() {
             className="flex-row items-center rounded-xl border border-border bg-background p-3 active:bg-muted"
             onPress={() =>
               router.push({
-                pathname: "/(app)/workout/[id]",
+                pathname: "/workouts/[id]",
                 params: { id: item.id },
               })
             }
@@ -151,13 +152,13 @@ export default function WorkoutsPage() {
                 {item.title}
               </Text>
               <Text
-                className="mt-1 font-inter text-[12px] text-muted-foreground"
+                className="mt-1 font-inter text-[12.5px] text-muted-foreground"
                 numberOfLines={1}
               >
                 {item.muscles}
               </Text>
               <Text
-                className="mt-2 font-inter text-[11px] text-muted-foreground"
+                className="mt-2 font-inter text-[11.5px] text-muted-foreground"
                 numberOfLines={1}
               >
                 {item.details}
@@ -172,7 +173,7 @@ export default function WorkoutsPage() {
         accessibilityLabel="Create workout"
         accessibilityRole="button"
         className="absolute bottom-5 right-5 h-14 w-14 items-center justify-center rounded-full bg-primary shadow-lg active:opacity-80"
-        onPress={() => router.push("/(app)/workout/create")}
+        onPress={() => router.push("/workout/create")}
       >
         <Feather color="white" name="plus" size={27} />
       </Pressable>

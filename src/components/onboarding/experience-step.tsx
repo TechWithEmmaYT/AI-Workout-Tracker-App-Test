@@ -1,5 +1,6 @@
 import { Feather } from "@expo/vector-icons";
 import { Text, View } from "react-native";
+import Animated, { FadeInRight } from "react-native-reanimated";
 
 import OnboardingOptionCard from "@/components/onboarding/onboarding-option-card";
 import type { OnboardingExperience } from "@/lib/validation/onboarding-schema";
@@ -40,23 +41,26 @@ export default function ExperienceStep({
 
   return (
     <View className="flex-1">
-      <Text
-        accessibilityRole="header"
-        className="mt-6 max-w-80 font-inter-bold text-[28px] leading-9 tracking-[-0.6px] text-foreground"
-      >
-        What&apos;s your training experience?
-      </Text>
-      <Text className="mt-2 max-w-72 font-inter text-[15px] leading-6 text-muted-foreground">
-        Select your current experience level.
-      </Text>
+      <Animated.View entering={FadeInRight.duration(250)}>
+        <Text
+          accessibilityRole="header"
+          className="mt-6 max-w-80 font-inter-bold text-[28px] leading-9 tracking-[-0.6px] text-foreground"
+        >
+          What&apos;s your training experience?
+        </Text>
+        <Text className="mt-2 max-w-72 font-inter text-[15px] leading-6 text-muted-foreground">
+          Select your current experience level.
+        </Text>
+      </Animated.View>
 
       <View accessibilityRole="radiogroup" className="mt-6 gap-4">
-        {experienceOptions.map((option) => {
+        {experienceOptions.map((option, index) => {
           const selected = value === option.value;
 
           return (
             <OnboardingOptionCard
               key={option.value}
+              delay={(index + 1) * 80}
               description={option.description}
               icon={
                 <Feather

@@ -1,5 +1,6 @@
 import { FontAwesome6 } from "@expo/vector-icons";
 import { Text, View } from "react-native";
+import Animated, { FadeInRight } from "react-native-reanimated";
 
 import OnboardingOptionCard from "@/components/onboarding/onboarding-option-card";
 import type { OnboardingGoal } from "@/lib/validation/onboarding-schema";
@@ -34,23 +35,26 @@ export default function GoalStep({ onChange, value }: GoalStepProps) {
 
   return (
     <View className="flex-1">
-      <Text
-        accessibilityRole="header"
-        className="mt-6 max-w-72 font-inter-bold text-[28px] leading-9 tracking-[-0.6px] text-foreground"
-      >
-        What&apos;s your goal?
-      </Text>
-      <Text className="mt-2 max-w-72 font-inter text-[15px] leading-6 text-muted-foreground">
-        Choose the goal that matters most to you.
-      </Text>
+      <Animated.View entering={FadeInRight.duration(250)}>
+        <Text
+          accessibilityRole="header"
+          className="mt-6 max-w-72 font-inter-bold text-[28px] leading-9 tracking-[-0.6px] text-foreground"
+        >
+          What&apos;s your goal?
+        </Text>
+        <Text className="mt-2 max-w-72 font-inter text-[15px] leading-6 text-muted-foreground">
+          Choose the goal that matters most to you.
+        </Text>
+      </Animated.View>
 
       <View accessibilityRole="radiogroup" className="mt-8 gap-4">
-        {goalOptions.map((option) => {
+        {goalOptions.map((option, index) => {
           const selected = value === option.value;
 
           return (
             <OnboardingOptionCard
               key={option.value}
+              delay={(index + 1) * 80}
               icon={
                 <FontAwesome6
                   color={selected ? primary : foreground}

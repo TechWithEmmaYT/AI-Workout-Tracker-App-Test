@@ -56,7 +56,7 @@ export default function HistoryPage() {
             className="flex-row items-center rounded-xl border border-border bg-background p-3 active:bg-muted"
             onPress={() =>
               router.push({
-                pathname: "/(app)/history/[id]",
+                pathname: "/history/[id]",
                 params: { id: item.id },
               })
             }

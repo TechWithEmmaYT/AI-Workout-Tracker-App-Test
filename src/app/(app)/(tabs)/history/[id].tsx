@@ -7,13 +7,13 @@ import Screen from "@/components/ui/screen";
 import { getWorkoutHistory } from "@/constants/workout-history";
 import { useAppThemeColor } from "@/theme/app-theme";
 
-export default function HistoryDetailPage() {
+export default function HistoryDetailModal() {
   const { id = "" } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const muted = useAppThemeColor("mutedForeground");
   const workout = getWorkoutHistory(id);
 
-  if (!workout) return <Redirect href="/(app)/(tabs)/history" />;
+  if (!workout) return <Redirect href="/history" />;
 
   return (
     <Screen edges={["top"]}>

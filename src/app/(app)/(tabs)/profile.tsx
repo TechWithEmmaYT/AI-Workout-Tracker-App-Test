@@ -153,7 +153,7 @@ export default function ProfilePage() {
           <Row
             icon="log-out"
             label="Sign Out"
-            onPress={() => router.replace("/(public)/sign-in")}
+            onPress={() => router.replace("/sign-in")}
           />
           <Row
             danger

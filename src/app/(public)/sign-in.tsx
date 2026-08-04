@@ -10,7 +10,6 @@ import {
 } from "react-native-keyboard-controller";
 
 import Button from "@/components/ui/button";
-import Input from "@/components/ui/input";
 import Screen from "@/components/ui/screen";
 import { answers } from "@/constants/onboarding";
 import { onboardingValuesSchema } from "@/lib/validation/onboarding-schema";
@@ -28,9 +27,9 @@ export default function SignInPage() {
   const hasCompletedOnboarding =
     onboardingValuesSchema.safeParse(answers).success;
   const signUpHref = hasCompletedOnboarding
-    ? ("/(public)/sign-up" as const)
+    ? ("/sign-up" as const)
     : ({
-        pathname: "/(public)/onboarding/[step]",
+        pathname: "/onboarding/[step]",
         params: { step: "gender" },
       } as const);
   const passwordInputRef = useRef<TextInput>(null);
@@ -96,20 +95,31 @@ export default function SignInPage() {
               control={control}
               name="email"
               render={({ field: { onBlur, onChange, value } }) => (
-                <Input
-                  autoCapitalize="none"
-                  autoComplete="email"
-                  errorMessage={errors.email?.message}
-                  inputMode="email"
-                  label="Email"
-                  onBlur={onBlur}
-                  onChangeText={onChange}
-                  onSubmitEditing={() => passwordInputRef.current?.focus()}
-                  placeholder="you@example.com"
-                  returnKeyType="next"
-                  textContentType="emailAddress"
-                  value={value}
-                />
+                <View className="gap-2">
+                  <Text className="font-inter-medium text-[14px] text-foreground">
+                    Email
+                  </Text>
+                  <TextInput
+                    autoCapitalize="none"
+                    autoComplete="email"
+                    className={`h-14 rounded-xl border bg-input px-4 font-inter text-[14px] text-foreground ${errors.email ? "border-destructive" : "border-input-border"}`}
+                    inputMode="email"
+                    onBlur={onBlur}
+                    onChangeText={onChange}
+                    onSubmitEditing={() => passwordInputRef.current?.focus()}
+                    placeholder="you@example.com"
+                    placeholderTextColor={iconColor}
+                    returnKeyType="next"
+                    selectionColor={foreground}
+                    textContentType="emailAddress"
+                    value={value}
+                  />
+                  {errors.email && (
+                    <Text className="font-inter text-[12px] text-destructive">
+                      {errors.email.message}
+                    </Text>
+                  )}
+                </View>
               )}
             />
 
@@ -118,18 +128,29 @@ export default function SignInPage() {
                 control={control}
                 name="password"
                 render={({ field: { onBlur, onChange, value } }) => (
-                  <Input
-                    ref={passwordInputRef}
-                    autoCapitalize="none"
-                    autoComplete="current-password"
-                    errorMessage={errors.password?.message}
-                    label="Password"
-                    onBlur={onBlur}
-                    onChangeText={onChange}
-                    onSubmitEditing={onSubmit}
-                    placeholder="Enter your password"
-                    returnKeyType="done"
-                    rightIcon={
+                  <View className="gap-2">
+                    <Text className="font-inter-medium text-[14px] text-foreground">
+                      Password
+                    </Text>
+                    <View
+                      className={`h-14 flex-row items-center rounded-xl border bg-input px-4 ${errors.password ? "border-destructive" : "border-input-border"}`}
+                    >
+                      <TextInput
+                        ref={passwordInputRef}
+                        autoCapitalize="none"
+                        autoComplete="current-password"
+                        className="h-full flex-1 font-inter text-[14px] text-foreground"
+                        onBlur={onBlur}
+                        onChangeText={onChange}
+                        onSubmitEditing={onSubmit}
+                        placeholder="Enter your password"
+                        placeholderTextColor={iconColor}
+                        returnKeyType="done"
+                        secureTextEntry={!isPasswordVisible}
+                        selectionColor={foreground}
+                        textContentType="password"
+                        value={value}
+                      />
                       <Pressable
                         accessibilityLabel={
                           isPasswordVisible ? "Hide password" : "Show password"
@@ -147,11 +168,13 @@ export default function SignInPage() {
                           size={22}
                         />
                       </Pressable>
-                    }
-                    secureTextEntry={!isPasswordVisible}
-                    textContentType="password"
-                    value={value}
-                  />
+                    </View>
+                    {errors.password && (
+                      <Text className="font-inter text-[12px] text-destructive">
+                        {errors.password.message}
+                      </Text>
+                    )}
+                  </View>
                 )}
               />
 

@@ -60,7 +60,7 @@ export default function WorkoutDetailScreen() {
           className="mt-5 h-12 flex-row items-center justify-center rounded-xl bg-primary active:opacity-80"
           onPress={() =>
             router.push({
-              pathname: "/(app)/workout/[id]/active",
+              pathname: "/workout/[id]/active",
               params: { id },
             })
           }
@@ -89,7 +89,7 @@ export default function WorkoutDetailScreen() {
                 <Text className="font-inter-semibold text-[13px] text-foreground">
                   {exercise.name}
                 </Text>
-                <Text className="mt-1 font-inter text-[11px] text-muted-foreground">
+                <Text className="mt-1 font-inter text-[12px] text-muted-foreground">
                   {exercise.sets} sets • {exercise.reps} reps • {exercise.rest}s rest
                 </Text>
               </View>

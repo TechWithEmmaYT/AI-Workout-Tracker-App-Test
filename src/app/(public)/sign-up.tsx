@@ -10,7 +10,6 @@ import {
 } from "react-native-keyboard-controller";
 
 import Button from "@/components/ui/button";
-import Input from "@/components/ui/input";
 import Screen from "@/components/ui/screen";
 import { answers } from "@/constants/onboarding";
 import { onboardingValuesSchema } from "@/lib/validation/onboarding-schema";
@@ -47,7 +46,7 @@ export default function SignUpPage() {
   const onSubmit = handleSubmit(() => {
     const { success } = onboardingValuesSchema.safeParse(answers);
 
-    router.replace(success ? "/(app)/(tabs)" : "/(public)/welcome");
+    router.replace(success ? "/(app)/(tabs)" : "/welcome");
   });
 
   const showSocialIntegrationMessage = (provider: "Apple" | "Google") => {
@@ -83,19 +82,30 @@ export default function SignUpPage() {
               control={control}
               name="fullName"
               render={({ field: { onBlur, onChange, value } }) => (
-                <Input
-                  autoCapitalize="words"
-                  autoComplete="name"
-                  errorMessage={errors.fullName?.message}
-                  label="Full Name"
-                  onBlur={onBlur}
-                  onChangeText={onChange}
-                  onSubmitEditing={() => emailInputRef.current?.focus()}
-                  placeholder="John Doe"
-                  returnKeyType="next"
-                  textContentType="name"
-                  value={value}
-                />
+                <View className="gap-2">
+                  <Text className="font-inter-medium text-[14px] text-foreground">
+                    Full Name
+                  </Text>
+                  <TextInput
+                    autoCapitalize="words"
+                    autoComplete="name"
+                    className={`h-14 rounded-xl border bg-input px-4 font-inter text-[14px] text-foreground ${errors.fullName ? "border-destructive" : "border-input-border"}`}
+                    onBlur={onBlur}
+                    onChangeText={onChange}
+                    onSubmitEditing={() => emailInputRef.current?.focus()}
+                    placeholder="John Doe"
+                    placeholderTextColor={iconColor}
+                    returnKeyType="next"
+                    selectionColor={foreground}
+                    textContentType="name"
+                    value={value}
+                  />
+                  {errors.fullName && (
+                    <Text className="font-inter text-[12px] text-destructive">
+                      {errors.fullName.message}
+                    </Text>
+                  )}
+                </View>
               )}
             />
 
@@ -103,21 +113,32 @@ export default function SignUpPage() {
               control={control}
               name="email"
               render={({ field: { onBlur, onChange, value } }) => (
-                <Input
-                  ref={emailInputRef}
-                  autoCapitalize="none"
-                  autoComplete="email"
-                  errorMessage={errors.email?.message}
-                  inputMode="email"
-                  label="Email"
-                  onBlur={onBlur}
-                  onChangeText={onChange}
-                  onSubmitEditing={() => passwordInputRef.current?.focus()}
-                  placeholder="you@example.com"
-                  returnKeyType="next"
-                  textContentType="emailAddress"
-                  value={value}
-                />
+                <View className="gap-2">
+                  <Text className="font-inter-medium text-[14px] text-foreground">
+                    Email
+                  </Text>
+                  <TextInput
+                    ref={emailInputRef}
+                    autoCapitalize="none"
+                    autoComplete="email"
+                    className={`h-14 rounded-xl border bg-input px-4 font-inter text-[14px] text-foreground ${errors.email ? "border-destructive" : "border-input-border"}`}
+                    inputMode="email"
+                    onBlur={onBlur}
+                    onChangeText={onChange}
+                    onSubmitEditing={() => passwordInputRef.current?.focus()}
+                    placeholder="you@example.com"
+                    placeholderTextColor={iconColor}
+                    returnKeyType="next"
+                    selectionColor={foreground}
+                    textContentType="emailAddress"
+                    value={value}
+                  />
+                  {errors.email && (
+                    <Text className="font-inter text-[12px] text-destructive">
+                      {errors.email.message}
+                    </Text>
+                  )}
+                </View>
               )}
             />
 
@@ -125,32 +146,29 @@ export default function SignUpPage() {
               control={control}
               name="password"
               render={({ field: { onBlur, onChange, value } }) => (
-                <>
-                  {/* Start with a normal password input:
-                  <TextInput
-                    ref={passwordInputRef}
-                    className="h-14 rounded-xl border border-input-border px-4"
-                    onBlur={onBlur}
-                    onChangeText={onChange}
-                    placeholder="Create a password"
-                    secureTextEntry={!isPasswordVisible}
-                    value={value}
-                  />
-
-                  Then replace it with the reusable Input below to get the
-                  label, error message, theme colors, focus style and icon. */}
-                  <Input
-                    ref={passwordInputRef}
-                    autoCapitalize="none"
-                    autoComplete="new-password"
-                    errorMessage={errors.password?.message}
-                    label="Password"
-                    onBlur={onBlur}
-                    onChangeText={onChange}
-                    onSubmitEditing={onSubmit}
-                    placeholder="Create a password"
-                    returnKeyType="done"
-                    rightIcon={
+                <View className="gap-2">
+                  <Text className="font-inter-medium text-[14px] text-foreground">
+                    Password
+                  </Text>
+                  <View
+                    className={`h-14 flex-row items-center rounded-xl border bg-input px-4 ${errors.password ? "border-destructive" : "border-input-border"}`}
+                  >
+                    <TextInput
+                      ref={passwordInputRef}
+                      autoCapitalize="none"
+                      autoComplete="new-password"
+                      className="h-full flex-1 font-inter text-[14px] text-foreground"
+                      onBlur={onBlur}
+                      onChangeText={onChange}
+                      onSubmitEditing={onSubmit}
+                      placeholder="Create a password"
+                      placeholderTextColor={iconColor}
+                      returnKeyType="done"
+                      secureTextEntry={!isPasswordVisible}
+                      selectionColor={foreground}
+                      textContentType="newPassword"
+                      value={value}
+                    />
                       <Pressable
                         accessibilityLabel={
                           isPasswordVisible ? "Hide password" : "Show password"
@@ -168,12 +186,13 @@ export default function SignUpPage() {
                           size={22}
                         />
                       </Pressable>
-                    }
-                    secureTextEntry={!isPasswordVisible}
-                    textContentType="newPassword"
-                    value={value}
-                  />
-                </>
+                  </View>
+                  {errors.password && (
+                    <Text className="font-inter text-[12px] text-destructive">
+                      {errors.password.message}
+                    </Text>
+                  )}
+                </View>
               )}
             />
           </View>
@@ -237,7 +256,7 @@ export default function SignUpPage() {
             <Text className="font-inter text-[13px] text-muted-foreground">
               Already have an account?{" "}
             </Text>
-            <Link href="/(public)/sign-in" asChild replace>
+            <Link href="/sign-in" asChild replace>
               <Pressable
                 accessibilityLabel="Sign in to your account"
                 className="-my-3 min-h-11 justify-center px-1"

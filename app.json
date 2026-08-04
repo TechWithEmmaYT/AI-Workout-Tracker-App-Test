@@ -20,7 +20,7 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.anonymous.AIWorkoutTrackerApp",
+      "package": "com.anonymous.AIWorkoutTrackerApp"
     },
     "web": {
       "bundler": "metro",
@@ -42,13 +42,21 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "Allow MyWorkout Tracker to access your photos so you can choose a workout cover."
+          "photosPermission": "Allow MyWorkout Tracker to access your photos so you can choose a workout cover.",
+          "microphonePermission": false
         }
       ]
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "c70950f1-4740-46a8-ba8a-42113c1eae9b"
+      }
+    },
+    "owner": "techwithemma"
   }
 }

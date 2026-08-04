@@ -1,93 +1,94 @@
+import {
+  eachDayOfInterval,
+  endOfWeek,
+  format,
+  isAfter,
+  isSameDay,
+  startOfDay,
+  startOfWeek,
+  subWeeks,
+} from "date-fns";
 import { useRef, useState } from "react";
 import {
   Pressable,
   ScrollView,
   Text,
-  TouchableOpacity,
   useWindowDimensions,
   View,
 } from "react-native";
 
 import { cn } from "@/lib/utils";
 
-const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-const midnight = (date: Date) =>
-  new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
-
 export default function WeekCalendar() {
   const { width } = useWindowDimensions();
   const scrollRef = useRef<ScrollView>(null);
-  const today = midnight(new Date());
+  const today = startOfDay(new Date());
   const [selected, setSelected] = useState(today);
-
-  const start = new Date(today);
-  start.setDate(start.getDate() - start.getDay() - 14);
-  const days = Array.from({ length: 21 }, (_, index) => {
-    const date = new Date(start);
-    date.setDate(start.getDate() + index);
-    return date;
+  const days = eachDayOfInterval({
+    start: subWeeks(startOfWeek(today), 2),
+    end: endOfWeek(today),
   });
+  const weeks = [days.slice(0, 7), days.slice(7, 14), days.slice(14)];
 
   return (
     <ScrollView
-      ref={scrollRef}
-      className="-mx-4 mt-5 flex-grow-0 px-4"
-      decelerationRate="fast"
+      className="-mx-5 mt-5 flex-grow-0"
       horizontal
       onContentSizeChange={() =>
         scrollRef.current?.scrollToEnd({ animated: false })
       }
+      pagingEnabled
+      ref={scrollRef}
       showsHorizontalScrollIndicator={false}
-      snapToInterval={width}
     >
-      {days.map((date) => {
-        const time = midnight(date);
-        const isSelected = time === selected;
-        const isFuture = time > today;
+      {weeks.map((week) => (
+        <View
+          className="flex-row gap-1.5 px-5"
+          key={week[0].getTime()}
+          style={{ width }}
+        >
+          {week.map((date) => {
+            const isSelected = isSameDay(date, selected);
+            const isFuture = isAfter(date, today);
 
-        return (
-          <TouchableOpacity
-            key={time}
-            accessibilityLabel={date.toLocaleDateString("en-US", {
-              dateStyle: "full",
-            })}
-            accessibilityRole="button"
-            accessibilityState={{ disabled: isFuture, selected: isSelected }}
-            className="items-center"
-            disabled={isFuture}
-            onPress={() => setSelected(time)}
-            style={{ width: width / 7 }}
-          >
-            <Text
-              className={cn(
-                "font-inter-medium text-[12px]",
-                isSelected ? "text-primary" : "text-muted-foreground",
-                isFuture && "opacity-40",
-              )}
-            >
-              {weekdays[date.getDay()]}
-            </Text>
-            <View
-              className={cn(
-                "mt-2 h-11 w-11 items-center justify-center rounded-full border",
-                isSelected
-                  ? "border-primary bg-primary"
-                  : "border-border bg-background",
-                isFuture && "opacity-40",
-              )}
-            >
-              <Text
+            return (
+              <Pressable
+                accessibilityLabel={date.toLocaleDateString("en-US", {
+                  dateStyle: "full",
+                })}
+                accessibilityRole="button"
+                accessibilityState={{
+                  disabled: isFuture,
+                  selected: isSelected,
+                }}
                 className={cn(
-                  "font-inter-semibold text-[15px]",
-                  isSelected ? "text-primary-foreground" : "text-foreground",
+                  "h-[88px] flex-1 items-center justify-center rounded-2xl border",
+                  isSelected
+                    ? "border-primary bg-background"
+                    : "border-transparent bg-muted",
+                  isFuture && "opacity-40",
                 )}
+                disabled={isFuture}
+                key={date.getTime()}
+                onPress={() => setSelected(date)}
               >
-                {date.getDate()}
-              </Text>
-            </View>
-          </TouchableOpacity>
-        );
-      })}
+                <Text className="font-inter-medium text-[10px] text-muted-foreground">
+                  {format(date, "EE").toUpperCase()}
+                </Text>
+                <Text className="mt-2 font-inter-bold text-[16px] text-foreground">
+                  {format(date, "dd")}
+                </Text>
+                <View
+                  className={cn(
+                    "mt-2 h-1.5 w-1.5 rounded-full bg-border",
+                    isSelected && "bg-primary",
+                  )}
+                />
+              </Pressable>
+            );
+          })}
+        </View>
+      ))}
     </ScrollView>
   );
 }

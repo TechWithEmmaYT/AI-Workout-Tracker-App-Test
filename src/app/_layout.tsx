@@ -5,6 +5,7 @@ import {
   Inter_700Bold,
   useFonts,
 } from "@expo-google-fonts/inter";
+import { Feather, FontAwesome, FontAwesome6 } from "@expo/vector-icons";
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
@@ -24,6 +25,9 @@ export default function RootLayout() {
   const scheme = colorScheme ?? "light";
   const backgroundColor = appThemeColors[scheme].background;
   const [loaded, error] = useFonts({
+    ...Feather.font,
+    ...FontAwesome.font,
+    ...FontAwesome6.font,
     Inter_400Regular,
     Inter_500Medium,
     Inter_600SemiBold,
@@ -39,7 +43,7 @@ export default function RootLayout() {
   useEffect(() => {
     if (Platform.OS === "android" && Platform.Version < 35) {
       NativeStatusBar.setBackgroundColor(backgroundColor, true);
-      NativeStatusBar.setTranslucent(false);
+      NativeStatusBar.setTranslucent(true);
     }
   }, [backgroundColor]);
 
@@ -50,21 +54,35 @@ export default function RootLayout() {
   return (
     <KeyboardProvider>
       <ThemeProvider value={scheme === "dark" ? DarkTheme : DefaultTheme}>
-        <View
-          className={
-            scheme === "dark" ? "flex-1 bg-background" : "flex-1 light-gradient"
-          }
-          style={[appThemes[scheme], { backgroundColor }]}
-        >
-          <StatusBar animated style={scheme === "dark" ? "light" : "dark"} />
-          <Stack
-            screenOptions={{
-              contentStyle: { backgroundColor },
-              headerShown: false,
-            }}
+        <View style={[appThemes[scheme], { flex: 1 }]}>
+          <StatusBar
+            animated
+            style={scheme === "dark" ? "light" : "dark"}
           />
+          {/* <NativeStatusBar
+            backgroundColor="transparent"
+            translucent={true}
+            barStyle={scheme === "dark" ? "light-content" : "dark-content"}
+          /> */}
+          <Stack screenOptions={{ headerShown: false,}}/>
         </View>
       </ThemeProvider>
     </KeyboardProvider>
   );
 }
+
+{
+  /* <Stack
+  screenOptions={{
+    contentStyle: { backgroundColor },
+    headerShown: false,
+  }}
+/> */
+}
+
+//  <View
+//           className={
+//             scheme === "dark" ? "flex-1 bg-background" : "flex-1"
+//           }
+//           style={[appThemes[scheme], { backgroundColor }]}
+//         ></View>

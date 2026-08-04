@@ -27,6 +27,7 @@ export default function WelcomePage() {
       const entry = StatusBar.pushStackEntry({
         backgroundColor: "#020817",
         barStyle: "light-content",
+        translucent: false,
       });
 
       return () => StatusBar.popStackEntry(entry);
@@ -35,7 +36,7 @@ export default function WelcomePage() {
 
   return (
     <ImageBackground
-      className="flex-1 bg-[#020817]"
+      className="flex-1"
       resizeMode="cover"
       source={background}
     >
@@ -86,7 +87,7 @@ export default function WelcomePage() {
 
           <Link
             href={{
-              pathname: "/(public)/onboarding/[step]",
+              pathname: "/onboarding/[step]",
               params: { step: "gender" },
             }}
             asChild
@@ -113,7 +114,7 @@ export default function WelcomePage() {
             <Text className="font-inter text-[13px] text-white/70">
               Already have an account?{" "}
             </Text>
-            <Link href="/(public)/sign-in" asChild>
+            <Link href="/sign-in" asChild>
               <Pressable
                 accessibilityLabel="Sign in to your account"
                 className="min-h-11 justify-center px-1"

@@ -12,9 +12,10 @@ export default function Screen({ className, ...props }: ScreenProps) {
   return (
     <SafeAreaView
       className={cn(
-        "flex-1",
+        "flex-1 bg-background",
         colorScheme === "dark" ? "bg-background" : "light-gradient",
         className,
+
       )}
       {...props}
     />

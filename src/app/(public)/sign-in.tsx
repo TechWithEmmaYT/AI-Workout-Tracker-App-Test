@@ -1,9 +1,9 @@
-import { Feather, FontAwesome } from "@expo/vector-icons";
+import { Feather } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Link } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import { useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { Alert, Image, Pressable, Text, TextInput, View } from "react-native";
+import { Alert, Pressable, Text, TextInput, View } from "react-native";
 import {
   KeyboardAwareScrollView,
   KeyboardToolbar,
@@ -12,6 +12,7 @@ import {
 import Button from "@/components/ui/button";
 import SafeAreaScreen from "@/components/ui/safe-area-screen";
 import { answers } from "@/constants/onboarding";
+import { authClient } from "@/lib/auth-client";
 import { onboardingValuesSchema } from "@/lib/validation/onboarding-schema";
 import {
   signInSchema,
@@ -19,9 +20,8 @@ import {
 } from "@/lib/validation/sign-in-schema";
 import { useAppThemeColor } from "@/theme/app-theme";
 
-const googleImg = require("../../../assets/images/app-images/google-logo.png");
-
 export default function SignInPage() {
+  const router = useRouter();
   const foreground = useAppThemeColor("foreground");
   const iconColor = useAppThemeColor("mutedForeground");
 
@@ -51,24 +51,16 @@ export default function SignInPage() {
     shouldFocusError: false,
   });
 
-  const onSubmit = handleSubmit(async () => {
-    Alert.alert(
-      "Sign in form is ready",
-      "Better Auth will be connected in the authentication integration step.",
-    );
+  const onSubmit = handleSubmit(async ({ email, password }) => {
+    const { error } = await authClient.signIn.email({ email, password });
+
+    if (error) {
+      Alert.alert("Could not sign in", error.message);
+      return;
+    }
+
+    router.replace("/(app)/(tabs)");
   });
-
-  const showAuthIntegrationMessage = (
-    provider: "Apple" | "Google" | "password reset",
-  ) => {
-    const title =
-      provider === "password reset" ? "Password reset" : `${provider} sign in`;
-
-    Alert.alert(
-      `${title} is coming next`,
-      "This action will be connected when the Better Auth client is added.",
-    );
-  };
 
   return (
     <SafeAreaScreen>
@@ -180,16 +172,6 @@ export default function SignInPage() {
                 )}
               />
 
-              <Pressable
-                accessibilityLabel="Reset forgotten password"
-                accessibilityRole="button"
-                className="mt-3 min-h-11 self-end justify-center"
-                onPress={() => showAuthIntegrationMessage("password reset")}
-              >
-                <Text className="font-inter-semibold text-[13px] text-primary">
-                  Forgot Password?
-                </Text>
-              </Pressable>
             </View>
           </View>
 
@@ -201,56 +183,6 @@ export default function SignInPage() {
           >
             {isSubmitting ? "Signing In..." : "Sign In"}
           </Button>
-
-          <View className="my-7 flex-row items-center gap-4">
-            <View className="h-px flex-1 bg-border" />
-            <Text className="font-inter text-[12px] text-muted-foreground">
-              or continue with
-            </Text>
-            <View className="h-px flex-1 bg-border" />
-          </View>
-
-          <View className="gap-3">
-            <Button
-              accessibilityLabel="Continue with Google"
-              className="shadow-sm"
-              leftIcon={
-                <View
-                  accessibilityElementsHidden
-                  className="absolute left-5 h-6 w-6 items-center justify-center"
-                  importantForAccessibility="no-hide-descendants"
-                >
-                  <Image
-                    className="h-5 w-5"
-                    resizeMode="contain"
-                    source={googleImg}
-                  />
-                </View>
-              }
-              onPress={() => showAuthIntegrationMessage("Google")}
-              variant="outline"
-            >
-              Continue with Google
-            </Button>
-
-            <Button
-              accessibilityLabel="Continue with Apple"
-              className="shadow-sm"
-              leftIcon={
-                <View
-                  accessibilityElementsHidden
-                  className="absolute left-5 h-6 w-6 items-center justify-center"
-                  importantForAccessibility="no-hide-descendants"
-                >
-                  <FontAwesome color={foreground} name="apple" size={22} />
-                </View>
-              }
-              onPress={() => showAuthIntegrationMessage("Apple")}
-              variant="outline"
-            >
-              Continue with Apple
-            </Button>
-          </View>
 
           <View className="mt-auto flex-row items-center justify-center pt-10">
             <Text className="font-inter text-[13px] text-muted-foreground">

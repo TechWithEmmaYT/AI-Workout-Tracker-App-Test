@@ -1,5 +1,11 @@
 import { Redirect } from "expo-router";
 
+import { authClient } from "@/lib/auth-client";
+
 export default function Index() {
-  return <Redirect href="/welcome" />;
+  const { data: session, isPending } = authClient.useSession();
+
+  if (isPending) return null;
+
+  return <Redirect href={session ? "/(app)/(tabs)" : "/welcome"} />;
 }

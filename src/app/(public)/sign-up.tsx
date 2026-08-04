@@ -1,9 +1,9 @@
-import { Feather, FontAwesome } from "@expo/vector-icons";
+import { Feather } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Link, useRouter } from "expo-router";
 import { useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { Alert, Image, Pressable, Text, TextInput, View } from "react-native";
+import { Alert, Pressable, Text, TextInput, View } from "react-native";
 import {
   KeyboardAwareScrollView,
   KeyboardToolbar,
@@ -12,14 +12,13 @@ import {
 import Button from "@/components/ui/button";
 import SafeAreaScreen from "@/components/ui/safe-area-screen";
 import { answers } from "@/constants/onboarding";
+import { authClient } from "@/lib/auth-client";
 import { onboardingValuesSchema } from "@/lib/validation/onboarding-schema";
 import {
   signUpSchema,
   type SignUpFormValues,
 } from "@/lib/validation/sign-up-schema";
 import { useAppThemeColor } from "@/theme/app-theme";
-
-const googleImg = require("../../../assets/images/app-images/google-logo.png");
 
 export default function SignUpPage() {
   const router = useRouter();
@@ -43,18 +42,27 @@ export default function SignUpPage() {
     shouldFocusError: false,
   });
 
-  const onSubmit = handleSubmit(() => {
+  const onSubmit = handleSubmit(async ({ email, fullName, password }) => {
     const { success } = onboardingValuesSchema.safeParse(answers);
 
-    router.replace(success ? "/(app)/(tabs)" : "/welcome");
-  });
+    if (!success) {
+      router.replace("/welcome");
+      return;
+    }
 
-  const showSocialIntegrationMessage = (provider: "Apple" | "Google") => {
-    Alert.alert(
-      `${provider} sign up is coming next`,
-      "This action will be connected when the Better Auth client is added.",
-    );
-  };
+    const { error } = await authClient.signUp.email({
+      email,
+      name: fullName,
+      password,
+    });
+
+    if (error) {
+      Alert.alert("Could not create account", error.message);
+      return;
+    }
+
+    router.replace("/(app)/(tabs)");
+  });
 
   return (
     <SafeAreaScreen>
@@ -204,54 +212,6 @@ export default function SignUpPage() {
           >
             {isSubmitting ? "Creating Account..." : "Sign Up"}
           </Button>
-          <View className="my-7 flex-row items-center gap-4">
-            <View className="h-px flex-1 bg-border" />
-            <Text className="font-inter text-[12px] text-muted-foreground">
-              or continue with
-            </Text>
-            <View className="h-px flex-1 bg-border" />
-          </View>
-          <View className="gap-3">
-            <Button
-              accessibilityLabel="Continue with Google"
-              className="shadow-sm"
-              leftIcon={
-                <View
-                  accessibilityElementsHidden
-                  className="absolute left-5 h-6 w-6 items-center justify-center"
-                  importantForAccessibility="no-hide-descendants"
-                >
-                  <Image
-                    className="h-5 w-5"
-                    resizeMode="contain"
-                    source={googleImg}
-                  />
-                </View>
-              }
-              onPress={() => showSocialIntegrationMessage("Google")}
-              variant="outline"
-            >
-              Continue with Google
-            </Button>
-
-            <Button
-              accessibilityLabel="Continue with Apple"
-              className="shadow-sm"
-              leftIcon={
-                <View
-                  accessibilityElementsHidden
-                  className="absolute left-5 h-6 w-6 items-center justify-center"
-                  importantForAccessibility="no-hide-descendants"
-                >
-                  <FontAwesome color={foreground} name="apple" size={22} />
-                </View>
-              }
-              onPress={() => showSocialIntegrationMessage("Apple")}
-              variant="outline"
-            >
-              Continue with Apple
-            </Button>
-          </View>
           <View className="mt-auto flex-row items-center justify-center pt-10">
             <Text className="font-inter text-[13px] text-muted-foreground">
               Already have an account?{" "}

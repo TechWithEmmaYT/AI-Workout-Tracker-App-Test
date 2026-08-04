@@ -15,6 +15,7 @@ import { StatusBar, View } from "react-native";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 
 import { appThemeColors, appThemes } from "@/theme/app-theme";
+import { authClient } from "@/lib/auth-client";
 
 import "../global.css";
 
@@ -41,6 +42,7 @@ export default function RootLayout() {
   const { colorScheme } = useColorScheme();
   const scheme = colorScheme ?? "light";
   const backgroundColor = appThemeColors[scheme].background;
+  const { data: session, isPending } = authClient.useSession();
 
   const [loaded, error] = useFonts({
     ...Feather.font,
@@ -53,10 +55,10 @@ export default function RootLayout() {
   });
 
   useEffect(() => {
-    if (loaded || error) SplashScreen.hideAsync();
-  }, [loaded, error]);
+    if ((loaded || error) && !isPending) SplashScreen.hideAsync();
+  }, [error, isPending, loaded]);
 
-  if (!loaded && !error) return null;
+  if ((!loaded && !error) || isPending) return null;
 
   return (
     <KeyboardProvider>
@@ -68,7 +70,14 @@ export default function RootLayout() {
             barStyle={scheme === "dark" ? "light-content" : "dark-content"}
             translucent={true}
           />
-          <Stack screenOptions={{ headerShown: false }} />
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Protected guard={!session}>
+              <Stack.Screen name="(public)" />
+            </Stack.Protected>
+            <Stack.Protected guard={Boolean(session)}>
+              <Stack.Screen name="(app)" />
+            </Stack.Protected>
+          </Stack>
         </View>
       </ThemeProvider>
     </KeyboardProvider>

@@ -1,5 +1,7 @@
 import { pgEnum, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 
+export * from "./auth-schema";
+
 export const genderEnum = pgEnum("gender", ["male", "female"]);
 export const goalEnum = pgEnum("goal", [
   "build-muscle",

@@ -3,7 +3,7 @@ import { useRouter } from "expo-router";
 import { useMemo, useState } from "react";
 import { FlatList, Image, Pressable, Text, TextInput, View } from "react-native";
 
-import Screen from "@/components/ui/screen";
+import SafeAreaScreen from "@/components/ui/safe-area-screen";
 import { useWorkoutDraft } from "@/contexts/workout-draft-context";
 import { exercises } from "@/lib/exercises";
 import { useAppThemeColor } from "@/theme/app-theme";
@@ -23,7 +23,7 @@ export default function ExerciseListPage() {
   }, [query]);
 
   return (
-    <Screen edges={["top"]}>
+    <SafeAreaScreen edges={["top"]}>
       <FlatList
         contentContainerClassName="px-5 pb-8"
         data={filtered}
@@ -113,6 +113,6 @@ export default function ExerciseListPage() {
         }}
         showsVerticalScrollIndicator={false}
       />
-    </Screen>
+    </SafeAreaScreen>
   );
 }

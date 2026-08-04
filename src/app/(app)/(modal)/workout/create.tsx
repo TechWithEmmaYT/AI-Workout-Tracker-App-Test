@@ -14,7 +14,7 @@ import {
 } from "react-native";
 
 import Button from "@/components/ui/button";
-import Screen from "@/components/ui/screen";
+import SafeAreaScreen from "@/components/ui/safe-area-screen";
 import { useWorkoutDraft } from "@/contexts/workout-draft-context";
 import { exercises } from "@/lib/exercises";
 import { useAppThemeColor } from "@/theme/app-theme";
@@ -70,7 +70,7 @@ export default function CreateWorkoutModal() {
   };
 
   return (
-    <Screen edges={["top"]}>
+    <SafeAreaScreen edges={["top"]}>
       <ScrollView
         contentContainerClassName="px-5 pt-3 pb-8"
         keyboardShouldPersistTaps="handled"
@@ -221,6 +221,6 @@ export default function CreateWorkoutModal() {
           </View>
         </View>
       </ScrollView>
-    </Screen>
+    </SafeAreaScreen>
   );
 }

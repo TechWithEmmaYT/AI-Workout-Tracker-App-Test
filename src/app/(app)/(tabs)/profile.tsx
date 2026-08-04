@@ -5,7 +5,7 @@ import { useColorScheme } from "nativewind";
 import type { ComponentProps, ReactNode } from "react";
 import { Alert, Pressable, ScrollView, Switch, Text, View } from "react-native";
 
-import Screen from "@/components/ui/screen";
+import SafeAreaScreen from "@/components/ui/safe-area-screen";
 import { useAppThemeColor } from "@/theme/app-theme";
 
 const LEGAL_ORIGIN = "https://bulky-ai-legal-demo.pages.dev";
@@ -89,7 +89,7 @@ export default function ProfilePage() {
     );
 
   return (
-    <Screen edges={["top"]}>
+    <SafeAreaScreen edges={["top"]}>
       <ScrollView contentContainerClassName="px-5 pb-8">
         <Text className="pt-3 font-inter-bold text-[24px] text-foreground">
           Profile
@@ -163,6 +163,6 @@ export default function ProfilePage() {
           />
         </Section>
       </ScrollView>
-    </Screen>
+    </SafeAreaScreen>
   );
 }

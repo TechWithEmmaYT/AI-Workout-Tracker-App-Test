@@ -10,7 +10,7 @@ import {
   View,
 } from "react-native";
 import Button from "@/components/ui/button";
-import Screen from "@/components/ui/screen";
+import SafeAreaScreen from "@/components/ui/safe-area-screen";
 import { getWorkout } from "@/constants/workouts";
 import { useWorkoutTimer } from "@/hooks/use-workout-timer";
 import { cn } from "@/lib/utils";
@@ -68,7 +68,7 @@ export default function ActiveWorkoutModal() {
     ]);
 
   return (
-    <Screen edges={["top", "bottom"]}>
+    <SafeAreaScreen edges={["top", "bottom"]}>
       <ScrollView
         contentContainerClassName="px-5 pb-32"
         keyboardShouldPersistTaps="handled"
@@ -230,6 +230,6 @@ export default function ActiveWorkoutModal() {
           </Pressable>
         </View>
       )}
-    </Screen>
+    </SafeAreaScreen>
   );
 }

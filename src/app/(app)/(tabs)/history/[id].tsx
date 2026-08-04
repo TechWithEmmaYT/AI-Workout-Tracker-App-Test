@@ -3,7 +3,7 @@ import { Redirect, useLocalSearchParams, useRouter } from "expo-router";
 import { Alert, Image, Pressable, ScrollView, Text, View } from "react-native";
 
 import Button from "@/components/ui/button";
-import Screen from "@/components/ui/screen";
+import SafeAreaScreen from "@/components/ui/safe-area-screen";
 import { getWorkoutHistory } from "@/constants/workout-history";
 import { useAppThemeColor } from "@/theme/app-theme";
 
@@ -16,7 +16,7 @@ export default function HistoryDetailModal() {
   if (!workout) return <Redirect href="/history" />;
 
   return (
-    <Screen edges={["top"]}>
+    <SafeAreaScreen edges={["top"]}>
       <ScrollView contentContainerClassName="px-5 pb-8">
         <View className="h-14 flex-row items-center justify-between">
           <Pressable
@@ -90,6 +90,6 @@ export default function HistoryDetailModal() {
           Repeat Workout
         </Button>
       </ScrollView>
-    </Screen>
+    </SafeAreaScreen>
   );
 }

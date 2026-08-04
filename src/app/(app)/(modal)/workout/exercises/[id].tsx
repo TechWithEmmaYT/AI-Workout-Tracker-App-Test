@@ -7,7 +7,7 @@ import { z } from "zod";
 
 import AiCoachModal from "@/components/exercise/ai-coach-modal";
 import Button from "@/components/ui/button";
-import Screen from "@/components/ui/screen";
+import SafeAreaScreen from "@/components/ui/safe-area-screen";
 import { getExerciseById } from "@/lib/exercises";
 import { useAppThemeColor } from "@/theme/app-theme";
 
@@ -28,7 +28,7 @@ export default function ExerciseDetailPage() {
 
   if (!exercise) {
     return (
-      <Screen className="px-5" edges={["top"]}>
+      <SafeAreaScreen className="px-5" edges={["top"]}>
         <Pressable
           accessibilityLabel="Go back"
           accessibilityRole="button"
@@ -51,12 +51,12 @@ export default function ExerciseDetailPage() {
             Back to Exercises
           </Button>
         </View>
-      </Screen>
+      </SafeAreaScreen>
     );
   }
 
   return (
-    <Screen edges={["bottom"]}>
+    <SafeAreaScreen edges={["bottom"]}>
       {/* <StatusBar backgroundColor="transparent" /> */}
       <ScrollView
         className="flex-1"
@@ -167,7 +167,7 @@ export default function ExerciseDetailPage() {
         onClose={() => setIsCoachOpen(false)}
         visible={isCoachOpen}
       />
-    </Screen>
+    </SafeAreaScreen>
   );
 }
 

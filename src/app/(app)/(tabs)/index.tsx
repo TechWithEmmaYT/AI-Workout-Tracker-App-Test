@@ -10,7 +10,7 @@ import WorkoutCard, {
   type WorkoutCardData,
 } from "@/components/home/workout-card";
 import WorkoutTemplateCard from "@/components/home/workout-template-card";
-import Screen from "@/components/ui/screen";
+import SafeAreaScreen from "@/components/ui/safe-area-screen";
 
 const logo = require("../../../../assets/images/app-images/logo.png");
 
@@ -69,7 +69,7 @@ export default function HomePage() {
   const createWorkout = () => router.push("/workout/create");
 
   return (
-    <Screen edges={["top"]}>
+    <SafeAreaScreen edges={["top"]}>
       <ScrollView
         className="flex-1"
         contentContainerClassName="px-5 pb-5 pt-0"
@@ -201,6 +201,6 @@ export default function HomePage() {
           </ScrollView>
         </View>
       </ScrollView>
-    </Screen>
+    </SafeAreaScreen>
   );
 }

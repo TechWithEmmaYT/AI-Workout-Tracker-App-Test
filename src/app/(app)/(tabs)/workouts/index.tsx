@@ -10,7 +10,7 @@ import {
   View,
 } from "react-native";
 
-import Screen from "@/components/ui/screen";
+import SafeAreaScreen from "@/components/ui/safe-area-screen";
 import { useAppThemeColor } from "@/theme/app-theme";
 
 const images = {
@@ -87,7 +87,7 @@ export default function WorkoutsPage() {
   }, [query]);
 
   return (
-    <Screen edges={["top"]}>
+    <SafeAreaScreen edges={["top"]}>
       <FlatList
         contentContainerClassName="px-5 pb-24"
         data={filteredWorkouts}
@@ -177,6 +177,6 @@ export default function WorkoutsPage() {
       >
         <Feather color="white" name="plus" size={27} />
       </Pressable>
-    </Screen>
+    </SafeAreaScreen>
   );
 }

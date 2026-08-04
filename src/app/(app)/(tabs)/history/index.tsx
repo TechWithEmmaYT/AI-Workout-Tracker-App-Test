@@ -3,7 +3,7 @@ import { useRouter } from "expo-router";
 import { FlatList, Image, Pressable, Text, View } from "react-native";
 
 import WeekCalendar from "@/components/home/week-calendar";
-import Screen from "@/components/ui/screen";
+import SafeAreaScreen from "@/components/ui/safe-area-screen";
 import { workoutHistory } from "@/constants/workout-history";
 import { useAppThemeColor } from "@/theme/app-theme";
 
@@ -12,7 +12,7 @@ export default function HistoryPage() {
   const muted = useAppThemeColor("mutedForeground");
 
   return (
-    <Screen edges={["top"]}>
+    <SafeAreaScreen edges={["top"]}>
       <FlatList
         contentContainerClassName="px-5 pb-6"
         data={workoutHistory}
@@ -82,6 +82,6 @@ export default function HistoryPage() {
         )}
         showsVerticalScrollIndicator={false}
       />
-    </Screen>
+    </SafeAreaScreen>
   );
 }

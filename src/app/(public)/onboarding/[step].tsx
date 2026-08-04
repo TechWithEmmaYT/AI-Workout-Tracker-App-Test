@@ -7,7 +7,7 @@ import ExperienceStep from "@/components/onboarding/experience-step";
 import GenderStep from "@/components/onboarding/gender-step";
 import GoalStep from "@/components/onboarding/goal-step";
 import Button from "@/components/ui/button";
-import Screen from "@/components/ui/screen";
+import SafeAreaScreen from "@/components/ui/safe-area-screen";
 import { answers, stepIndex, steps } from "@/constants/onboarding";
 import type { OnboardingValues } from "@/lib/validation/onboarding-schema";
 import { useAppThemeColor } from "@/theme/app-theme";
@@ -43,7 +43,7 @@ export default function OnboardingStepPage() {
   };
 
   return (
-    <Screen>
+    <SafeAreaScreen>
       <View className="flex-1 px-6 pb-5 pt-4">
         <View className="flex-row items-center gap-2">
           <Pressable
@@ -78,6 +78,6 @@ export default function OnboardingStepPage() {
           {next ? "Next" : "Continue to Sign Up"}
         </Button>
       </View>
-    </Screen>
+    </SafeAreaScreen>
   );
 }

@@ -10,7 +10,7 @@ import {
 } from "react-native-keyboard-controller";
 
 import Button from "@/components/ui/button";
-import Screen from "@/components/ui/screen";
+import SafeAreaScreen from "@/components/ui/safe-area-screen";
 import { answers } from "@/constants/onboarding";
 import { onboardingValuesSchema } from "@/lib/validation/onboarding-schema";
 import {
@@ -24,8 +24,10 @@ const googleImg = require("../../../assets/images/app-images/google-logo.png");
 export default function SignInPage() {
   const foreground = useAppThemeColor("foreground");
   const iconColor = useAppThemeColor("mutedForeground");
+
   const hasCompletedOnboarding =
     onboardingValuesSchema.safeParse(answers).success;
+    
   const signUpHref = hasCompletedOnboarding
     ? ("/sign-up" as const)
     : ({
@@ -69,7 +71,7 @@ export default function SignInPage() {
   };
 
   return (
-    <Screen>
+    <SafeAreaScreen>
       <KeyboardAwareScrollView
         bottomOffset={24}
         contentContainerClassName="flex-grow"
@@ -268,6 +270,6 @@ export default function SignInPage() {
         </View>
       </KeyboardAwareScrollView>
       <KeyboardToolbar />
-    </Screen>
+    </SafeAreaScreen>
   );
 }

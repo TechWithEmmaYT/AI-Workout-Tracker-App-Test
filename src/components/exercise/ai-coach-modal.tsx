@@ -30,7 +30,7 @@ export default function AiCoachModal({
     >
       <View className="flex-1 justify-end bg-overlay/60">
         <SafeAreaView
-          className="max-h-[86%] rounded-t-[28px] bg-background"
+          className="max-h-[86%] rounded-t-[28px] bg-card"
           edges={["bottom"]}
         >
           <View className="items-center pt-3">

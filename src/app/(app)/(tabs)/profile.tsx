@@ -56,7 +56,7 @@ function Section({ children, title }: { children: ReactNode; title: string }) {
       <Text className="mb-2 ml-1 font-inter-semibold text-[12px] uppercase tracking-wide text-muted-foreground">
         {title}
       </Text>
-      <View className="overflow-hidden rounded-xl border border-border bg-background">
+      <View className="overflow-hidden rounded-xl border border-border bg-card">
         {children}
       </View>
     </View>
@@ -95,7 +95,7 @@ export default function ProfilePage() {
           Profile
         </Text>
 
-        <View className="mt-5 flex-row items-center rounded-xl border border-border bg-background p-4">
+        <View className="mt-5 flex-row items-center rounded-xl border border-border bg-card p-4">
           <View className="h-14 w-14 items-center justify-center rounded-full bg-primary">
             <Text className="font-inter-bold text-[18px] text-primary-foreground">
               JD

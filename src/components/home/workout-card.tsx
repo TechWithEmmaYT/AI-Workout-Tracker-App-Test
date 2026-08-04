@@ -37,7 +37,8 @@ export default function WorkoutCard({
     <Pressable
       accessibilityLabel={`${title}, ${exercises} exercises, ${duration}`}
       accessibilityRole="button"
-      className="overflow-hidden rounded-xl border border-border bg-background active:opacity-80"
+      className="overflow-hidden rounded-xl border border-border bg-card
+       active:opacity-80"
       onPress={onPress}
       style={{ width: Math.max(108, (width - 56) / 3) }}
     >

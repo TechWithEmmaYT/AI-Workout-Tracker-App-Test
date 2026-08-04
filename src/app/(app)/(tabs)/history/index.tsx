@@ -28,7 +28,7 @@ export default function HistoryPage() {
             </View>
 
             <View className="my-5 flex-row gap-3">
-              <View className="flex-1 rounded-xl border border-border bg-background p-4">
+              <View className="flex-1 rounded-xl border border-border bg-card p-4">
                 <Text className="font-inter text-[12px] text-muted-foreground">
                   Workouts
                 </Text>
@@ -36,7 +36,7 @@ export default function HistoryPage() {
                   3
                 </Text>
               </View>
-              <View className="flex-1 rounded-xl border border-border bg-background p-4">
+              <View className="flex-1 rounded-xl border border-border bg-card p-4">
                 <Text className="font-inter text-[12px] text-muted-foreground">
                   Total Time
                 </Text>
@@ -53,7 +53,7 @@ export default function HistoryPage() {
         }
         renderItem={({ item }) => (
           <Pressable
-            className="flex-row items-center rounded-xl border border-border bg-background p-3 active:bg-muted"
+            className="flex-row items-center rounded-xl border border-border bg-card p-3 active:bg-muted"
             onPress={() =>
               router.push({
                 pathname: "/history/[id]",
@@ -69,10 +69,10 @@ export default function HistoryPage() {
               <Text className="font-inter-semibold text-[14px] text-foreground">
                 {item.title}
               </Text>
-              <Text className="mt-1 font-inter text-[11px] text-muted-foreground">
+              <Text className="mt-1 font-inter text-[11.5px] text-muted-foreground">
                 {item.date}
               </Text>
-              <Text className="mt-1 font-inter text-[11px] text-muted-foreground">
+              <Text className="mt-1 font-inter text-[11.5px] text-muted-foreground">
                 {item.exercises.length} exercises • {item.sets} sets •{" "}
                 {item.duration}
               </Text>

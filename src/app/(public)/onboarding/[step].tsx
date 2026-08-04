@@ -1,8 +1,3 @@
-import { Feather } from "@expo/vector-icons";
-import { Redirect, useLocalSearchParams, useRouter } from "expo-router";
-import { useState } from "react";
-import { Pressable, View } from "react-native";
-
 import ExperienceStep from "@/components/onboarding/experience-step";
 import GenderStep from "@/components/onboarding/gender-step";
 import GoalStep from "@/components/onboarding/goal-step";
@@ -11,6 +6,10 @@ import SafeAreaScreen from "@/components/ui/safe-area-screen";
 import { answers, stepIndex, steps } from "@/constants/onboarding";
 import type { OnboardingValues } from "@/lib/validation/onboarding-schema";
 import { useAppThemeColor } from "@/theme/app-theme";
+import { Feather } from "@expo/vector-icons";
+import { Redirect, useLocalSearchParams, useRouter } from "expo-router";
+import { useState } from "react";
+import { Pressable, View } from "react-native";
 
 export default function OnboardingStepPage() {
   const { step: key = "" } = useLocalSearchParams<{ step: string }>();

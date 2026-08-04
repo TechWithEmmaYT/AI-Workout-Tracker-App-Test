@@ -17,7 +17,10 @@ export default function HomeStatCard({
   const primary = useAppThemeColor("primary");
 
   return (
-    <View className="min-h-[112px] flex-1 rounded-2xl border border-border bg-background px-3 py-4 shadow-sm">
+    <View
+      className="min-h-[112px] flex-1 rounded-2xl border border-border
+     bg-card px-3 py-4 shadow-sm"
+    >
       <Text
         adjustsFontSizeToFit
         className="font-inter-bold text-[19px] tracking-[-0.4px] text-foreground"

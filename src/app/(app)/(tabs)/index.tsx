@@ -42,20 +42,56 @@ const workouts: WorkoutCardData[] = [
     muscles: "Back • Biceps",
     title: "Pull Day",
   },
+  {
+    duration: "60 min",
+    exercises: 7,
+    image: workoutImages.legs,
+    muscles: "Quads • Hamstrings • Calves",
+    title: "Leg Day",
+  },
+  {
+    duration: "50 min",
+    exercises: 6,
+    image: workoutImages.push,
+    muscles: "Chest • Shoulders • Triceps",
+    title: "Push Day",
+  },
+  {
+    duration: "50 min",
+    exercises: 6,
+    image: workoutImages.pull,
+    muscles: "Back • Biceps",
+    title: "Pull Day",
+  },
 ];
 
 const templates = [
   {
+    id: 1,
     image: workoutImages.pull,
     title: "Upper Body",
     workouts: 12,
   },
   {
+    id: 2,
     image: workoutImages.legs,
     title: "Lower Body",
     workouts: 10,
   },
   {
+    id: 3,
+    image: workoutImages.push,
+    title: "Full Body",
+    workouts: 14,
+  },
+  {
+    id: 4,
+    image: workoutImages.legs,
+    title: "Lower Body",
+    workouts: 10,
+  },
+  {
+    id: 5,
     image: workoutImages.push,
     title: "Full Body",
     workouts: 14,
@@ -72,10 +108,9 @@ export default function HomePage() {
     <SafeAreaScreen edges={["top"]}>
       <ScrollView
         className="flex-1"
-        contentContainerClassName="px-5 pb-5 pt-0"
+        contentContainerClassName="px-5 pb-5 pt-2"
         showsVerticalScrollIndicator={false}
       >
-
         {/* {Header Section} */}
         <View className="flex-row items-center justify-between">
           <View className="flex-row items-center">
@@ -94,7 +129,7 @@ export default function HomePage() {
               MyWorkout
             </Text>
           </View>
-          <View className="h-10 flex-row items-center rounded-full border border-border bg-background px-4">
+          <View className="h-10 flex-row items-center rounded-full border border-border bg-card px-4">
             <Text className="text-[16px]">🔥</Text>
             <Text className="ml-1.5 font-inter-bold text-[14px] text-foreground">
               0
@@ -103,9 +138,7 @@ export default function HomePage() {
         </View>
 
         {/* {Week Calendar Section} */}
-        <View>
-          <WeekCalendar />
-        </View>
+        <WeekCalendar />
 
         {/* {Stats Section} */}
         <View className="mt-3 flex-row gap-2">
@@ -114,28 +147,19 @@ export default function HomePage() {
           <HomeStatCard icon="bar-chart-2" label="Avg Time" value="75 min" />
         </View>
 
-      {/* {My Workouts Section} */}
-        <View className="mt-4">
-          <View className="mb-2">
-            <Text className="font-inter-bold text-[16px] tracking-[-0.2px] text-foreground">
-              My Workouts
-            </Text>
-          </View>
+        {/* {My Workouts Section} */}
+        <View className="mt-5">
+          <HomeSectionHeader title="My Workouts" onViewAll={openWorkouts} />
           <ScrollView
             className="-mx-5"
             contentContainerClassName="gap-2 px-5"
             horizontal
             showsHorizontalScrollIndicator={false}
           >
-            {workouts.map((workout) => (
-              <WorkoutCard
-                key={workout.title}
-                {...workout}
-                onPress={openWorkouts}
-              />
+            {workouts.map((workout, i) => (
+              <WorkoutCard key={i} {...workout} onPress={openWorkouts} />
             ))}
           </ScrollView>
-
 
           {/* {Create Your Own Workout Section} */}
           <Pressable
@@ -179,12 +203,8 @@ export default function HomePage() {
           />
         </View>
 
-
-        <View className="mt-3">
-          <HomeSectionHeader
-            onViewAll={openWorkouts}
-            title="Workout Templates"
-          />
+        <View className="mt-4">
+          <HomeSectionHeader title="Workout Templates" showViewAll={false} />
           <ScrollView
             className="-mx-5"
             contentContainerClassName="gap-2 px-5"
@@ -193,7 +213,7 @@ export default function HomePage() {
           >
             {templates.map((template) => (
               <WorkoutTemplateCard
-                key={template.title}
+                key={template.id}
                 {...template}
                 onPress={openWorkouts}
               />

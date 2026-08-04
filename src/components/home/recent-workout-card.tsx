@@ -1,6 +1,6 @@
 import { Feather } from "@expo/vector-icons";
-import { Image, Pressable, Text, View } from "react-native";
 import type { ImageSourcePropType } from "react-native";
+import { Image, Pressable, Text, View } from "react-native";
 
 import { useAppThemeColor } from "@/theme/app-theme";
 
@@ -25,7 +25,8 @@ export default function RecentWorkoutCard({
     <Pressable
       accessibilityLabel={`${title}, completed ${date}`}
       accessibilityRole="button"
-      className="min-h-[88px] flex-row items-center rounded-xl border border-border bg-background p-3 active:opacity-85"
+      className="min-h-[88px] flex-row items-center rounded-xl border border-border bg-card p-3 
+      active:opacity-85"
       onPress={onPress}
     >
       <Image

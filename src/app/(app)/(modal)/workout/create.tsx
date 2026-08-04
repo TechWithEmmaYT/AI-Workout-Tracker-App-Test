@@ -155,7 +155,7 @@ export default function CreateWorkoutModal() {
 
             {selectedExercises.map((exercise) => (
               <View
-                className="mb-3 rounded-xl border border-border bg-background p-3"
+                className="mb-3 rounded-xl border border-border bg-card p-3"
                 key={exercise.id}
               >
                 <View className="flex-row items-center">

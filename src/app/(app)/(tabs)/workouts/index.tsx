@@ -130,7 +130,7 @@ export default function WorkoutsPage() {
           <Pressable
             accessibilityLabel={`${item.title}, ${item.details}`}
             accessibilityRole="button"
-            className="flex-row items-center rounded-xl border border-border bg-background p-3 active:bg-muted"
+            className="flex-row items-center rounded-xl border border-border bg-card p-3 active:bg-muted"
             onPress={() =>
               router.push({
                 pathname: "/workouts/[id]",

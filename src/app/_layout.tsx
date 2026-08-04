@@ -8,11 +8,11 @@ import {
 import { Feather, FontAwesome, FontAwesome6 } from "@expo/vector-icons";
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
+
 import { useColorScheme } from "nativewind";
 import { useEffect } from "react";
-import { View } from "react-native";
+import { StatusBar, View } from "react-native";
 import { KeyboardProvider } from "react-native-keyboard-controller";
-import { StatusBar } from "expo-status-bar";
 
 import { appThemeColors, appThemes } from "@/theme/app-theme";
 
@@ -40,7 +40,7 @@ const navigationThemes = {
 export default function RootLayout() {
   const { colorScheme } = useColorScheme();
   const scheme = colorScheme ?? "light";
-  //const backgroundColor = appThemeColors[scheme].background;
+  const backgroundColor = appThemeColors[scheme].background;
 
   const [loaded, error] = useFonts({
     ...Feather.font,
@@ -60,16 +60,13 @@ export default function RootLayout() {
 
   return (
     <KeyboardProvider>
+      {/* {ThemeProvider colors only the navigation and not the app theme colors. The app theme colors are used in the app itself.} */}
       <ThemeProvider value={navigationThemes[scheme]}>
         <View style={[appThemes[scheme], { flex: 1 }]}>
-          {/* <StatusBar
-            backgroundColor={backgroundColor}
-            translucent={true}
-            barStyle={scheme === "dark" ? "light-content" : "dark-content"}
-          /> */}
           <StatusBar
-            animated
-            style={scheme === "dark" ? "light" : "dark"}
+            backgroundColor={backgroundColor}
+            barStyle={scheme === "dark" ? "light-content" : "dark-content"}
+            translucent={true}
           />
           <Stack screenOptions={{ headerShown: false }} />
         </View>

@@ -12,9 +12,9 @@ export const appThemeColors = {
   light: {
     ...brand,
     accent: "#EFF6FF",
-    background: "#FFFFFF",
+    background: "#f6f6f6",
     border: "#E2E8F0",
-    card: "#F8FAFC",
+    card: "#FFFFFF",
     foreground: "#0F172A",
     input: "#FFFFFF",
     inputBorder: "#E2E8F0",

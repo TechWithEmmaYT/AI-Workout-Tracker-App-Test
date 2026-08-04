@@ -6,7 +6,8 @@ import { useAppThemeColor } from "@/theme/app-theme";
 
 export default function TabLayout() {
   const router = useRouter();
-  const background = useAppThemeColor("background");
+  const tabBackground = useAppThemeColor("card");
+  const border = useAppThemeColor("border");
   const mutedForeground = useAppThemeColor("mutedForeground");
   const primary = useAppThemeColor("primary");
 
@@ -14,10 +15,6 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        sceneStyle: {
-          backgroundColor: "transparent",
-          paddingTop: 10,
-        },
         tabBarActiveTintColor: primary,
         tabBarInactiveTintColor: mutedForeground,
         tabBarLabelStyle: {
@@ -25,8 +22,7 @@ export default function TabLayout() {
           fontSize: 10,
         },
         tabBarStyle: {
-          backgroundColor: background,
-          borderTopWidth: 0,
+          backgroundColor: tabBackground,
           bottom: 10,
           height: 66,
           left: 13,
@@ -36,6 +32,8 @@ export default function TabLayout() {
           borderRadius: 50,
           marginHorizontal: 10,
           shadowColor: "#333",
+          borderColor: border,
+          borderWidth: 0.5,
         },
       }}
     >

@@ -2,6 +2,7 @@ import { Feather } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Image, Pressable, ScrollView, Text, View } from "react-native";
 
+import Button from "@/components/ui/button";
 import SafeAreaScreen from "@/components/ui/safe-area-screen";
 import { getWorkout } from "@/constants/workouts";
 import { useAppThemeColor } from "@/theme/app-theme";
@@ -69,8 +70,9 @@ export default function WorkoutDetailScreen() {
             ))}
           </View>
 
-          <Pressable
-            className="mt-5 h-12 flex-row items-center justify-center rounded-xl bg-primary active:opacity-80"
+          <Button
+            className="mt-5"
+            leftIcon={<Feather color="white" name="play" size={17} />}
             onPress={() =>
               router.push({
                 pathname: "/workout/[id]/active",
@@ -78,16 +80,13 @@ export default function WorkoutDetailScreen() {
               })
             }
           >
-            <Feather color="white" name="play" size={17} />
-            <Text className="ml-2 font-inter-semibold text-[14px] text-primary-foreground">
-              Start Workout
-            </Text>
-          </Pressable>
+            Start Workout
+          </Button>
 
           <Text className="mb-3 mt-6 font-inter-bold text-[16px] text-foreground">
             Exercises
           </Text>
-          <View className="overflow-hidden rounded-xl border border-border bg-background">
+          <View className="overflow-hidden rounded-xl border border-border bg-card">
             {workout.exercises.map((exercise, index) => (
               <View
                 className="h-16 flex-row items-center border-b border-border px-4 last:border-b-0"

@@ -1,5 +1,5 @@
-import { Image, Pressable, Text, View } from "react-native";
 import type { ImageSourcePropType } from "react-native";
+import { Image, Pressable, Text, View } from "react-native";
 
 type WorkoutTemplateCardProps = {
   image: ImageSourcePropType;
@@ -18,7 +18,8 @@ export default function WorkoutTemplateCard({
     <Pressable
       accessibilityLabel={`${title}, ${workouts} workouts`}
       accessibilityRole="button"
-      className="h-[116px] w-[104px] overflow-hidden rounded-xl bg-muted active:opacity-85"
+      className="h-[116px] w-[104px] overflow-hidden rounded-xl 
+      bg-muted active:opacity-85"
       onPress={onPress}
     >
       <Image

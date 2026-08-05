@@ -7,7 +7,13 @@ import {
 } from "@expo-google-fonts/inter";
 import { Feather, FontAwesome, FontAwesome6 } from "@expo/vector-icons";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from "expo-router";
+import {
+  DarkTheme,
+  DefaultTheme,
+  Stack,
+  ThemeProvider,
+  usePathname,
+} from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 
 import { useColorScheme } from "nativewind";
@@ -22,7 +28,7 @@ import "../global.css";
 
 SplashScreen.preventAutoHideAsync();
 
-const splashLogo = require("../../assets/images/splash-logo.png");
+const splashLogo = require("../../assets/images/splash-logo-white.png");
 
 const navigationThemes = {
   dark: {
@@ -43,13 +49,15 @@ const navigationThemes = {
 
 export default function RootLayout() {
   const [queryClient] = useState(() => new QueryClient());
-  const [appReady, setAppReady] = useState(false);
-
+  const [sessionReady, setSessionReady] = useState(false);
+  const pathname = usePathname();
   const { colorScheme } = useColorScheme();
   const scheme = colorScheme ?? "light";
   const backgroundColor = appThemeColors[scheme].background;
 
   const { data: session, isPending } = authClient.useSession();
+  const isAuthenticated = !!session;
+
   const [loaded, error] = useFonts({
     ...Feather.font,
     ...FontAwesome.font,
@@ -59,17 +67,17 @@ export default function RootLayout() {
     Inter_600SemiBold,
     Inter_700Bold,
   });
-  const fontsReady = loaded || !!error;
 
   useEffect(() => {
-    if (!appReady && fontsReady && !isPending) {
-      SplashScreen.hideAsync().then(() => setAppReady(true));
+    if ((loaded || error) && !isPending) {
+      SplashScreen.hideAsync().then(() => setSessionReady(true));
     }
-  }, [appReady, fontsReady, isPending]);
+  }, [error, isPending, loaded]);
 
-  if (!fontsReady || !appReady) return null;
+  if ((!loaded && !error) || !sessionReady) return null;
+  
 
-  if (isPending) {
+  if (isPending && (pathname === "/sign-in" || pathname === "/sign-up")) {
     return (
       <View
         style={{
@@ -92,6 +100,7 @@ export default function RootLayout() {
   return (
     <QueryClientProvider client={queryClient}>
       <KeyboardProvider>
+        {/* {ThemeProvider colors only the navigation and not the app theme colors. The app theme colors are used in the app itself.} */}
         <ThemeProvider value={navigationThemes[scheme]}>
           <View style={[appThemes[scheme], { backgroundColor, flex: 1 }]}>
             <StatusBar
@@ -100,10 +109,10 @@ export default function RootLayout() {
               translucent={true}
             />
             <Stack screenOptions={{ headerShown: false }}>
-              <Stack.Protected guard={!session}>
+              <Stack.Protected guard={!isAuthenticated}>
                 <Stack.Screen name="(public)" />
               </Stack.Protected>
-              <Stack.Protected guard={!!session}>
+              <Stack.Protected guard={isAuthenticated}>
                 <Stack.Screen name="(app)" />
               </Stack.Protected>
             </Stack>

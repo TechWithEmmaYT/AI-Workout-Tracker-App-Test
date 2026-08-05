@@ -19,7 +19,7 @@ import {
 
 import Button from "@/components/ui/button";
 import SafeAreaScreen from "@/components/ui/safe-area-screen";
-import { answers } from "@/constants/onboarding";
+import { answers, resetOnboardingAnswers } from "@/constants/onboarding";
 import { authClient } from "@/lib/auth-client";
 import { onboardingValuesSchema } from "@/lib/validation/onboarding-schema";
 import {
@@ -60,24 +60,19 @@ export default function SignUpPage() {
       router.replace("/welcome");
       return;
     }
-    const signUpData = {
-      email,
-      name: fullName,
-      password,
-      ...result.data,
-    };
-
     setIsPending(true);
-
     try {
-      const { error } = await authClient.signUp.email(signUpData);
-
+      const { error } = await authClient.signUp.email({
+        email,
+        name: fullName,
+        password,
+        ...result.data,
+      });
       if (error) {
         Alert.alert("Could not create account", error.message);
         return;
       }
-
-      router.replace("/(app)/(tabs)");
+      resetOnboardingAnswers();
     } catch (error) {
       Alert.alert(
         "Connection failed",

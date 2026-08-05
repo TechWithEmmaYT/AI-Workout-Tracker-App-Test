@@ -6,8 +6,9 @@ import type { ComponentProps, ReactNode } from "react";
 import { Alert, Pressable, ScrollView, Switch, Text, View } from "react-native";
 
 import SafeAreaScreen from "@/components/ui/safe-area-screen";
-import { authClient } from "@/lib/auth-client";
+import { resetOnboardingAnswers } from "@/constants/onboarding";
 import type { AuthSession } from "@/lib/auth";
+import { authClient } from "@/lib/auth-client";
 import { useAppThemeColor } from "@/theme/app-theme";
 
 const LEGAL_ORIGIN = "https://bulky-ai-legal-demo.pages.dev";
@@ -83,13 +84,12 @@ export default function ProfilePage() {
 
   const signOut = async () => {
     const { error } = await authClient.signOut();
-
     if (error) {
       Alert.alert("Could not sign out", error.message);
       return;
     }
-
-    router.replace("/sign-in");
+    resetOnboardingAnswers();
+    router.replace("/(public)/sign-in");
   };
 
   const confirmDelete = () =>
@@ -172,11 +172,7 @@ export default function ProfilePage() {
         </Section>
 
         <Section title="Account">
-          <Row
-            icon="log-out"
-            label="Sign Out"
-            onPress={signOut}
-          />
+          <Row icon="log-out" label="Sign Out" onPress={signOut} />
           <Row
             danger
             icon="trash-2"

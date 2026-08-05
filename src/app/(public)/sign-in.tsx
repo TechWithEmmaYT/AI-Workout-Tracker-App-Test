@@ -1,6 +1,6 @@
 import { Feather, FontAwesome } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Link, useRouter } from "expo-router";
+import { Link } from "expo-router";
 import { useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
@@ -31,7 +31,6 @@ import { useAppThemeColor } from "@/theme/app-theme";
 const googleImg = require("../../../assets/images/app-images/google-logo.png");
 
 export default function SignInPage() {
-  const router = useRouter();
   const foreground = useAppThemeColor("foreground");
   const iconColor = useAppThemeColor("mutedForeground");
   const primaryForeground = useAppThemeColor("primaryForeground");
@@ -64,13 +63,10 @@ export default function SignInPage() {
 
   const onSubmit = handleSubmit(async ({ email, password }) => {
     const { error } = await authClient.signIn.email({ email, password });
-
     if (error) {
       Alert.alert("Could not sign in", error.message);
       return;
     }
-
-    router.replace("/(app)/(tabs)");
   });
 
   const showComingSoon = (feature: string) =>

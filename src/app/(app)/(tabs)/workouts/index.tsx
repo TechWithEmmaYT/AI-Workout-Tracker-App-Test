@@ -1,90 +1,44 @@
 import { Feather } from "@expo/vector-icons";
+import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import {
   FlatList,
   Image,
   Pressable,
+  RefreshControl,
   Text,
   TextInput,
   View,
 } from "react-native";
 
 import SafeAreaScreen from "@/components/ui/safe-area-screen";
+import Skeleton from "@/components/ui/skeleton";
+import { getWorkoutsQueryFn } from "@/lib/api";
 import { useAppThemeColor } from "@/theme/app-theme";
-
-const images = {
-  legs: require("../../../../../assets/images/workouts/leg-day.png"),
-  pull: require("../../../../../assets/images/workouts/pull-day.png"),
-  push: require("../../../../../assets/images/workouts/push-day.png"),
-};
-
-const workouts = [
-  {
-    id: "push-day",
-    title: "Push Day",
-    muscles: "Chest • Shoulders • Triceps",
-    details: "6 exercises • 18 sets • 50 min",
-    image: images.push,
-  },
-  {
-    id: "pull-day",
-    title: "Pull Day",
-    muscles: "Back • Biceps",
-    details: "6 exercises • 18 sets • 55 min",
-    image: images.pull,
-  },
-  {
-    id: "leg-day",
-    title: "Leg Day",
-    muscles: "Quads • Hamstrings • Calves",
-    details: "7 exercises • 18 sets • 60 min",
-    image: images.legs,
-  },
-  {
-    id: "pull-day2",
-    title: "Pull Day",
-    muscles: "Back • Biceps",
-    details: "6 exercises • 18 sets • 55 min",
-    image: images.pull,
-  },
-  {
-    id: "leg-day2",
-    title: "Leg Day",
-    muscles: "Quads • Hamstrings • Calves",
-    details: "7 exercises • 18 sets • 60 min",
-    image: images.legs,
-  },
-  {
-    id: "push-day2",
-    title: "Push Day",
-    muscles: "Chest • Shoulders • Triceps",
-    details: "6 exercises • 18 sets • 50 min",
-    image: images.push,
-  },
-  {
-    id: "pull-day3",
-    title: "Pull Day",
-    muscles: "Back • Biceps",
-    details: "6 exercises • 18 sets • 55 min",
-    image: images.pull,
-  },
-] as const;
 
 export default function WorkoutsPage() {
   const router = useRouter();
   const mutedForeground = useAppThemeColor("mutedForeground");
   const primary = useAppThemeColor("primary");
   const [query, setQuery] = useState("");
+  const {
+    data: workouts = [],
+    isError,
+    isPending,
+    isRefetching,
+    refetch,
+  } = useQuery({
+    queryFn: () => getWorkoutsQueryFn(),
+    queryKey: ["workouts"],
+  });
 
-  const filteredWorkouts = useMemo(() => {
-    const search = query.trim().toLowerCase();
-    return workouts.filter(
-      ({ muscles, title }) =>
-        title.toLowerCase().includes(search) ||
-        muscles.toLowerCase().includes(search),
-    );
-  }, [query]);
+  const search = query.trim().toLowerCase();
+  const filteredWorkouts = workouts.filter(
+    ({ muscles, name }) =>
+      name.toLowerCase().includes(search) ||
+      muscles.toLowerCase().includes(search),
+  );
 
   return (
     <SafeAreaScreen edges={["top"]}>
@@ -95,12 +49,24 @@ export default function WorkoutsPage() {
         keyboardDismissMode="on-drag"
         keyExtractor={(item) => item.id}
         ListEmptyComponent={
-          <View className="items-center py-16">
-            <Feather color={mutedForeground} name="search" size={28} />
-            <Text className="mt-3 font-inter-semibold text-foreground">
-              No workouts found
-            </Text>
-          </View>
+          isPending ? (
+            <View className="gap-3">
+              {Array.from({ length: 4 }).map((_, index) => (
+                <Skeleton className="h-24 rounded-xl" key={index} />
+              ))}
+            </View>
+          ) : (
+            <View className="items-center py-16">
+              <Feather
+                color={mutedForeground}
+                name={isError ? "wifi-off" : "activity"}
+                size={28}
+              />
+              <Text className="mt-3 font-inter-semibold text-foreground">
+                {isError ? "Could not load workouts" : "No workouts found"}
+              </Text>
+            </View>
+          )
         }
         ListHeaderComponent={
           <View className="pb-5 pt-3">
@@ -108,9 +74,7 @@ export default function WorkoutsPage() {
               My Workouts
             </Text>
 
-            <View className="mt-5 h-12 flex-row items-center rounded-xl bg-muted px-4
-            border border-input-border
-            ">
+            <View className="mt-5 h-12 flex-row items-center rounded-xl border border-input-border bg-muted px-4">
               <Feather color={mutedForeground} name="search" size={19} />
               <TextInput
                 accessibilityLabel="Search workouts"
@@ -123,12 +87,11 @@ export default function WorkoutsPage() {
                 value={query}
               />
             </View>
-
           </View>
         }
         renderItem={({ item }) => (
           <Pressable
-            accessibilityLabel={`${item.title}, ${item.details}`}
+            accessibilityLabel={`${item.name}, ${item.exerciseCount} exercises`}
             accessibilityRole="button"
             className="flex-row items-center rounded-xl border border-border bg-card p-3 active:bg-muted"
             onPress={() =>
@@ -138,21 +101,26 @@ export default function WorkoutsPage() {
               })
             }
           >
-            <Image
-              accessibilityLabel=""
-              className="h-[72px] w-[82px] rounded-lg bg-muted"
-              resizeMode="cover"
-              source={item.image}
-            />
+            {item.image ? (
+              <Image
+                className="h-[72px] w-[82px] rounded-lg bg-muted"
+                resizeMode="cover"
+                source={{ uri: item.image }}
+              />
+            ) : (
+              <View className="h-[72px] w-[82px] items-center justify-center rounded-lg bg-muted">
+                <Feather color={mutedForeground} name="image" size={22} />
+              </View>
+            )}
             <View className="ml-3 flex-1">
               <Text
                 className="font-inter-semibold text-[15px] text-foreground"
                 numberOfLines={1}
               >
-                {item.title}
+                {item.name}
               </Text>
               <Text
-                className="mt-1 font-inter text-[12.5px] text-muted-foreground"
+                className="mt-1 font-inter capitalize text-[11.5px] text-muted-foreground"
                 numberOfLines={1}
               >
                 {item.muscles}
@@ -161,12 +129,20 @@ export default function WorkoutsPage() {
                 className="mt-2 font-inter text-[11.5px] text-muted-foreground"
                 numberOfLines={1}
               >
-                {item.details}
+                {item.exerciseCount} exercises • {item.totalSets} sets
               </Text>
             </View>
             <Feather color={mutedForeground} name="chevron-right" size={20} />
           </Pressable>
         )}
+        refreshControl={
+          <RefreshControl
+            colors={[primary]}
+            onRefresh={() => refetch()}
+            refreshing={isRefetching}
+            tintColor={primary}
+          />
+        }
         showsVerticalScrollIndicator={false}
       />
       <Pressable

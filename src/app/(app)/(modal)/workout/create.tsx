@@ -1,5 +1,5 @@
 import { Feather } from "@expo/vector-icons";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
 import { useState } from "react";
@@ -29,6 +29,7 @@ const formSchema = z.object({
 
 export default function CreateWorkoutModal() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const muted = useAppThemeColor("mutedForeground");
   const primary = useAppThemeColor("primary");
 
@@ -67,7 +68,10 @@ export default function CreateWorkoutModal() {
       if (!response.ok) throw new Error("Could not create workout");
     },
     onError: () => Alert.alert("Could not create workout", "Please try again."),
-    onSuccess: router.back,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["workouts"] });
+      router.back();
+    },
   });
 
   const updateExercise = (

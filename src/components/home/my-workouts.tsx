@@ -1,4 +1,5 @@
 import { Feather, FontAwesome6 } from "@expo/vector-icons";
+import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 import {
   Image,
@@ -10,41 +11,10 @@ import {
 } from "react-native";
 
 import EmptyState from "@/components/ui/empty-state";
+import Skeleton from "@/components/ui/skeleton";
+import { getWorkoutsQueryFn } from "@/lib/api";
 import { useAppThemeColor } from "@/theme/app-theme";
 import HomeSectionHeader from "./home-section-header";
-
-const images = {
-  legs: require("../../../assets/images/workouts/leg-day.png"),
-  pull: require("../../../assets/images/workouts/pull-day.png"),
-  push: require("../../../assets/images/workouts/push-day.png"),
-};
-
-const previewEmptyState = true;
-const workouts = previewEmptyState
-  ? []
-  : [
-      {
-        duration: "50 min",
-        exercises: 6,
-        image: images.push,
-        muscles: "Chest • Shoulders • Triceps",
-        title: "Push Day",
-      },
-      {
-        duration: "60 min",
-        exercises: 7,
-        image: images.legs,
-        muscles: "Quads • Hamstrings • Calves",
-        title: "Leg Day",
-      },
-      {
-        duration: "50 min",
-        exercises: 6,
-        image: images.pull,
-        muscles: "Back • Biceps",
-        title: "Pull Day",
-      },
-    ];
 
 export default function MyWorkouts() {
   const router = useRouter();
@@ -53,14 +23,36 @@ export default function MyWorkouts() {
   const openWorkouts = () => router.push("/workouts");
   const createWorkout = () => router.push("/workout/create");
 
+  const {
+    data: workouts = [],
+    isError,
+    isPending,
+  } = useQuery({
+    queryFn: () => getWorkoutsQueryFn(4),
+    queryKey: ["workouts", { limit: 4 }],
+  });
+
   return (
     <View className="mt-5">
       <HomeSectionHeader title="My Workouts" onViewAll={openWorkouts} />
-      {workouts.length === 0 ? (
+      {isPending ? (
+        <View className="flex-row gap-2">
+          {Array.from({ length: 3 }).map((_, index) => (
+            <Skeleton
+              className="h-44 rounded-xl"
+              key={index}
+              style={{ width: Math.max(128, (width - 56) / 3) }}
+            />
+          ))}
+        </View>
+      ) : workouts.length === 0 ? (
         <EmptyState
-          icon="activity"
-          message="Tap + to create your first workout."
-          onPress={createWorkout}
+          icon={isError ? "wifi-off" : "activity"}
+          message={
+            isError
+              ? "Could not load workouts."
+              : "Tap + to create your first workout."
+          }
         />
       ) : (
         <ScrollView
@@ -72,17 +64,31 @@ export default function MyWorkouts() {
           {workouts.map((workout) => (
             <Pressable
               className="overflow-hidden rounded-xl border border-border bg-card active:opacity-80"
-              key={workout.title}
-              onPress={openWorkouts}
-              style={{ width: Math.max(108, (width - 56) / 3) }}
+              key={workout.id}
+              onPress={() =>
+                router.push({
+                  pathname: "/workouts/[id]",
+                  params: { id: workout.id },
+                })
+              }
+              style={{ width: Math.max(128, (width - 56) / 3) }}
             >
-              <Image className="h-24 w-full bg-muted" source={workout.image} />
+              {workout.image ? (
+                <Image
+                  className="h-24 w-full bg-muted"
+                  source={{ uri: workout.image }}
+                />
+              ) : (
+                <View className="h-24 items-center justify-center bg-muted">
+                  <Feather color={muted} name="image" size={22} />
+                </View>
+              )}
               <View className="px-3 pb-3 pt-2.5">
-                <Text className="font-inter-semibold text-[14px] text-foreground">
-                  {workout.title}
+                <Text className="font-inter-semibold line-clamp-1 truncate text-[14px] text-foreground">
+                  {workout.name}
                 </Text>
                 <Text
-                  className="mt-1 font-inter text-[12px] text-muted-foreground"
+                  className="mt-1 font-inter capitalize text-[12px] text-muted-foreground"
                   numberOfLines={1}
                 >
                   {workout.muscles}
@@ -90,14 +96,14 @@ export default function MyWorkouts() {
                 <View className="mt-2 flex-row justify-between">
                   <View className="flex-row items-center gap-1">
                     <FontAwesome6 color={muted} name="dumbbell" size={11} />
-                    <Text className="font-inter text-[11px] text-muted-foreground">
-                      {workout.exercises}
+                    <Text className="font-inter text-[11.5px] text-muted-foreground">
+                      {workout.exerciseCount}
                     </Text>
                   </View>
                   <View className="flex-row items-center gap-1">
-                    <Feather color={muted} name="clock" size={12} />
-                    <Text className="font-inter text-[11px] text-muted-foreground">
-                      {workout.duration}
+                    <Feather color={muted} name="layers" size={12} />
+                    <Text className="font-inter text-[11.5px] text-muted-foreground">
+                      {workout.totalSets} sets
                     </Text>
                   </View>
                 </View>

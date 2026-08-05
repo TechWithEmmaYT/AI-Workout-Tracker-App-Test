@@ -1,116 +1,15 @@
-import { Feather } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
-import { Image, Pressable, ScrollView, Text, View } from "react-native";
+import { Image, ScrollView, Text, View } from "react-native";
 
-import HomeSectionHeader from "@/components/home/home-section-header";
-import HomeStatCard from "@/components/home/home-stat-card";
-import RecentWorkoutCard from "@/components/home/recent-workout-card";
-import WeekCalendar from "@/components/home/week-calendar";
-import WorkoutCard, {
-  type WorkoutCardData,
-} from "@/components/home/workout-card";
-import WorkoutTemplateCard from "@/components/home/workout-template-card";
-import EmptyState from "@/components/ui/empty-state";
+import HomeStats from "@/components/home/home-stats";
+import MyWorkouts from "@/components/home/my-workouts";
+import RecentWorkout from "@/components/home/recent-workout";
+import WorkoutTemplates from "@/components/home/workout-templates";
 import SafeAreaScreen from "@/components/ui/safe-area-screen";
+import WeekCalendar from "@/components/week-calendar";
 
 const logo = require("../../../../assets/images/app-images/logo.png");
 
-const workoutImages = {
-  legs: require("../../../../assets/images/workouts/leg-day.png"),
-  pull: require("../../../../assets/images/workouts/pull-day.png"),
-  push: require("../../../../assets/images/workouts/push-day.png"),
-};
-
-const previewEmptyState = true;
-
-const workouts: WorkoutCardData[] = previewEmptyState
-  ? []
-  : [
-      {
-        duration: "50 min",
-        exercises: 6,
-        image: workoutImages.push,
-        muscles: "Chest • Shoulders • Triceps",
-        title: "Push Day",
-      },
-      {
-        duration: "60 min",
-        exercises: 7,
-        image: workoutImages.legs,
-        muscles: "Quads • Hamstrings • Calves",
-        title: "Leg Day",
-      },
-      {
-        duration: "50 min",
-        exercises: 6,
-        image: workoutImages.pull,
-        muscles: "Back • Biceps",
-        title: "Pull Day",
-      },
-      {
-        duration: "60 min",
-        exercises: 7,
-        image: workoutImages.legs,
-        muscles: "Quads • Hamstrings • Calves",
-        title: "Leg Day",
-      },
-      {
-        duration: "50 min",
-        exercises: 6,
-        image: workoutImages.push,
-        muscles: "Chest • Shoulders • Triceps",
-        title: "Push Day",
-      },
-      {
-        duration: "50 min",
-        exercises: 6,
-        image: workoutImages.pull,
-        muscles: "Back • Biceps",
-        title: "Pull Day",
-      },
-    ];
-
-const recentWorkouts = previewEmptyState ? [] : ["push-day"];
-
-const templates = [
-  {
-    id: 1,
-    image: workoutImages.pull,
-    title: "Upper Body",
-    workouts: 12,
-  },
-  {
-    id: 2,
-    image: workoutImages.legs,
-    title: "Lower Body",
-    workouts: 10,
-  },
-  {
-    id: 3,
-    image: workoutImages.push,
-    title: "Full Body",
-    workouts: 14,
-  },
-  {
-    id: 4,
-    image: workoutImages.legs,
-    title: "Lower Body",
-    workouts: 10,
-  },
-  {
-    id: 5,
-    image: workoutImages.push,
-    title: "Full Body",
-    workouts: 14,
-  },
-] as const;
-
 export default function HomePage() {
-  const router = useRouter();
-
-  const openWorkouts = () => router.push("/workouts");
-  const createWorkout = () => router.push("/workout/create");
-
   return (
     <SafeAreaScreen edges={["top"]}>
       <ScrollView
@@ -147,100 +46,13 @@ export default function HomePage() {
         {/* {Week Calendar Section} */}
         <WeekCalendar />
 
-        {/* {Stats Section} */}
-        <View className="mt-3 flex-row gap-2">
-          <HomeStatCard icon="activity" label="Workouts" value="5" />
-          <HomeStatCard icon="clock" label="Time" value="25h 30m" />
-          <HomeStatCard icon="bar-chart-2" label="Avg Time" value="75 min" />
-        </View>
+        <HomeStats />
 
-        {/* {My Workouts Section} */}
-        <View className="mt-5">
-          <HomeSectionHeader title="My Workouts" onViewAll={openWorkouts} />
-          {workouts.length === 0 ? (
-            <EmptyState
-              icon="activity"
-              message="Tap + to create your first workout."
-            />
-          ) : (
-            <ScrollView
-              className="-mx-5"
-              contentContainerClassName="gap-2 px-5"
-              horizontal
-              showsHorizontalScrollIndicator={false}
-            >
-              {workouts.map((workout, i) => (
-                <WorkoutCard key={i} {...workout} onPress={openWorkouts} />
-              ))}
-            </ScrollView>
-          )}
+        <MyWorkouts />
 
-          {/* {Create Your Own Workout Section} */}
-          <Pressable
-            accessibilityLabel="Create your own workout"
-            accessibilityRole="button"
-            className="mt-3 flex-row items-center overflow-hidden rounded-2xl p-5 active:opacity-90"
-            onPress={createWorkout}
-            style={{
-              experimental_backgroundImage:
-                "linear-gradient(110deg, #0EA5E9 0%, #2563EB 55%, #1D4ED8 100%)",
-            }}
-          >
-            <View className="flex-1">
-              <Text className="font-inter-bold text-[22px] text-primary-foreground">
-                Create your own
-              </Text>
-              <Text className="mt-1 font-inter text-[12px] text-primary-foreground/80">
-                Pick exercises, sets and reps
-              </Text>
-              <View className="mt-4 self-start rounded-full bg-white px-5 py-2">
-                <Text className="font-inter-semibold text-[12px] text-primary">
-                  Create
-                </Text>
-              </View>
-            </View>
-            <View className="h-16 w-16 items-center justify-center rounded-2xl bg-white/20">
-              <Feather color="white" name="edit-3" size={29} />
-            </View>
-          </Pressable>
-        </View>
+        <RecentWorkout />
 
-        {/* {Recent Workout Section} */}
-        <View className="mt-5">
-          <HomeSectionHeader onViewAll={openWorkouts} title="Recent Workout" />
-          {recentWorkouts.length === 0 ? (
-            <EmptyState
-              icon="clock"
-              message="No recent workouts yet. Start a workout"
-            />
-          ) : (
-            <RecentWorkoutCard
-              date="Mar 10, 2026 • 6 Exercises"
-              image={workoutImages.push}
-              onPress={openWorkouts}
-              summary="18 Sets  •  12,450 kg"
-              title="Push Day"
-            />
-          )}
-        </View>
-
-        <View className="mt-4">
-          <HomeSectionHeader title="Workout Templates" showViewAll={false} />
-          <ScrollView
-            className="-mx-5"
-            contentContainerClassName="gap-2 px-5"
-            horizontal
-            showsHorizontalScrollIndicator={false}
-          >
-            {templates.map((template) => (
-              <WorkoutTemplateCard
-                key={template.id}
-                {...template}
-                onPress={openWorkouts}
-              />
-            ))}
-          </ScrollView>
-        </View>
+        <WorkoutTemplates />
       </ScrollView>
     </SafeAreaScreen>
   );

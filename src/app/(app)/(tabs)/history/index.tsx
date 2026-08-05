@@ -2,8 +2,8 @@ import { Feather } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { FlatList, Image, Pressable, Text, View } from "react-native";
 
-import WeekCalendar from "@/components/home/week-calendar";
 import SafeAreaScreen from "@/components/ui/safe-area-screen";
+import WeekCalendar from "@/components/week-calendar";
 import { workoutHistory } from "@/constants/workout-history";
 import { useAppThemeColor } from "@/theme/app-theme";
 

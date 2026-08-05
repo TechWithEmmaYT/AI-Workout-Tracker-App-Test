@@ -174,7 +174,7 @@ export default function ExerciseDetailPage() {
             <Feather color={primary} name="chevron-right" size={21} />
           </Pressable>
 
-          <View className="mt-6 overflow-hidden rounded-2xl border border-border px-4">
+          <View className="mt-6 overflow-hidden rounded-2xl bg-card border border-border px-4">
             <ExerciseInfoRow
               icon="tool"
               label="Equipment"
@@ -257,7 +257,7 @@ function ExerciseDetailSkeleton({ onBack }: { onBack: () => void }) {
       </View>
       <View className="gap-3 px-5 pt-5">
         <Skeleton className="h-7 w-3/4" />
-        <Skeleton className="h-4 w-1/4" />
+        <Skeleton className="h-4 w-2/6" />
         <Skeleton className="h-4 w-1/3" />
       </View>
     </SafeAreaScreen>

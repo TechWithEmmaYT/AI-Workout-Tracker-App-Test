@@ -14,7 +14,6 @@ const getOnboarding = (body: unknown) => {
       message: "Invalid onboarding details",
     });
   }
-
   return result.data;
 };
 

@@ -5,12 +5,12 @@ import Constants from "expo-constants";
 import * as SecureStore from "expo-secure-store";
 
 const localURL = `http://${Constants.expoConfig?.hostUri ?? "localhost:8081"}`;
-const baseURL =
+export const apiURL =
   process.env.EXPO_PUBLIC_API_URL?.replace("http://localhost:8081", localURL) ??
   localURL;
 
 export const authClient = createAuthClient({
-  baseURL,
+  baseURL: apiURL,
   plugins: [
     expoClient({
       scheme: "aiworkouttrackerapp",

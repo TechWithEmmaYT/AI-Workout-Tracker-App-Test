@@ -1,15 +1,20 @@
-import { Image, ScrollView, Text, View } from "react-native";
+import { useState } from "react";
+import { Image, Pressable, ScrollView, Text, View } from "react-native";
 
 import HomeStats from "@/components/home/home-stats";
 import MyWorkouts from "@/components/home/my-workouts";
 import RecentWorkout from "@/components/home/recent-workout";
+import StreakBottomSheet from "@/components/home/streak-bottom-sheet";
 import WorkoutTemplates from "@/components/home/workout-templates";
 import SafeAreaScreen from "@/components/ui/safe-area-screen";
 import WeekCalendar from "@/components/week-calendar";
 
 const logo = require("../../../../assets/images/app-images/logo.png");
+const streakIcon = require("../../../../assets/images/app-images/streak-icon.png");
 
 export default function HomePage() {
+  const [streakOpen, setStreakOpen] = useState(false);
+
   return (
     <SafeAreaScreen edges={["top"]}>
       <ScrollView
@@ -35,12 +40,22 @@ export default function HomePage() {
               MyWorkout
             </Text>
           </View>
-          <View className="h-10 flex-row items-center rounded-full border border-border bg-card px-4">
-            <Text className="text-[16px]">🔥</Text>
+          <Pressable
+            accessibilityLabel="View workout streak, 0 days"
+            accessibilityRole="button"
+            className="h-11 flex-row items-center rounded-full border border-border bg-card px-4 active:bg-muted"
+            onPress={() => setStreakOpen(true)}
+          >
+            <Image
+              accessibilityIgnoresInvertColors
+              className="h-5 w-5"
+              resizeMode="contain"
+              source={streakIcon}
+            />
             <Text className="ml-1.5 font-inter-bold text-[14px] text-foreground">
               0
             </Text>
-          </View>
+          </Pressable>
         </View>
 
         {/* {Week Calendar Section} */}
@@ -54,6 +69,11 @@ export default function HomePage() {
 
         <WorkoutTemplates />
       </ScrollView>
+
+      <StreakBottomSheet
+        onClose={() => setStreakOpen(false)}
+        visible={streakOpen}
+      />
     </SafeAreaScreen>
   );
 }

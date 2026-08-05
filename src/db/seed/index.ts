@@ -41,7 +41,7 @@ async function seed() {
   console.log("Exercise seed complete");
 }
 
-seed().catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
-});
+// seed().catch((error) => {
+//   console.error(error);
+//   process.exitCode = 1;
+// });

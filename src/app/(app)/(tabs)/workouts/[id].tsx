@@ -1,6 +1,7 @@
 import { Feather } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Image, Pressable, ScrollView, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 import Button from "@/components/ui/button";
 import SafeAreaScreen from "@/components/ui/safe-area-screen";
@@ -19,7 +20,7 @@ export default function WorkoutDetailScreen() {
   ] as const;
 
   return (
-    <SafeAreaScreen edges={["bottom"]}>
+    <SafeAreaScreen>
       <ScrollView
         className="flex-1"
         contentInsetAdjustmentBehavior="never"
@@ -35,7 +36,7 @@ export default function WorkoutDetailScreen() {
           />
           <View className="absolute inset-0 bg-black/20" />
 
-          <View className="absolute inset-x-0 top-0">
+          <SafeAreaView className="absolute inset-x-0 top-0" edges={["top"]}>
             <View className="h-14 flex-row items-center justify-between px-4">
               <Pressable
                 accessibilityLabel="Go back"
@@ -49,7 +50,7 @@ export default function WorkoutDetailScreen() {
                 <Feather color="white" name="more-horizontal" size={23} />
               </View>
             </View>
-          </View>
+          </SafeAreaView>
         </View>
 
         <View className="px-5">

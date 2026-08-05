@@ -3,7 +3,15 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Link, useRouter } from "expo-router";
 import { useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { Alert, Image, Pressable, Text, TextInput, View } from "react-native";
+import {
+  ActivityIndicator,
+  Alert,
+  Image,
+  Pressable,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 import {
   KeyboardAwareScrollView,
   KeyboardToolbar,
@@ -26,6 +34,7 @@ export default function SignInPage() {
   const router = useRouter();
   const foreground = useAppThemeColor("foreground");
   const iconColor = useAppThemeColor("mutedForeground");
+  const primaryForeground = useAppThemeColor("primaryForeground");
 
   const hasCompletedOnboarding =
     onboardingValuesSchema.safeParse(answers).success;
@@ -187,7 +196,6 @@ export default function SignInPage() {
                   Forgot Password?
                 </Text>
               </Pressable>
-
             </View>
           </View>
 
@@ -195,9 +203,14 @@ export default function SignInPage() {
             accessibilityLabel="Sign in"
             className="mt-6"
             disabled={isSubmitting}
+            leftIcon={
+              isSubmitting ? (
+                <ActivityIndicator color={primaryForeground} />
+              ) : undefined
+            }
             onPress={onSubmit}
           >
-            {isSubmitting ? "Signing In..." : "Sign In"}
+            {isSubmitting ? null : "Sign In"}
           </Button>
 
           <View className="my-7 flex-row items-center gap-4">

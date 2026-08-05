@@ -3,7 +3,15 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Link, useRouter } from "expo-router";
 import { useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { Alert, Image, Pressable, Text, TextInput, View } from "react-native";
+import {
+  ActivityIndicator,
+  Alert,
+  Image,
+  Pressable,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 import {
   KeyboardAwareScrollView,
   KeyboardToolbar,
@@ -26,6 +34,7 @@ export default function SignUpPage() {
   const router = useRouter();
   const foreground = useAppThemeColor("foreground");
   const iconColor = useAppThemeColor("mutedForeground");
+  const primaryForeground = useAppThemeColor("primaryForeground");
   const emailInputRef = useRef<TextInput>(null);
   const passwordInputRef = useRef<TextInput>(null);
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
@@ -226,9 +235,14 @@ export default function SignUpPage() {
             accessibilityLabel="Create account"
             className="mt-10"
             disabled={isPending}
+            leftIcon={
+              isPending ? (
+                <ActivityIndicator color={primaryForeground} />
+              ) : undefined
+            }
             onPress={onSubmit}
           >
-            {isPending ? "Creating Account..." : "Sign Up"}
+            {isPending ? null : "Sign Up"}
           </Button>
 
           <View className="my-7 flex-row items-center gap-4">

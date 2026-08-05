@@ -31,7 +31,7 @@ const navigationThemes = {
     ...DefaultTheme,
     colors: {
       ...DefaultTheme.colors,
-      background: "transparent",
+      background: appThemeColors.light.muted,
     },
   },
 };
@@ -39,7 +39,7 @@ const navigationThemes = {
 export default function RootLayout() {
   const { colorScheme } = useColorScheme();
   const scheme = colorScheme ?? "light";
-  const backgroundColor = appThemeColors[scheme].background;
+  const background = appThemeColors[scheme].background;
 
   const [loaded, error] = useFonts({
     ...Feather.font,
@@ -60,12 +60,9 @@ export default function RootLayout() {
   return (
     <KeyboardProvider>
       <ThemeProvider value={navigationThemes[scheme]}>
-        <View
-          style={[appThemes[scheme], { flex: 1 }]}
-          className={scheme === "dark" ? "bg-background" : "light-gradient"}
-        >
+        <View style={[appThemes[scheme], { flex: 1 }]}>
           <StatusBar
-            backgroundColor={backgroundColor}
+            backgroundColor={background}
             translucent={true}
             barStyle={scheme === "dark" ? "light-content" : "dark-content"}
           />

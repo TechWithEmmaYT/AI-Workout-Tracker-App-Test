@@ -14,10 +14,6 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        sceneStyle: {
-          backgroundColor: "transparent",
-          paddingTop: 10,
-        },
         tabBarActiveTintColor: primary,
         tabBarInactiveTintColor: mutedForeground,
         tabBarLabelStyle: {

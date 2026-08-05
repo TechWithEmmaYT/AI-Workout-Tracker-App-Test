@@ -72,10 +72,9 @@ export default function HomePage() {
     <SafeAreaScreen edges={["top"]}>
       <ScrollView
         className="flex-1"
-        contentContainerClassName="px-5 pb-5 pt-0"
+        contentContainerClassName="px-5 pb-5 pt-3"
         showsVerticalScrollIndicator={false}
       >
-
         {/* {Header Section} */}
         <View className="flex-row items-center justify-between">
           <View className="flex-row items-center">
@@ -114,7 +113,7 @@ export default function HomePage() {
           <HomeStatCard icon="bar-chart-2" label="Avg Time" value="75 min" />
         </View>
 
-      {/* {My Workouts Section} */}
+        {/* {My Workouts Section} */}
         <View className="mt-4">
           <View className="mb-2">
             <Text className="font-inter-bold text-[16px] tracking-[-0.2px] text-foreground">
@@ -135,7 +134,6 @@ export default function HomePage() {
               />
             ))}
           </ScrollView>
-
 
           {/* {Create Your Own Workout Section} */}
           <Pressable
@@ -178,7 +176,6 @@ export default function HomePage() {
             title="Push Day"
           />
         </View>
-
 
         <View className="mt-3">
           <HomeSectionHeader

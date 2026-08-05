@@ -3,11 +3,14 @@ import { Modal, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import Button from "@/components/ui/button";
-import type { Exercise } from "@/lib/exercises";
 import { useAppThemeColor } from "@/theme/app-theme";
 
 type AiCoachModalProps = {
-  exercise: Exercise;
+  exercise: {
+    description: string;
+    instructions?: readonly string[];
+    name: string;
+  };
   onClose: () => void;
   visible: boolean;
 };
@@ -18,6 +21,7 @@ export default function AiCoachModal({
   visible,
 }: AiCoachModalProps) {
   const foreground = useAppThemeColor("foreground");
+  const instructions = exercise.instructions ?? [exercise.description];
 
   return (
     <Modal
@@ -60,7 +64,7 @@ export default function AiCoachModal({
                 Step-by-step guidance
               </Text>
               <View className="mt-4 gap-4">
-                {exercise.instructions.map((instruction, index) => (
+                {instructions.map((instruction, index) => (
                   <View className="flex-row" key={instruction}>
                     <View className="h-7 w-7 items-center justify-center rounded-full bg-secondary">
                       <Text className="font-inter-semibold text-[12px] text-secondary-foreground">

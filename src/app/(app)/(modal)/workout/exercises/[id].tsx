@@ -1,32 +1,64 @@
 import { Feather } from "@expo/vector-icons";
+import { useQuery } from "@tanstack/react-query";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
-import { Image, Pressable, ScrollView, StatusBar, Text, View } from "react-native";
+import { Image, Pressable, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { z } from "zod";
 
 import AiCoachModal from "@/components/exercise/ai-coach-modal";
 import Button from "@/components/ui/button";
 import SafeAreaScreen from "@/components/ui/safe-area-screen";
-import { getExerciseById } from "@/lib/exercises";
+import Skeleton from "@/components/ui/skeleton";
+import { apiURL, authClient } from "@/lib/auth-client";
 import { useAppThemeColor } from "@/theme/app-theme";
 
 const exerciseParamsSchema = z.object({ id: z.string().min(1) });
 
+type Exercise = {
+  category: string;
+  description: string;
+  difficulty: string;
+  equipment: string | null;
+  forceType: string | null;
+  id: string;
+  image: string | null;
+  mechanics: string | null;
+  muscles: string;
+  name: string;
+};
+
+const getExercise = async (id: string): Promise<Exercise> => {
+  const response = await fetch(`${apiURL}/api/exercises/${id}`, {
+    credentials: "omit",
+    headers: { Cookie: authClient.getCookie() },
+  });
+  if (!response.ok) throw new Error("Could not load exercise");
+  return response.json();
+};
 
 export default function ExerciseDetailPage() {
   const params = useLocalSearchParams<{ id?: string | string[] }>();
   const result = exerciseParamsSchema.safeParse({
     id: Array.isArray(params.id) ? params.id[0] : params.id,
   });
-  const exercise = result.success ? getExerciseById(result.data.id) : undefined;
+  const id = result.success ? result.data.id : "";
   const router = useRouter();
   const foreground = useAppThemeColor("foreground");
   const primary = useAppThemeColor("primary");
   const [isCoachOpen, setIsCoachOpen] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
+  const {
+    data: exercise,
+    isError,
+    isPending,
+  } = useQuery({
+    enabled: Boolean(id),
+    queryFn: () => getExercise(id),
+    queryKey: ["exercise", id],
+  });
 
-  if (!exercise) {
+  if (!id || isError) {
     return (
       <SafeAreaScreen className="px-5" edges={["top"]}>
         <Pressable
@@ -55,26 +87,31 @@ export default function ExerciseDetailPage() {
     );
   }
 
+  if (isPending || !exercise)
+    return <ExerciseDetailSkeleton onBack={router.back} />;
+
   return (
     <SafeAreaScreen edges={["bottom"]}>
-      {/* <StatusBar backgroundColor="transparent" /> */}
       <ScrollView
         className="flex-1"
         contentContainerClassName="pb-6"
         showsVerticalScrollIndicator={false}
       >
         <View className="h-80 bg-muted">
-          <Image
-            accessibilityLabel={`${exercise.name} demonstration`}
-            className="h-full w-full"
-            resizeMode="cover"
-            source={exercise.image}
-          />
+          {exercise.image ? (
+            <Image
+              accessibilityLabel={`${exercise.name} demonstration`}
+              className="h-full w-full"
+              resizeMode="cover"
+              source={{ uri: exercise.image }}
+            />
+          ) : (
+            <View className="h-full items-center justify-center">
+              <Feather color={foreground} name="image" size={36} />
+            </View>
+          )}
           <View className="absolute inset-0 bg-black/20" />
-          <SafeAreaView
-            className="absolute inset-x-0 top-0"
-            edges={["top"]}
-          >
+          <SafeAreaView className="absolute inset-x-0 top-0" edges={["top"]}>
             <View className="h-14 flex-row items-center justify-between px-4">
               <Pressable
                 accessibilityLabel="Go back"
@@ -110,7 +147,7 @@ export default function ExerciseDetailPage() {
           >
             {exercise.name}
           </Text>
-          <Text className="mt-1 font-inter-medium text-[13px] text-primary">
+          <Text className="mt-1 font-inter-medium capitalize text-[13px] text-primary">
             {exercise.muscles}
           </Text>
 
@@ -178,7 +215,7 @@ function ExerciseInfoRow({
 }: {
   icon: keyof typeof Feather.glyphMap;
   label: string;
-  value: string;
+  value: string | null;
 }) {
   const primary = useAppThemeColor("primary");
 
@@ -188,13 +225,41 @@ function ExerciseInfoRow({
         <Feather color={primary} name={icon} size={19} />
       </View>
       <View className="ml-3 flex-1">
-        <Text className="font-inter text-[11px] text-muted-foreground">
+        <Text className="font-inter capitalize text-[11.5px] text-muted-foreground">
           {label}
         </Text>
-        <Text className="mt-1 font-inter-semibold text-[13px] text-foreground">
-          {value}
+        <Text className="mt-1 font-inter-semibold capitalize text-[13px] text-foreground">
+          {value ?? "Not specified"}
         </Text>
       </View>
     </View>
+  );
+}
+
+function ExerciseDetailSkeleton({ onBack }: { onBack: () => void }) {
+  const foreground = useAppThemeColor("foreground");
+
+  return (
+    <SafeAreaScreen edges={["bottom"]}>
+      <View className="h-80">
+        <Skeleton className="absolute inset-0 rounded-none" />
+        <SafeAreaView className="absolute inset-x-0 top-0" edges={["top"]}>
+          <View className="h-14 px-4">
+            <Pressable
+              accessibilityLabel="Go back"
+              className="h-10 w-10 items-center justify-center rounded-full bg-card"
+              onPress={onBack}
+            >
+              <Feather color={foreground} name="arrow-left" size={22} />
+            </Pressable>
+          </View>
+        </SafeAreaView>
+      </View>
+      <View className="gap-3 px-5 pt-5">
+        <Skeleton className="h-7 w-3/4" />
+        <Skeleton className="h-4 w-1/4" />
+        <Skeleton className="h-4 w-1/3" />
+      </View>
+    </SafeAreaScreen>
   );
 }

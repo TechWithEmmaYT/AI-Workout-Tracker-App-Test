@@ -41,16 +41,17 @@ export const profiles = pgTable("profiles", {
 });
 
 export const exercises = pgTable("exercises", {
-  id: text().primaryKey(),
+  id: uuid().defaultRandom().primaryKey(),
+  slug: text().notNull().unique(),
   name: text().notNull(),
   image: text(),
   muscles: text().notNull(),
   description: text().notNull(),
-  equipment: text().notNull(),
+  equipment: text(),
   difficulty: text().notNull(),
-  forceType: text().notNull(),
-  mechanics: text().notNull(),
-  instructions: text().array().notNull(),
+  forceType: text(),
+  mechanics: text(),
+  category: text().notNull(),
 });
 
 export const workouts = pgTable("workouts", {
@@ -70,7 +71,7 @@ export const workoutExercises = pgTable("workout_exercises", {
   workoutId: uuid()
     .notNull()
     .references(() => workouts.id, { onDelete: "cascade" }),
-  exerciseId: text()
+  exerciseId: uuid()
     .notNull()
     .references(() => exercises.id, { onDelete: "cascade" }),
   sets: integer().notNull(),
@@ -98,7 +99,7 @@ export const workoutSessionSets = pgTable("workout_session_sets", {
   sessionId: uuid()
     .notNull()
     .references(() => workoutSessions.id, { onDelete: "cascade" }),
-  exerciseId: text()
+  exerciseId: uuid()
     .notNull()
     .references(() => exercises.id),
   setNumber: integer().notNull(),

@@ -89,7 +89,7 @@ export default function ProfilePage() {
       return;
     }
     resetOnboardingAnswers();
-    router.replace("/(public)/sign-in");
+    router.replace("/sign-in");
   };
 
   const confirmDelete = () =>

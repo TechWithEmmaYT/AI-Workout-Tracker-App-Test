@@ -12,17 +12,16 @@ import * as SplashScreen from "expo-splash-screen";
 
 import { useColorScheme } from "nativewind";
 import { useEffect, useState } from "react";
-import { Image, StatusBar, View } from "react-native";
+import { StatusBar, View } from "react-native";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 
+import AuthLoadingScreen from "@/components/auth-loading-screen";
 import { authClient } from "@/lib/auth-client";
 import { appThemeColors, appThemes } from "@/theme/app-theme";
 
 import "../global.css";
 
 SplashScreen.preventAutoHideAsync();
-
-const splashLogo = require("../../assets/images/splash-logo.png");
 
 const navigationThemes = {
   dark: {
@@ -69,26 +68,6 @@ export default function RootLayout() {
 
   if (!fontsReady || !appReady) return null;
 
-  if (isPending) {
-    return (
-      <View
-        style={{
-          alignItems: "center",
-          backgroundColor: appThemeColors.light.primary,
-          flex: 1,
-          justifyContent: "center",
-        }}
-      >
-        <StatusBar backgroundColor="#2563EB" barStyle="light-content" />
-        <Image
-          resizeMode="contain"
-          source={splashLogo}
-          style={{ height: 330, width: 220 }}
-        />
-      </View>
-    );
-  }
-
   return (
     <QueryClientProvider client={queryClient}>
       <KeyboardProvider>
@@ -107,6 +86,8 @@ export default function RootLayout() {
                 <Stack.Screen name="(app)" />
               </Stack.Protected>
             </Stack>
+
+            {isPending && <AuthLoadingScreen />}
           </View>
         </ThemeProvider>
       </KeyboardProvider>

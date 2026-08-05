@@ -1,4 +1,5 @@
 import { pgEnum, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import { user } from "./auth-schema";
 
 export * from "./auth-schema";
 
@@ -15,7 +16,9 @@ export const experienceEnum = pgEnum("experience", [
 ]);
 
 export const profiles = pgTable("profiles", {
-  userId: text().primaryKey(),
+  userId: text()
+    .primaryKey()
+    .references(() => user.id, { onDelete: "cascade" }),
   gender: genderEnum().notNull(),
   goal: goalEnum().notNull(),
   experience: experienceEnum().notNull(),

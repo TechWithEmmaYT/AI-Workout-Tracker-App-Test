@@ -7,6 +7,7 @@ import { Alert, Pressable, ScrollView, Switch, Text, View } from "react-native";
 
 import SafeAreaScreen from "@/components/ui/safe-area-screen";
 import { authClient } from "@/lib/auth-client";
+import type { AuthSession } from "@/lib/auth";
 import { useAppThemeColor } from "@/theme/app-theme";
 
 const LEGAL_ORIGIN = "https://bulky-ai-legal-demo.pages.dev";
@@ -66,7 +67,8 @@ function Section({ children, title }: { children: ReactNode; title: string }) {
 
 export default function ProfilePage() {
   const router = useRouter();
-  const { data: session } = authClient.useSession();
+  const { data } = authClient.useSession();
+  const session = data as AuthSession | null;
   const { colorScheme, setColorScheme } = useColorScheme();
   const primary = useAppThemeColor("primary");
   const isDark = colorScheme === "dark";

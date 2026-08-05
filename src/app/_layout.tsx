@@ -6,16 +6,17 @@ import {
   useFonts,
 } from "@expo-google-fonts/inter";
 import { Feather, FontAwesome, FontAwesome6 } from "@expo/vector-icons";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 
 import { useColorScheme } from "nativewind";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { StatusBar, View } from "react-native";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 
-import { appThemeColors, appThemes } from "@/theme/app-theme";
 import { authClient } from "@/lib/auth-client";
+import { appThemeColors, appThemes } from "@/theme/app-theme";
 
 import "../global.css";
 
@@ -39,10 +40,13 @@ const navigationThemes = {
 };
 
 export default function RootLayout() {
+  const [queryClient] = useState(() => new QueryClient());
   const { colorScheme } = useColorScheme();
   const scheme = colorScheme ?? "light";
   const backgroundColor = appThemeColors[scheme].background;
+
   const { data: session, isPending } = authClient.useSession();
+  const isAuthenticated = !!session;
 
   const [loaded, error] = useFonts({
     ...Feather.font,
@@ -61,25 +65,28 @@ export default function RootLayout() {
   if ((!loaded && !error) || isPending) return null;
 
   return (
-    <KeyboardProvider>
-      {/* {ThemeProvider colors only the navigation and not the app theme colors. The app theme colors are used in the app itself.} */}
-      <ThemeProvider value={navigationThemes[scheme]}>
-        <View style={[appThemes[scheme], { flex: 1 }]}>
-          <StatusBar
-            backgroundColor={backgroundColor}
-            barStyle={scheme === "dark" ? "light-content" : "dark-content"}
-            translucent={true}
-          />
-          <Stack screenOptions={{ headerShown: false }}>
-            <Stack.Protected guard={!session}>
-              <Stack.Screen name="(public)" />
-            </Stack.Protected>
-            <Stack.Protected guard={Boolean(session)}>
-              <Stack.Screen name="(app)" />
-            </Stack.Protected>
-          </Stack>
-        </View>
-      </ThemeProvider>
-    </KeyboardProvider>
+    <QueryClientProvider client={queryClient}>
+      <KeyboardProvider>
+        {/* {ThemeProvider colors only the navigation and not the app theme colors. The app theme colors are used in the app itself.} */}
+        <ThemeProvider value={navigationThemes[scheme]}>
+          <View style={[appThemes[scheme], { flex: 1 }]}>
+            <StatusBar
+              backgroundColor={backgroundColor}
+              barStyle={scheme === "dark" ? "light-content" : "dark-content"}
+              translucent={true}
+            />
+
+            <Stack screenOptions={{ headerShown: false }}>
+              <Stack.Protected guard={isAuthenticated}>
+                <Stack.Screen name="(app)" />
+              </Stack.Protected>
+              <Stack.Protected guard={!isAuthenticated}>
+                <Stack.Screen name="(public)" />
+              </Stack.Protected>
+            </Stack>
+          </View>
+        </ThemeProvider>
+      </KeyboardProvider>
+    </QueryClientProvider>
   );
 }

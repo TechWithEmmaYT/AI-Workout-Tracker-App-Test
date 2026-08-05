@@ -1,9 +1,9 @@
-import { Feather } from "@expo/vector-icons";
+import { Feather, FontAwesome } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Link, useRouter } from "expo-router";
 import { useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { Alert, Pressable, Text, TextInput, View } from "react-native";
+import { Alert, Image, Pressable, Text, TextInput, View } from "react-native";
 import {
   KeyboardAwareScrollView,
   KeyboardToolbar,
@@ -20,6 +20,8 @@ import {
 } from "@/lib/validation/sign-in-schema";
 import { useAppThemeColor } from "@/theme/app-theme";
 
+const googleImg = require("../../../assets/images/app-images/google-logo.png");
+
 export default function SignInPage() {
   const router = useRouter();
   const foreground = useAppThemeColor("foreground");
@@ -27,13 +29,13 @@ export default function SignInPage() {
 
   const hasCompletedOnboarding =
     onboardingValuesSchema.safeParse(answers).success;
-    
   const signUpHref = hasCompletedOnboarding
     ? ("/sign-up" as const)
     : ({
         pathname: "/onboarding/[step]",
         params: { step: "gender" },
       } as const);
+
   const passwordInputRef = useRef<TextInput>(null);
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
@@ -61,6 +63,9 @@ export default function SignInPage() {
 
     router.replace("/(app)/(tabs)");
   });
+
+  const showComingSoon = (feature: string) =>
+    Alert.alert(`${feature} is coming next`);
 
   return (
     <SafeAreaScreen>
@@ -172,6 +177,17 @@ export default function SignInPage() {
                 )}
               />
 
+              <Pressable
+                accessibilityLabel="Reset forgotten password"
+                accessibilityRole="button"
+                className="mt-3 min-h-11 self-end justify-center"
+                onPress={() => showComingSoon("Password reset")}
+              >
+                <Text className="font-inter-semibold text-[13px] text-primary">
+                  Forgot Password?
+                </Text>
+              </Pressable>
+
             </View>
           </View>
 
@@ -183,6 +199,48 @@ export default function SignInPage() {
           >
             {isSubmitting ? "Signing In..." : "Sign In"}
           </Button>
+
+          <View className="my-7 flex-row items-center gap-4">
+            <View className="h-px flex-1 bg-border" />
+            <Text className="font-inter text-[12px] text-muted-foreground">
+              or continue with
+            </Text>
+            <View className="h-px flex-1 bg-border" />
+          </View>
+
+          <View className="gap-3">
+            <Button
+              accessibilityLabel="Continue with Google"
+              className="shadow-sm"
+              leftIcon={
+                <View className="absolute left-5">
+                  <Image
+                    className="h-5 w-5"
+                    resizeMode="contain"
+                    source={googleImg}
+                  />
+                </View>
+              }
+              onPress={() => showComingSoon("Google sign in")}
+              variant="outline"
+            >
+              Continue with Google
+            </Button>
+
+            <Button
+              accessibilityLabel="Continue with Apple"
+              className="shadow-sm"
+              leftIcon={
+                <View className="absolute left-5">
+                  <FontAwesome color={foreground} name="apple" size={22} />
+                </View>
+              }
+              onPress={() => showComingSoon("Apple sign in")}
+              variant="outline"
+            >
+              Continue with Apple
+            </Button>
+          </View>
 
           <View className="mt-auto flex-row items-center justify-center pt-10">
             <Text className="font-inter text-[13px] text-muted-foreground">

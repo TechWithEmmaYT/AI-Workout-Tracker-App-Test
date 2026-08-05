@@ -30,6 +30,12 @@ export default function OnboardingStepPage() {
   };
 
   const next = steps[index + 1];
+
+  const goBack = () => {
+    if (index === 0) router.replace("/welcome");
+    else router.back();
+  };
+
   const goNext = () => {
     if (next) {
       router.push({
@@ -49,7 +55,7 @@ export default function OnboardingStepPage() {
             accessibilityLabel="Go back"
             accessibilityRole="button"
             className="-ml-3 h-11 w-11 items-center justify-center rounded-full active:bg-muted"
-            onPress={() => router.back()}
+            onPress={goBack}
           >
             <Feather color={foreground} name="arrow-left" size={23} />
           </Pressable>

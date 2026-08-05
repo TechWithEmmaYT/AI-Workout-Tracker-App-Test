@@ -145,14 +145,6 @@ export default function WorkoutsPage() {
         }
         showsVerticalScrollIndicator={false}
       />
-      <Pressable
-        accessibilityLabel="Create workout"
-        accessibilityRole="button"
-        className="absolute bottom-5 right-5 h-14 w-14 items-center justify-center rounded-full bg-primary shadow-lg active:opacity-80"
-        onPress={() => router.push("/workout/create")}
-      >
-        <Feather color="white" name="plus" size={27} />
-      </Pressable>
     </SafeAreaScreen>
   );
 }

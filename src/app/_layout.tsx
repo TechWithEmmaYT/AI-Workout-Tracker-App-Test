@@ -35,11 +35,7 @@ const navigationThemes = {
     ...DefaultTheme,
     colors: {
       ...DefaultTheme.colors,
-<<<<<<< HEAD
-      background: appThemeColors.light.muted,
-=======
       background: appThemeColors.light.background,
->>>>>>> fd72da0d03e4ee8f5b7533978af638326d7381b6
     },
   },
 };
@@ -50,7 +46,7 @@ export default function RootLayout() {
 
   const { colorScheme } = useColorScheme();
   const scheme = colorScheme ?? "light";
-  const background = appThemeColors[scheme].background;
+  const backgroundColor = appThemeColors[scheme].background;
 
   const { data: session, isPending } = authClient.useSession();
   const [loaded, error] = useFonts({
@@ -73,20 +69,6 @@ export default function RootLayout() {
   if (!fontsReady || !appReady) return null;
 
   return (
-<<<<<<< HEAD
-    <KeyboardProvider>
-      <ThemeProvider value={navigationThemes[scheme]}>
-        <View style={[appThemes[scheme], { flex: 1 }]}>
-          <StatusBar
-            backgroundColor={background}
-            translucent={true}
-            barStyle={scheme === "dark" ? "light-content" : "dark-content"}
-          />
-          <Stack screenOptions={{ headerShown: false }} />
-        </View>
-      </ThemeProvider>
-    </KeyboardProvider>
-=======
     <QueryClientProvider client={queryClient}>
       <KeyboardProvider>
         <ThemeProvider value={navigationThemes[scheme]}>
@@ -110,6 +92,5 @@ export default function RootLayout() {
         </ThemeProvider>
       </KeyboardProvider>
     </QueryClientProvider>
->>>>>>> fd72da0d03e4ee8f5b7533978af638326d7381b6
   );
 }

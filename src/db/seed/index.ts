@@ -1,15 +1,14 @@
-async function seed() {
-  process.loadEnvFile();
+// async function seed() {
+//   process.loadEnvFile();
 
-  const { db } = await import("../index");
-  const { exercises } = await import("../schema");
-  const { exerciseSeed } = await import("./exercises");
+//   const { db } = await import("../index");
+//   const { exercises } = await import("../schema");
 
-  await db.insert(exercises).values(exerciseSeed).onConflictDoNothing();
-  console.log(`Seeded ${exerciseSeed.length} exercises`);
-}
+//   await db.insert(exercises).values(exerciseSeed).onConflictDoNothing();
+//   console.log(`Seeded ${exerciseSeed.length} exercises`);
+// }
 
-seed().catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
-});
+// seed().catch((error) => {
+//   console.error(error);
+//   process.exitCode = 1;
+// });

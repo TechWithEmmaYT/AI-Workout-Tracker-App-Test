@@ -6,13 +6,17 @@ import {
   useFonts,
 } from "@expo-google-fonts/inter";
 import { Feather, FontAwesome, FontAwesome6 } from "@expo/vector-icons";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
+
 import { useColorScheme } from "nativewind";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { StatusBar, View } from "react-native";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 
+import AuthLoadingScreen from "@/components/auth-loading-screen";
+import { authClient } from "@/lib/auth-client";
 import { appThemeColors, appThemes } from "@/theme/app-theme";
 
 import "../global.css";
@@ -31,16 +35,24 @@ const navigationThemes = {
     ...DefaultTheme,
     colors: {
       ...DefaultTheme.colors,
+<<<<<<< HEAD
       background: appThemeColors.light.muted,
+=======
+      background: appThemeColors.light.background,
+>>>>>>> fd72da0d03e4ee8f5b7533978af638326d7381b6
     },
   },
 };
 
 export default function RootLayout() {
+  const [queryClient] = useState(() => new QueryClient());
+  const [appReady, setAppReady] = useState(false);
+
   const { colorScheme } = useColorScheme();
   const scheme = colorScheme ?? "light";
   const background = appThemeColors[scheme].background;
 
+  const { data: session, isPending } = authClient.useSession();
   const [loaded, error] = useFonts({
     ...Feather.font,
     ...FontAwesome.font,
@@ -50,14 +62,18 @@ export default function RootLayout() {
     Inter_600SemiBold,
     Inter_700Bold,
   });
+  const fontsReady = loaded || !!error;
 
   useEffect(() => {
-    if (loaded || error) SplashScreen.hideAsync();
-  }, [loaded, error]);
+    if (!appReady && fontsReady && !isPending) {
+      SplashScreen.hideAsync().then(() => setAppReady(true));
+    }
+  }, [appReady, fontsReady, isPending]);
 
-  if (!loaded && !error) return null;
+  if (!fontsReady || !appReady) return null;
 
   return (
+<<<<<<< HEAD
     <KeyboardProvider>
       <ThemeProvider value={navigationThemes[scheme]}>
         <View style={[appThemes[scheme], { flex: 1 }]}>
@@ -70,5 +86,30 @@ export default function RootLayout() {
         </View>
       </ThemeProvider>
     </KeyboardProvider>
+=======
+    <QueryClientProvider client={queryClient}>
+      <KeyboardProvider>
+        <ThemeProvider value={navigationThemes[scheme]}>
+          <View style={[appThemes[scheme], { backgroundColor, flex: 1 }]}>
+            <StatusBar
+              backgroundColor={backgroundColor}
+              barStyle={scheme === "dark" ? "light-content" : "dark-content"}
+              translucent={true}
+            />
+            <Stack screenOptions={{ headerShown: false }}>
+              <Stack.Protected guard={!session}>
+                <Stack.Screen name="(public)" />
+              </Stack.Protected>
+              <Stack.Protected guard={!!session}>
+                <Stack.Screen name="(app)" />
+              </Stack.Protected>
+            </Stack>
+
+            {isPending && <AuthLoadingScreen />}
+          </View>
+        </ThemeProvider>
+      </KeyboardProvider>
+    </QueryClientProvider>
+>>>>>>> fd72da0d03e4ee8f5b7533978af638326d7381b6
   );
 }

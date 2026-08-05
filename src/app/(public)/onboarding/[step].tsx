@@ -1,8 +1,3 @@
-import { Feather } from "@expo/vector-icons";
-import { Redirect, useLocalSearchParams, useRouter } from "expo-router";
-import { useState } from "react";
-import { Pressable, View } from "react-native";
-
 import ExperienceStep from "@/components/onboarding/experience-step";
 import GenderStep from "@/components/onboarding/gender-step";
 import GoalStep from "@/components/onboarding/goal-step";
@@ -11,6 +6,10 @@ import SafeAreaScreen from "@/components/ui/safe-area-screen";
 import { answers, stepIndex, steps } from "@/constants/onboarding";
 import type { OnboardingValues } from "@/lib/validation/onboarding-schema";
 import { useAppThemeColor } from "@/theme/app-theme";
+import { Feather } from "@expo/vector-icons";
+import { Redirect, useLocalSearchParams, useRouter } from "expo-router";
+import { useState } from "react";
+import { Pressable, View } from "react-native";
 
 export default function OnboardingStepPage() {
   const { step: key = "" } = useLocalSearchParams<{ step: string }>();
@@ -31,6 +30,12 @@ export default function OnboardingStepPage() {
   };
 
   const next = steps[index + 1];
+
+  const goBack = () => {
+    if (index === 0) router.replace("/welcome");
+    else router.back();
+  };
+
   const goNext = () => {
     if (next) {
       router.push({
@@ -50,7 +55,7 @@ export default function OnboardingStepPage() {
             accessibilityLabel="Go back"
             accessibilityRole="button"
             className="-ml-3 h-11 w-11 items-center justify-center rounded-full active:bg-muted"
-            onPress={() => router.back()}
+            onPress={goBack}
           >
             <Feather color={foreground} name="arrow-left" size={23} />
           </Pressable>

@@ -32,7 +32,7 @@ export default function OnboardingOptionCard({
         accessibilityRole="radio"
         accessibilityState={{ checked: selected }}
         className={cn(
-          "min-h-20 flex-row items-center rounded-xl border bg-background px-5 py-4",
+          "min-h-20 flex-row items-center rounded-xl border bg-card px-5 py-4",
           selected ? "border-primary" : "border-border",
         )}
         onPress={onPress}

@@ -3,7 +3,15 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Link } from "expo-router";
 import { useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { Alert, Image, Pressable, Text, TextInput, View } from "react-native";
+import {
+  ActivityIndicator,
+  Alert,
+  Image,
+  Pressable,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 import {
   KeyboardAwareScrollView,
   KeyboardToolbar,
@@ -12,6 +20,7 @@ import {
 import Button from "@/components/ui/button";
 import SafeAreaScreen from "@/components/ui/safe-area-screen";
 import { answers } from "@/constants/onboarding";
+import { authClient } from "@/lib/auth-client";
 import { onboardingValuesSchema } from "@/lib/validation/onboarding-schema";
 import {
   signInSchema,
@@ -24,6 +33,8 @@ const googleImg = require("../../../assets/images/app-images/google-logo.png");
 export default function SignInPage() {
   const foreground = useAppThemeColor("foreground");
   const iconColor = useAppThemeColor("mutedForeground");
+  const primaryForeground = useAppThemeColor("primaryForeground");
+
   const hasCompletedOnboarding =
     onboardingValuesSchema.safeParse(answers).success;
   const signUpHref = hasCompletedOnboarding
@@ -32,6 +43,7 @@ export default function SignInPage() {
         pathname: "/onboarding/[step]",
         params: { step: "gender" },
       } as const);
+
   const passwordInputRef = useRef<TextInput>(null);
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
@@ -49,24 +61,16 @@ export default function SignInPage() {
     shouldFocusError: false,
   });
 
-  const onSubmit = handleSubmit(async () => {
-    Alert.alert(
-      "Sign in form is ready",
-      "Better Auth will be connected in the authentication integration step.",
-    );
+  const onSubmit = handleSubmit(async ({ email, password }) => {
+    const { error } = await authClient.signIn.email({ email, password });
+    if (error) {
+      Alert.alert("Could not sign in", error.message);
+      return;
+    }
   });
 
-  const showAuthIntegrationMessage = (
-    provider: "Apple" | "Google" | "password reset",
-  ) => {
-    const title =
-      provider === "password reset" ? "Password reset" : `${provider} sign in`;
-
-    Alert.alert(
-      `${title} is coming next`,
-      "This action will be connected when the Better Auth client is added.",
-    );
-  };
+  const showComingSoon = (feature: string) =>
+    Alert.alert(`${feature} is coming next`);
 
   return (
     <SafeAreaScreen>
@@ -182,7 +186,7 @@ export default function SignInPage() {
                 accessibilityLabel="Reset forgotten password"
                 accessibilityRole="button"
                 className="mt-3 min-h-11 self-end justify-center"
-                onPress={() => showAuthIntegrationMessage("password reset")}
+                onPress={() => showComingSoon("Password reset")}
               >
                 <Text className="font-inter-semibold text-[13px] text-primary">
                   Forgot Password?
@@ -195,9 +199,14 @@ export default function SignInPage() {
             accessibilityLabel="Sign in"
             className="mt-6"
             disabled={isSubmitting}
+            leftIcon={
+              isSubmitting ? (
+                <ActivityIndicator color={primaryForeground} />
+              ) : undefined
+            }
             onPress={onSubmit}
           >
-            {isSubmitting ? "Signing In..." : "Sign In"}
+            {isSubmitting ? null : "Sign In"}
           </Button>
 
           <View className="my-7 flex-row items-center gap-4">
@@ -213,11 +222,7 @@ export default function SignInPage() {
               accessibilityLabel="Continue with Google"
               className="shadow-sm"
               leftIcon={
-                <View
-                  accessibilityElementsHidden
-                  className="absolute left-5 h-6 w-6 items-center justify-center"
-                  importantForAccessibility="no-hide-descendants"
-                >
+                <View className="absolute left-5">
                   <Image
                     className="h-5 w-5"
                     resizeMode="contain"
@@ -225,7 +230,7 @@ export default function SignInPage() {
                   />
                 </View>
               }
-              onPress={() => showAuthIntegrationMessage("Google")}
+              onPress={() => showComingSoon("Google sign in")}
               variant="outline"
             >
               Continue with Google
@@ -235,15 +240,11 @@ export default function SignInPage() {
               accessibilityLabel="Continue with Apple"
               className="shadow-sm"
               leftIcon={
-                <View
-                  accessibilityElementsHidden
-                  className="absolute left-5 h-6 w-6 items-center justify-center"
-                  importantForAccessibility="no-hide-descendants"
-                >
+                <View className="absolute left-5">
                   <FontAwesome color={foreground} name="apple" size={22} />
                 </View>
               }
-              onPress={() => showAuthIntegrationMessage("Apple")}
+              onPress={() => showComingSoon("Apple sign in")}
               variant="outline"
             >
               Continue with Apple

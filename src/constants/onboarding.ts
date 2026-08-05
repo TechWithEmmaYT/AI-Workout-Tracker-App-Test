@@ -8,5 +8,9 @@ export const steps = [
   { field: "experience", key: "experience" },
 ] as const;
 
+export const resetOnboardingAnswers = () => {
+  for (const step of steps) delete answers[step.field];
+};
+
 export const stepIndex = (key: string) =>
   steps.findIndex((step) => step.key === key);

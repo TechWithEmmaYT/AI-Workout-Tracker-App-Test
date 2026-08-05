@@ -43,7 +43,7 @@ export default function HistoryDetailModal() {
             ["Volume", workout.volume],
           ].map(([label, value]) => (
             <View
-              className="flex-1 items-center rounded-xl border border-border bg-background px-2 py-4"
+              className="flex-1 items-center rounded-xl border border-border bg-card px-2 py-4"
               key={label}
             >
               <Text className="font-inter text-[11px] text-muted-foreground">
@@ -59,7 +59,7 @@ export default function HistoryDetailModal() {
         <Text className="mb-3 font-inter-bold text-[16px] text-foreground">
           Exercises
         </Text>
-        <View className="overflow-hidden rounded-xl border border-border bg-background">
+        <View className="overflow-hidden rounded-xl border border-border bg-card">
           {workout.exercises.map(([name, summary, weight]) => (
             <View
               className="min-h-20 flex-row items-center border-b border-border px-3 py-2 last:border-b-0"
@@ -70,11 +70,11 @@ export default function HistoryDetailModal() {
                 <Text className="font-inter-semibold text-[13px] text-foreground">
                   {name}
                 </Text>
-                <Text className="mt-1 font-inter text-[11px] text-muted-foreground">
+                <Text className="mt-1 font-inter text-[11.5px] text-muted-foreground">
                   {summary}
                 </Text>
               </View>
-              <Text className="font-inter-medium text-[11px] text-muted-foreground">
+              <Text className="font-inter-medium text-[11.5px] text-muted-foreground">
                 {weight}
               </Text>
             </View>

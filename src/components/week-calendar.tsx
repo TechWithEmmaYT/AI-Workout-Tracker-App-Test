@@ -64,8 +64,8 @@ export default function WeekCalendar() {
                 className={cn(
                   "h-[88px] flex-1 items-center justify-center rounded-2xl border",
                   isSelected
-                    ? "border-primary bg-background"
-                    : "border-transparent bg-muted",
+                    ? "border-primary bg-card"
+                    : "border-border bg-background/80",
                   isFuture && "opacity-40",
                 )}
                 disabled={isFuture}

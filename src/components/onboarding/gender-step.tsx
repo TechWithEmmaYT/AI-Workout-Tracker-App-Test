@@ -1,5 +1,6 @@
 import { FontAwesome6 } from "@expo/vector-icons";
 import { Text, View } from "react-native";
+import Animated, { FadeInRight } from "react-native-reanimated";
 
 import OnboardingOptionCard from "@/components/onboarding/onboarding-option-card";
 import type { OnboardingGender } from "@/lib/validation/onboarding-schema";
@@ -29,7 +30,7 @@ export default function GenderStep({ onChange, value }: GenderStepProps) {
 
   return (
     <View className="flex-1">
-      <View>
+      <Animated.View entering={FadeInRight.duration(250)}>
         <Text
           accessibilityRole="header"
           className="mt-6 max-w-72 font-inter-bold text-[28px] leading-9 tracking-[-0.6px] text-foreground"
@@ -39,7 +40,7 @@ export default function GenderStep({ onChange, value }: GenderStepProps) {
         <Text className="mt-2 max-w-72 font-inter text-[15px] leading-6 text-muted-foreground">
           This helps us personalize your experience.
         </Text>
-      </View>
+      </Animated.View>
 
       <View accessibilityRole="radiogroup" className="mt-8 gap-4">
         {genderOptions.map((option, index) => {
@@ -48,7 +49,7 @@ export default function GenderStep({ onChange, value }: GenderStepProps) {
           return (
             <OnboardingOptionCard
               key={option.value}
-              //delay={(index + 1) * 80}
+              delay={(index + 1) * 80}
               icon={
                 <FontAwesome6
                   color={selected ? primary : foreground}

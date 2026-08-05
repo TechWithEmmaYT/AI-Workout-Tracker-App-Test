@@ -6,6 +6,9 @@ import type { ComponentProps, ReactNode } from "react";
 import { Alert, Pressable, ScrollView, Switch, Text, View } from "react-native";
 
 import SafeAreaScreen from "@/components/ui/safe-area-screen";
+import { resetOnboardingAnswers } from "@/constants/onboarding";
+import type { AuthSession } from "@/lib/auth";
+import { authClient } from "@/lib/auth-client";
 import { useAppThemeColor } from "@/theme/app-theme";
 
 const LEGAL_ORIGIN = "https://bulky-ai-legal-demo.pages.dev";
@@ -56,7 +59,7 @@ function Section({ children, title }: { children: ReactNode; title: string }) {
       <Text className="mb-2 ml-1 font-inter-semibold text-[12px] uppercase tracking-wide text-muted-foreground">
         {title}
       </Text>
-      <View className="overflow-hidden rounded-xl border border-border bg-background">
+      <View className="overflow-hidden rounded-xl border border-border bg-card">
         {children}
       </View>
     </View>
@@ -65,10 +68,29 @@ function Section({ children, title }: { children: ReactNode; title: string }) {
 
 export default function ProfilePage() {
   const router = useRouter();
+  const { data } = authClient.useSession();
+  const session = data as AuthSession | null;
   const { colorScheme, setColorScheme } = useColorScheme();
   const primary = useAppThemeColor("primary");
   const isDark = colorScheme === "dark";
+  const name = session?.user.name ?? "User";
+  const initials = name
+    .split(" ")
+    .map((part) => part[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
   const soon = () => Alert.alert("Coming soon");
+
+  const signOut = async () => {
+    const { error } = await authClient.signOut();
+    if (error) {
+      Alert.alert("Could not sign out", error.message);
+      return;
+    }
+    resetOnboardingAnswers();
+    router.replace("/sign-in");
+  };
 
   const confirmDelete = () =>
     Alert.alert(
@@ -95,18 +117,18 @@ export default function ProfilePage() {
           Profile
         </Text>
 
-        <View className="mt-5 flex-row items-center rounded-xl border border-border bg-background p-4">
+        <View className="mt-5 flex-row items-center rounded-xl border border-border bg-card p-4">
           <View className="h-14 w-14 items-center justify-center rounded-full bg-primary">
             <Text className="font-inter-bold text-[18px] text-primary-foreground">
-              JD
+              {initials}
             </Text>
           </View>
           <View className="ml-3 flex-1">
             <Text className="font-inter-bold text-[17px] text-foreground">
-              John Doe
+              {name}
             </Text>
             <Text className="mt-1 font-inter text-[12px] text-muted-foreground">
-              john@example.com
+              {session?.user.email}
             </Text>
           </View>
           <Pressable onPress={soon}>
@@ -150,11 +172,7 @@ export default function ProfilePage() {
         </Section>
 
         <Section title="Account">
-          <Row
-            icon="log-out"
-            label="Sign Out"
-            onPress={() => router.replace("/sign-in")}
-          />
+          <Row icon="log-out" label="Sign Out" onPress={signOut} />
           <Row
             danger
             icon="trash-2"

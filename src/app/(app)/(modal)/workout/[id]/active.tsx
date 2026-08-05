@@ -117,7 +117,7 @@ export default function ActiveWorkoutModal() {
             const isExpanded = expanded === exercise.name;
             return (
               <View
-                className="overflow-hidden rounded-xl border border-border bg-background"
+                className="overflow-hidden rounded-xl border border-border bg-card"
                 key={exercise.name}
               >
                 <Pressable

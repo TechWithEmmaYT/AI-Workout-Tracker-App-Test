@@ -1,0 +1,124 @@
+import {
+  Inter_400Regular,
+  Inter_500Medium,
+  Inter_600SemiBold,
+  Inter_700Bold,
+  useFonts,
+} from "@expo-google-fonts/inter";
+import { Feather, FontAwesome, FontAwesome6 } from "@expo/vector-icons";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import {
+  DarkTheme,
+  DefaultTheme,
+  Stack,
+  ThemeProvider,
+  usePathname,
+} from "expo-router";
+import * as SplashScreen from "expo-splash-screen";
+
+import { useColorScheme } from "nativewind";
+import { useEffect, useState } from "react";
+import { Image, StatusBar, View } from "react-native";
+import { KeyboardProvider } from "react-native-keyboard-controller";
+
+import { authClient } from "@/lib/auth-client";
+import { appThemeColors, appThemes } from "@/theme/app-theme";
+
+import "../global.css";
+
+SplashScreen.preventAutoHideAsync();
+
+const splashLogo = require("../../assets/images/splash-logo-white.png");
+
+const navigationThemes = {
+  dark: {
+    ...DarkTheme,
+    colors: {
+      ...DarkTheme.colors,
+      background: appThemeColors.dark.background,
+    },
+  },
+  light: {
+    ...DefaultTheme,
+    colors: {
+      ...DefaultTheme.colors,
+      background: appThemeColors.light.background,
+    },
+  },
+};
+
+export default function RootLayout() {
+  const [queryClient] = useState(() => new QueryClient());
+  const [sessionReady, setSessionReady] = useState(false);
+  const pathname = usePathname();
+  const { colorScheme } = useColorScheme();
+  const scheme = colorScheme ?? "light";
+  const backgroundColor = appThemeColors[scheme].background;
+
+  const { data: session, isPending } = authClient.useSession();
+  const isAuthenticated = !!session;
+
+  const [loaded, error] = useFonts({
+    ...Feather.font,
+    ...FontAwesome.font,
+    ...FontAwesome6.font,
+    Inter_400Regular,
+    Inter_500Medium,
+    Inter_600SemiBold,
+    Inter_700Bold,
+  });
+
+  useEffect(() => {
+    if ((loaded || error) && !isPending) {
+      SplashScreen.hideAsync().then(() => setSessionReady(true));
+    }
+  }, [error, isPending, loaded]);
+
+  if ((!loaded && !error) || !sessionReady) return null;
+  
+
+  if (isPending && (pathname === "/sign-in" || pathname === "/sign-up")) {
+    return (
+      <View
+        style={{
+          alignItems: "center",
+          backgroundColor: appThemeColors.light.primary,
+          flex: 1,
+          justifyContent: "center",
+        }}
+      >
+        <StatusBar backgroundColor="#2563EB" barStyle="light-content" />
+        <Image
+          resizeMode="contain"
+          source={splashLogo}
+          style={{ height: 330, width: 220 }}
+        />
+      </View>
+    );
+  }
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <KeyboardProvider>
+        {/* {ThemeProvider colors only the navigation and not the app theme colors. The app theme colors are used in the app itself.} */}
+        <ThemeProvider value={navigationThemes[scheme]}>
+          <View style={[appThemes[scheme], { backgroundColor, flex: 1 }]}>
+            <StatusBar
+              backgroundColor={backgroundColor}
+              barStyle={scheme === "dark" ? "light-content" : "dark-content"}
+              translucent={true}
+            />
+            <Stack screenOptions={{ headerShown: false }}>
+              <Stack.Protected guard={!isAuthenticated}>
+                <Stack.Screen name="(public)" />
+              </Stack.Protected>
+              <Stack.Protected guard={isAuthenticated}>
+                <Stack.Screen name="(app)" />
+              </Stack.Protected>
+            </Stack>
+          </View>
+        </ThemeProvider>
+      </KeyboardProvider>
+    </QueryClientProvider>
+  );
+}

@@ -45,7 +45,8 @@
           "photosPermission": "Allow MyWorkout Tracker to access your photos so you can choose a workout cover.",
           "microphonePermission": false
         }
-      ]
+      ],
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true,

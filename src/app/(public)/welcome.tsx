@@ -10,10 +10,10 @@ import {
   Text,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 import Button from "@/components/ui/button";
 import { useAppThemeColor } from "@/theme/app-theme";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const background = require("../../../assets/images/app-images/welcome-background.png");
 const logo = require("../../../assets/images/app-images/logo.png");
@@ -35,11 +35,7 @@ export default function WelcomePage() {
   );
 
   return (
-    <ImageBackground
-      className="flex-1"
-      resizeMode="cover"
-      source={background}
-    >
+    <ImageBackground className="flex-1" resizeMode="cover" source={background}>
       <View className="absolute inset-0 bg-black/20" />
 
       <SafeAreaView className="flex-1">

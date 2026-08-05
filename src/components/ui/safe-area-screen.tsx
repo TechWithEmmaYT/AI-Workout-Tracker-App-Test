@@ -11,10 +11,8 @@ export default function SafeAreaScreen({
 }: SafeAreaScreenProps) {
   return (
     <SafeAreaView
-      className={cn("flex-1 ", className)}
+      className={cn("flex-1 bg-background", className)}
       {...props}
-
-      edges={["bottom", "left", "right"]}
     />
   );
 }

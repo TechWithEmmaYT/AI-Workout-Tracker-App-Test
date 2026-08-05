@@ -1,7 +1,7 @@
-import { forwardRef } from "react";
 import type { ComponentRef, ReactNode } from "react";
-import { Pressable, Text } from "react-native";
+import { forwardRef } from "react";
 import type { PressableProps } from "react-native";
+import { Pressable, Text } from "react-native";
 
 import { cn } from "@/lib/utils";
 
@@ -11,7 +11,7 @@ const variants = {
     text: "text-primary-foreground",
   },
   outline: {
-    button: "border-border bg-background active:bg-muted",
+    button: "border-border bg-card active:bg-muted",
     text: "text-foreground",
   },
   secondary: {
@@ -42,11 +42,11 @@ const Button = forwardRef<ComponentRef<typeof Pressable>, ButtonProps>(
     },
     ref,
   ) => (
-    <Pressable 
+    <Pressable
       ref={ref}
       accessibilityRole="button"
       className={cn(
-        "flex-row items-center justify-center gap-3 rounded-xl border px-5",
+        "flex-row items-center justify-center gap-2 rounded-xl border px-5",
         size === "sm" ? "h-11" : "h-14",
         variants[variant].button,
         disabled && "opacity-50",

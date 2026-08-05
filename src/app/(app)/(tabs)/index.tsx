@@ -10,6 +10,7 @@ import WorkoutCard, {
   type WorkoutCardData,
 } from "@/components/home/workout-card";
 import WorkoutTemplateCard from "@/components/home/workout-template-card";
+import EmptyState from "@/components/ui/empty-state";
 import SafeAreaScreen from "@/components/ui/safe-area-screen";
 
 const logo = require("../../../../assets/images/app-images/logo.png");
@@ -20,50 +21,56 @@ const workoutImages = {
   push: require("../../../../assets/images/workouts/push-day.png"),
 };
 
-const workouts: WorkoutCardData[] = [
-  {
-    duration: "50 min",
-    exercises: 6,
-    image: workoutImages.push,
-    muscles: "Chest • Shoulders • Triceps",
-    title: "Push Day",
-  },
-  {
-    duration: "60 min",
-    exercises: 7,
-    image: workoutImages.legs,
-    muscles: "Quads • Hamstrings • Calves",
-    title: "Leg Day",
-  },
-  {
-    duration: "50 min",
-    exercises: 6,
-    image: workoutImages.pull,
-    muscles: "Back • Biceps",
-    title: "Pull Day",
-  },
-  {
-    duration: "60 min",
-    exercises: 7,
-    image: workoutImages.legs,
-    muscles: "Quads • Hamstrings • Calves",
-    title: "Leg Day",
-  },
-  {
-    duration: "50 min",
-    exercises: 6,
-    image: workoutImages.push,
-    muscles: "Chest • Shoulders • Triceps",
-    title: "Push Day",
-  },
-  {
-    duration: "50 min",
-    exercises: 6,
-    image: workoutImages.pull,
-    muscles: "Back • Biceps",
-    title: "Pull Day",
-  },
-];
+const previewEmptyState = true;
+
+const workouts: WorkoutCardData[] = previewEmptyState
+  ? []
+  : [
+      {
+        duration: "50 min",
+        exercises: 6,
+        image: workoutImages.push,
+        muscles: "Chest • Shoulders • Triceps",
+        title: "Push Day",
+      },
+      {
+        duration: "60 min",
+        exercises: 7,
+        image: workoutImages.legs,
+        muscles: "Quads • Hamstrings • Calves",
+        title: "Leg Day",
+      },
+      {
+        duration: "50 min",
+        exercises: 6,
+        image: workoutImages.pull,
+        muscles: "Back • Biceps",
+        title: "Pull Day",
+      },
+      {
+        duration: "60 min",
+        exercises: 7,
+        image: workoutImages.legs,
+        muscles: "Quads • Hamstrings • Calves",
+        title: "Leg Day",
+      },
+      {
+        duration: "50 min",
+        exercises: 6,
+        image: workoutImages.push,
+        muscles: "Chest • Shoulders • Triceps",
+        title: "Push Day",
+      },
+      {
+        duration: "50 min",
+        exercises: 6,
+        image: workoutImages.pull,
+        muscles: "Back • Biceps",
+        title: "Pull Day",
+      },
+    ];
+
+const recentWorkouts = previewEmptyState ? [] : ["push-day"];
 
 const templates = [
   {
@@ -150,16 +157,23 @@ export default function HomePage() {
         {/* {My Workouts Section} */}
         <View className="mt-5">
           <HomeSectionHeader title="My Workouts" onViewAll={openWorkouts} />
-          <ScrollView
-            className="-mx-5"
-            contentContainerClassName="gap-2 px-5"
-            horizontal
-            showsHorizontalScrollIndicator={false}
-          >
-            {workouts.map((workout, i) => (
-              <WorkoutCard key={i} {...workout} onPress={openWorkouts} />
-            ))}
-          </ScrollView>
+          {workouts.length === 0 ? (
+            <EmptyState
+              icon="activity"
+              message="Tap + to create your first workout."
+            />
+          ) : (
+            <ScrollView
+              className="-mx-5"
+              contentContainerClassName="gap-2 px-5"
+              horizontal
+              showsHorizontalScrollIndicator={false}
+            >
+              {workouts.map((workout, i) => (
+                <WorkoutCard key={i} {...workout} onPress={openWorkouts} />
+              ))}
+            </ScrollView>
+          )}
 
           {/* {Create Your Own Workout Section} */}
           <Pressable
@@ -194,13 +208,20 @@ export default function HomePage() {
         {/* {Recent Workout Section} */}
         <View className="mt-5">
           <HomeSectionHeader onViewAll={openWorkouts} title="Recent Workout" />
-          <RecentWorkoutCard
-            date="Mar 10, 2026 • 6 Exercises"
-            image={workoutImages.push}
-            onPress={openWorkouts}
-            summary="18 Sets  •  12,450 kg"
-            title="Push Day"
-          />
+          {recentWorkouts.length === 0 ? (
+            <EmptyState
+              icon="clock"
+              message="No recent workouts yet. Start a workout"
+            />
+          ) : (
+            <RecentWorkoutCard
+              date="Mar 10, 2026 • 6 Exercises"
+              image={workoutImages.push}
+              onPress={openWorkouts}
+              summary="18 Sets  •  12,450 kg"
+              title="Push Day"
+            />
+          )}
         </View>
 
         <View className="mt-4">

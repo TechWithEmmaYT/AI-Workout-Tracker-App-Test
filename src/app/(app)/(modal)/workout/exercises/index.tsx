@@ -43,7 +43,7 @@ export default function ExerciseListPage() {
   const [query, setQuery] = useState("");
 
   const search = useDeferredValue(query.trim());
-  const { selected, toggleExercise } = useWorkoutDraft();
+  const [selected, setSelected] = useWorkoutDraft();
   const {
     data: exercises = [],
     isError,
@@ -55,6 +55,12 @@ export default function ExerciseListPage() {
     queryKey: ["exercises", search],
     staleTime: Infinity,
   });
+  const toggleExercise = (exercise: Exercise) =>
+    setSelected((current) =>
+      current.some(({ id }) => id === exercise.id)
+        ? current.filter(({ id }) => id !== exercise.id)
+        : [...current, { ...exercise, reps: 10, rest: 90, sets: 3 }],
+    );
 
   return (
     <SafeAreaScreen edges={["top"]}>
@@ -178,7 +184,7 @@ export default function ExerciseListPage() {
                 accessibilityRole="checkbox"
                 accessibilityState={{ checked: isSelected }}
                 className="h-11 w-11 items-end justify-center"
-                onPress={() => toggleExercise(item.id)}
+                onPress={() => toggleExercise(item)}
               >
                 <Feather
                   color={isSelected ? primary : muted}

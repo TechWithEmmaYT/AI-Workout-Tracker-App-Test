@@ -1,53 +1,28 @@
+import type { Dispatch, SetStateAction } from "react";
 import { createContext, useContext, useState } from "react";
 
 export type WorkoutExercise = {
   id: string;
+  image: string | null;
+  muscles: string;
+  name: string;
   reps: number;
   rest: number;
   sets: number;
 };
 
-type WorkoutDraftContextValue = {
-  selected: WorkoutExercise[];
-  toggleExercise: (id: string) => void;
-  updateExercise: (
-    id: string,
-    field: "reps" | "rest" | "sets",
-    amount: number,
-  ) => void;
-};
+type WorkoutDraft = [
+  WorkoutExercise[],
+  Dispatch<SetStateAction<WorkoutExercise[]>>,
+];
 
-const WorkoutDraftContext = createContext<WorkoutDraftContextValue | null>(
-  null,
-);
+const WorkoutDraftContext = createContext<WorkoutDraft | null>(null);
 
 export function WorkoutDraftProvider({ children }: React.PropsWithChildren) {
-  const [selected, setSelected] = useState<WorkoutExercise[]>([]);
-
-  const toggleExercise = (id: string) =>
-    setSelected((current) =>
-      current.some((exercise) => exercise.id === id)
-        ? current.filter((exercise) => exercise.id !== id)
-        : [...current, { id, reps: 10, rest: 90, sets: 3 }],
-    );
-
-  const updateExercise: WorkoutDraftContextValue["updateExercise"] = (
-    id,
-    field,
-    amount,
-  ) =>
-    setSelected((current) =>
-      current.map((exercise) =>
-        exercise.id === id
-          ? { ...exercise, [field]: Math.max(1, exercise[field] + amount) }
-          : exercise,
-      ),
-    );
+  const draft = useState<WorkoutExercise[]>([]);
 
   return (
-    <WorkoutDraftContext.Provider
-      value={{ selected, toggleExercise, updateExercise }}
-    >
+    <WorkoutDraftContext.Provider value={draft}>
       {children}
     </WorkoutDraftContext.Provider>
   );
@@ -55,8 +30,7 @@ export function WorkoutDraftProvider({ children }: React.PropsWithChildren) {
 
 export function useWorkoutDraft() {
   const value = useContext(WorkoutDraftContext);
-
-  if (!value) throw new Error("useWorkoutDraft must be used inside its provider");
-
+  if (!value)
+    throw new Error("useWorkoutDraft must be used inside its provider");
   return value;
 }

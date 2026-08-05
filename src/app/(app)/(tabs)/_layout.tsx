@@ -6,7 +6,7 @@ import { useAppThemeColor } from "@/theme/app-theme";
 
 export default function TabLayout() {
   const router = useRouter();
-  const tabBackground = useAppThemeColor("card");
+  const tabBackground = useAppThemeColor("tabBackground");
   const border = useAppThemeColor("border");
   const mutedForeground = useAppThemeColor("mutedForeground");
   const primary = useAppThemeColor("primary");

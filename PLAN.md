@@ -82,6 +82,7 @@ difficulty
 forceType
 mechanics
 category
+createdAt
 ```
 
 These fields support Exercise List and Exercise Detail. AI Coach generates instructions when requested, so instructions are not stored. The seed imports 20 public-domain exercises and uses their hosted images from `free-exercise-db`.

@@ -52,6 +52,7 @@ export const exercises = pgTable("exercises", {
   forceType: text(),
   mechanics: text(),
   category: text().notNull(),
+  createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
 });
 
 export const workouts = pgTable("workouts", {
@@ -92,6 +93,7 @@ export const workoutSessions = pgTable("workout_sessions", {
   startedAt: timestamp({ withTimezone: true }).notNull(),
   completedAt: timestamp({ withTimezone: true }).notNull(),
   durationSeconds: integer().notNull(),
+  createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
 });
 
 export const workoutSessionSets = pgTable("workout_session_sets", {

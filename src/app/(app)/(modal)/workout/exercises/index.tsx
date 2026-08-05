@@ -1,34 +1,89 @@
 import { Feather } from "@expo/vector-icons";
+import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
-import { useMemo, useState } from "react";
-import { FlatList, Image, Pressable, Text, TextInput, View } from "react-native";
+import { useDeferredValue, useState } from "react";
+import {
+  ActivityIndicator,
+  FlatList,
+  Image,
+  Pressable,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 
 import SafeAreaScreen from "@/components/ui/safe-area-screen";
 import { useWorkoutDraft } from "@/contexts/workout-draft-context";
-import { exercises } from "@/lib/exercises";
+import { apiURL, authClient } from "@/lib/auth-client";
 import { useAppThemeColor } from "@/theme/app-theme";
+
+type Exercise = {
+  id: string;
+  image: string | null;
+  muscles: string;
+  name: string;
+};
+
+const getExercises = async (search: string): Promise<Exercise[]> => {
+  const query = search ? `?search=${encodeURIComponent(search)}` : "";
+  const response = await fetch(`${apiURL}/api/exercises${query}`, {
+    credentials: "omit",
+    headers: { Cookie: authClient.getCookie() },
+  });
+  if (!response.ok) throw new Error("Could not load exercises");
+  return response.json();
+};
 
 export default function ExerciseListPage() {
   const router = useRouter();
   const muted = useAppThemeColor("mutedForeground");
   const primary = useAppThemeColor("primary");
   const [query, setQuery] = useState("");
+  const search = useDeferredValue(query.trim());
   const { selected, toggleExercise } = useWorkoutDraft();
-  
-  const filtered = useMemo(() => {
-    const search = query.trim().toLowerCase();
-    return exercises.filter(({ muscles, name }) =>
-      `${name} ${muscles}`.toLowerCase().includes(search),
-    );
-  }, [query]);
+  const {
+    data: exercises = [],
+    isError,
+    isPending,
+    refetch,
+  } = useQuery({
+    queryFn: () => getExercises(search),
+    queryKey: ["exercises", search],
+    staleTime: Infinity,
+  });
 
   return (
     <SafeAreaScreen edges={["top"]}>
       <FlatList
         contentContainerClassName="px-5 pb-8"
-        data={filtered}
+        data={exercises}
         keyboardShouldPersistTaps="handled"
         keyExtractor={({ id }) => id}
+        ListEmptyComponent={
+          <View className="items-center py-16">
+            {isPending ? (
+              <ActivityIndicator color={primary} />
+            ) : (
+              <>
+                <Feather
+                  color={muted}
+                  name={isError ? "wifi-off" : "activity"}
+                  size={27}
+                />
+                <Text className="mt-3 font-inter text-[13px] text-muted-foreground">
+                  {isError ? "Could not load exercises" : "No exercises found"}
+                </Text>
+                {isError && (
+                  <Pressable className="mt-3" onPress={() => refetch()}>
+                    <Text className="font-inter-semibold text-[13px] text-primary">
+                      Try Again
+                    </Text>
+                  </Pressable>
+                )}
+              </>
+            )}
+          </View>
+        }
         ListHeaderComponent={
           <View>
             <View className="h-14 flex-row items-center justify-between">
@@ -82,10 +137,16 @@ export default function ExerciseListPage() {
                   })
                 }
               >
-                <Image
-                  className="h-12 w-14 rounded-lg bg-muted"
-                  source={item.image}
-                />
+                {item.image ? (
+                  <Image
+                    className="h-12 w-14 rounded-lg bg-muted"
+                    source={{ uri: item.image }}
+                  />
+                ) : (
+                  <View className="h-12 w-14 items-center justify-center rounded-lg bg-muted">
+                    <Feather color={muted} name="image" size={18} />
+                  </View>
+                )}
                 <View className="ml-3 flex-1">
                   <Text className="font-inter-semibold text-[13px] text-foreground">
                     {item.name}

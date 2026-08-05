@@ -71,7 +71,8 @@ The unit is selected from Profile settings. It does not need another onboarding 
 ### `exercises`
 
 ```text
-id             Text slug, for example barbell-squat
+id             Generated UUID
+slug           Unique readable name
 name
 image
 muscles
@@ -80,10 +81,11 @@ equipment
 difficulty
 forceType
 mechanics
-instructions[]
+category
+createdAt
 ```
 
-These fields support Exercise List, Exercise Detail and AI Coach. Exercises are seeded once as the shared catalogue.
+These fields support Exercise List and Exercise Detail. AI Coach generates instructions when requested, so instructions are not stored. The seed imports 20 public-domain exercises and uses their hosted images from `free-exercise-db`.
 
 ### `workouts`
 

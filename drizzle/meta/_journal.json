@@ -22,6 +22,20 @@
       "when": 1785936464789,
       "tag": "0002_complex_pretty_boy",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1785941050649,
+      "tag": "0003_faulty_jasper_sitwell",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1785944849625,
+      "tag": "0004_friendly_longshot",
+      "breakpoints": true
     }
   ]
 }

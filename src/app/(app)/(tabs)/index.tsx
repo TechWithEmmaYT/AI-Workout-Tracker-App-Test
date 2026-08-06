@@ -64,7 +64,7 @@ export default function HomePage() {
           >
             <Image
               accessibilityIgnoresInvertColors
-              className="h-5 w-5"
+              className="h-7 w-7"
               resizeMode="contain"
               source={streakIcon}
             />

@@ -60,7 +60,7 @@ export default function WelcomePage() {
             </Text>
           </View>
 
-          <View className="min-h-[390px] flex-1 items-center overflow-hidden">
+          <View className="min-h-[350px] flex-1 items-center overflow-hidden">
             <Image
               accessibilityLabel="MyWorkout app preview"
               className="h-full w-full scale-110"

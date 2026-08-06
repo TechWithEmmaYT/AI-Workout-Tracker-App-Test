@@ -23,3 +23,11 @@ eas env:create --name BETTER_AUTH_URL --value <your-expo-app-url> --environment 
 eas env:create --name IMAGEKIT_PRIVATE_KEY --value <key> --environment production
 
 https://ai-workout-tracker-app--1yh9zv4h89.expo.app
+
+//https://ai-workout-tracker-app--tbuskumtq9.expo.app
+
+npx expo run:android --variant release
+
+## jdk KEY
+
+b2439d28e5ec01324b48c2fd519be55a63462cf4e738ad2e6825b36ac48a176c

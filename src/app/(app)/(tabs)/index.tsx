@@ -1,3 +1,5 @@
+import { useQuery } from "@tanstack/react-query";
+import { startOfDay } from "date-fns";
 import { useState } from "react";
 import { Image, Pressable, ScrollView, Text, View } from "react-native";
 
@@ -8,12 +10,18 @@ import StreakBottomSheet from "@/components/home/streak-bottom-sheet";
 import WorkoutTemplates from "@/components/home/workout-templates";
 import SafeAreaScreen from "@/components/ui/safe-area-screen";
 import WeekCalendar from "@/components/week-calendar";
+import { getHomeStatsQueryFn } from "@/lib/api";
 
 const logo = require("../../../../assets/images/app-images/logo.png");
 const streakIcon = require("../../../../assets/images/app-images/streak-icon.png");
 
 export default function HomePage() {
   const [streakOpen, setStreakOpen] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(startOfDay(new Date()));
+  const { data: stats } = useQuery({
+    queryKey: ["home-stats", selectedDate],
+    queryFn: () => getHomeStatsQueryFn(selectedDate),
+  });
 
   return (
     <SafeAreaScreen edges={["top"]}>
@@ -59,9 +67,13 @@ export default function HomePage() {
         </View>
 
         {/* {Week Calendar Section} */}
-        <WeekCalendar />
+        <WeekCalendar onChange={setSelectedDate} value={selectedDate} />
 
-        <HomeStats />
+        <HomeStats
+          avgTimeSeconds={stats?.avgTimeSeconds}
+          totalTimeSeconds={stats?.totalTimeSeconds}
+          workouts={stats?.workouts}
+        />
 
         <MyWorkouts />
 

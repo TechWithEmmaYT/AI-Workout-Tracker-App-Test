@@ -1,3 +1,5 @@
+import { format } from "date-fns";
+
 import { apiURL, authClient } from "@/lib/auth-client";
 
 export type WorkoutListItem = {
@@ -50,5 +52,23 @@ export async function getWorkoutQueryFn(id: string): Promise<WorkoutDetail> {
     },
   );
   if (!response.ok) throw new Error("Could not load workout");
+  return response.json();
+}
+
+export type HomeStats = {
+  avgTimeSeconds: number;
+  totalTimeSeconds: number;
+  workouts: number;
+};
+
+export async function getHomeStatsQueryFn(date: Date): Promise<HomeStats> {
+  const response = await fetch(
+    `${apiURL}/api/home-stats?date=${format(date, "yyyy-MM-dd")}`,
+    {
+      credentials: "omit",
+      headers: { Cookie: authClient.getCookie() },
+    },
+  );
+  if (!response.ok) throw new Error("Could not load stats");
   return response.json();
 }

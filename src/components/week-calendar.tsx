@@ -1,5 +1,6 @@
 import {
   eachDayOfInterval,
+  eachWeekOfInterval,
   endOfWeek,
   format,
   isAfter,
@@ -19,16 +20,41 @@ import {
 
 import { cn } from "@/lib/utils";
 
-export default function WeekCalendar() {
-  const { width } = useWindowDimensions();
-  const scrollRef = useRef<ScrollView>(null);
-  const today = startOfDay(new Date());
-  const [selected, setSelected] = useState(today);
-  const days = eachDayOfInterval({
-    start: subWeeks(startOfWeek(today), 2),
-    end: endOfWeek(today),
-  });
-  const weeks = [days.slice(0, 7), days.slice(7, 14), days.slice(14)];
+// Optional controlled props: the parent can pass the selected day (value)
+// and be notified when it changes (onChange). When omitted, the calendar
+// manages its own selection.
+type WeekCalendarProps = {
+  onChange?: (date: Date) => void;
+  value?: Date;
+};
+
+export default function WeekCalendar({ onChange, value }: WeekCalendarProps) {
+  const { width } = useWindowDimensions(); // screen width: each week page takes the full width for paging
+  const scrollRef = useRef<ScrollView>(null); // ref to auto-scroll to the current week on mount
+  const today = startOfDay(new Date()); // today at midnight, used for "is future" checks
+
+  // Internal fallback selection; "selected" prefers the parent's value
+  const [internal, setInternal] = useState(today);
+  const selected = value ?? internal;
+
+  // Build the calendar: 3 weeks (2 previous + the current one), each as an
+  // array of its 7 days. eachWeekOfInterval returns one start-of-week date
+  // per week, then eachDayOfInterval expands it into the 7 day cells.
+  const weeks = eachWeekOfInterval({
+    start: subWeeks(startOfWeek(today), 2), // start at the Sunday 2 weeks ago
+    end: endOfWeek(today), // end at the Saturday of the current week
+  }).map((weekStart) =>
+    eachDayOfInterval({
+      start: weekStart, // Sunday of that week
+      end: endOfWeek(weekStart), // Saturday of that week
+    }),
+  );
+
+  // Selecting a day: update internal state and, if controlled, tell the parent
+  const selectDate = (date: Date) => {
+    setInternal(date);
+    onChange?.(date);
+  };
 
   return (
     <ScrollView
@@ -70,7 +96,7 @@ export default function WeekCalendar() {
                 )}
                 disabled={isFuture}
                 key={date.getTime()}
-                onPress={() => setSelected(date)}
+                onPress={() => selectDate(date)}
               >
                 <Text className="font-inter-medium text-[10px] text-muted-foreground">
                   {format(date, "EE").toUpperCase()}

@@ -5,7 +5,10 @@ export default function AppLayout() {
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="(tabs)" />
       <Stack.Screen name="(modal)/workout" />
-      <Stack.Screen name="(modal)/history" options={{ animation: "slide_from_right" }} />
+      <Stack.Screen
+        name="(modal)/history/[id]"
+        options={{ animation: "slide_from_right" }}
+      />
     </Stack>
   );
 }

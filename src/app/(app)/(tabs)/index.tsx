@@ -10,7 +10,8 @@ import StreakBottomSheet from "@/components/home/streak-bottom-sheet";
 import WorkoutTemplates from "@/components/home/workout-templates";
 import SafeAreaScreen from "@/components/ui/safe-area-screen";
 import WeekCalendar from "@/components/week-calendar";
-import { getHomeStatsQueryFn } from "@/lib/api";
+import { getHistoryQueryFn, getHomeStatsQueryFn } from "@/lib/api";
+import { getStreakSummary } from "@/lib/streak";
 
 const logo = require("../../../../assets/images/app-images/logo.png");
 const streakIcon = require("../../../../assets/images/app-images/streak-icon.png");
@@ -22,6 +23,13 @@ export default function HomePage() {
     queryKey: ["home-stats", selectedDate],
     queryFn: () => getHomeStatsQueryFn(selectedDate),
   });
+  const { data: history } = useQuery({
+    queryKey: ["history"],
+    queryFn: getHistoryQueryFn,
+  });
+  const streak = getStreakSummary(
+    (history ?? []).map((item) => new Date(item.completedAt)),
+  );
 
   return (
     <SafeAreaScreen edges={["top"]}>
@@ -49,7 +57,7 @@ export default function HomePage() {
             </Text>
           </View>
           <Pressable
-            accessibilityLabel="View workout streak, 0 days"
+            accessibilityLabel={`View workout streak, ${streak.currentStreak} days`}
             accessibilityRole="button"
             className="h-11 flex-row items-center rounded-full border border-border bg-card px-4 active:bg-muted"
             onPress={() => setStreakOpen(true)}
@@ -61,7 +69,7 @@ export default function HomePage() {
               source={streakIcon}
             />
             <Text className="ml-1.5 font-inter-bold text-[14px] text-foreground">
-              0
+              {streak.currentStreak}
             </Text>
           </Pressable>
         </View>
@@ -84,6 +92,9 @@ export default function HomePage() {
       </ScrollView>
 
       <StreakBottomSheet
+        bestStreak={streak.bestStreak}
+        completedDays={streak.completedDays}
+        currentStreak={streak.currentStreak}
         onClose={() => setStreakOpen(false)}
         visible={streakOpen}
       />

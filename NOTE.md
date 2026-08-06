@@ -28,6 +28,6 @@ https://ai-workout-tracker-app--1yh9zv4h89.expo.app
 
 npx expo run:android --variant release
 
-## jdk KEY
+## upload store key password
 
-b2439d28e5ec01324b48c2fd519be55a63462cf4e738ad2e6825b36ac48a176c
+1fb9a436b6c001a3dedbdb1de6404b023ae0ba1e7445ea75e912c0c10804e611

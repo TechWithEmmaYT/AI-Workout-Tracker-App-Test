@@ -24,7 +24,7 @@ export default function HomePage() {
   });
 
   return (
-    <SafeAreaScreen edges={["top"]}>
+    <SafeAreaScreen>
       <ScrollView
         className="flex-1"
         contentContainerClassName="px-5 pb-5 pt-2"

@@ -1,11 +1,13 @@
 import { Feather } from "@expo/vector-icons";
 import { Tabs, useRouter } from "expo-router";
 import { Pressable, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useAppThemeColor } from "@/theme/app-theme";
 
 export default function TabLayout() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const tabBackground = useAppThemeColor("tabBackground");
   const border = useAppThemeColor("border");
   const mutedForeground = useAppThemeColor("mutedForeground");
@@ -23,7 +25,7 @@ export default function TabLayout() {
         },
         tabBarStyle: {
           backgroundColor: tabBackground,
-          bottom: 10,
+          bottom: insets.bottom + 12,
           height: 66,
           left: 13,
           paddingBottom: 7,

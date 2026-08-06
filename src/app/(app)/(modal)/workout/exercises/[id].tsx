@@ -60,7 +60,7 @@ export default function ExerciseDetailPage() {
 
   if (!id || isError) {
     return (
-      <SafeAreaScreen className="px-5" edges={["top"]}>
+      <SafeAreaScreen className="px-5">
         <Pressable
           accessibilityLabel="Go back"
           accessibilityRole="button"

@@ -30,7 +30,7 @@ export default function HistoryDetailModal() {
     );
 
   return (
-    <SafeAreaScreen edges={["top"]}>
+    <SafeAreaScreen>
       <ScrollView contentContainerClassName="px-5 pb-8">
         <View className="h-14 flex-row items-center justify-between">
           <Pressable

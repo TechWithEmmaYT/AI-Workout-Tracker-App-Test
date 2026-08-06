@@ -63,7 +63,7 @@ export default function ExerciseListPage() {
     );
 
   return (
-    <SafeAreaScreen edges={["top"]}>
+    <SafeAreaScreen>
       <FlatList
         contentContainerClassName="px-5 pb-8"
         data={exercises}

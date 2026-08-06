@@ -60,7 +60,10 @@ export default function StreakBottomSheet({
           style={{ paddingBottom: Math.max(insets.bottom, 20) + 12 }}
         >
           <View className="absolute -top-11 left-0 right-0 items-center">
-            <View className="h-[88px] w-[88px] items-center justify-center rounded-full border-[5px] border-card bg-primary shadow-lg shadow-primary/40">
+            <View
+              className="h-[88px] w-[88px] items-center justify-center rounded-full border-[5px] 
+            border-card bg-background shadow-lg shadow-primary/40"
+            >
               <Image
                 accessibilityIgnoresInvertColors
                 accessibilityLabel="Workout streak"

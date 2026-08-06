@@ -1,5 +1,5 @@
 import { Feather } from "@expo/vector-icons";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
@@ -16,6 +16,7 @@ import ErrorState from "@/components/ui/error-state";
 import LoadingDialog from "@/components/ui/loading-dialog";
 import SafeAreaScreen from "@/components/ui/safe-area-screen";
 import Skeleton from "@/components/ui/skeleton";
+import { useStreak } from "@/contexts/streak-context";
 import { useWorkoutTimer } from "@/hooks/use-workout-timer";
 import type { SaveSessionSet, WorkoutDetail, WorkoutExercise } from "@/lib/api";
 import { createWorkoutSessionQueryFn, getWorkoutQueryFn } from "@/lib/api";
@@ -31,6 +32,8 @@ export default function ActiveWorkoutModal() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const navigation = useNavigation();
+  const queryClient = useQueryClient();
+  const { showStreak } = useStreak();
   const timer = useWorkoutTimer();
   const [completed, setCompleted] = useState<string[]>([]);
   const [isSaving, setIsSaving] = useState(false);
@@ -139,7 +142,9 @@ export default function ActiveWorkoutModal() {
           text: "Finish",
           onPress: () =>
             saveSession()
-              .then(() => {
+              .then(async () => {
+                await queryClient.refetchQueries({ queryKey: ["history"] });
+                showStreak();
                 allowLeave.current = true;
                 router.replace("/history");
               })

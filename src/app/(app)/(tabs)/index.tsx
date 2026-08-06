@@ -18,7 +18,7 @@ const streakIcon = require("../../../../assets/images/app-images/streak-icon.png
 export default function HomePage() {
   const [streakOpen, setStreakOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(startOfDay(new Date()));
-  const { data: stats } = useQuery({
+  const { data: stats, isPending } = useQuery({
     queryKey: ["home-stats", selectedDate],
     queryFn: () => getHomeStatsQueryFn(selectedDate),
   });
@@ -71,6 +71,7 @@ export default function HomePage() {
 
         <HomeStats
           avgTimeSeconds={stats?.avgTimeSeconds}
+          isPending={isPending}
           totalTimeSeconds={stats?.totalTimeSeconds}
           workouts={stats?.workouts}
         />

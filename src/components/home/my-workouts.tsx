@@ -96,14 +96,14 @@ export default function MyWorkouts() {
                 <View className="mt-2 flex-row justify-between">
                   <View className="flex-row items-center gap-1">
                     <FontAwesome6 color={muted} name="dumbbell" size={11} />
-                    <Text className="font-inter text-[11.5px] text-muted-foreground">
-                      {workout.exerciseCount} exe
+                    <Text className="font-inter text-[11px] text-muted-foreground">
+                      {workout.exerciseCount} Exe
                     </Text>
                   </View>
                   <View className="flex-row items-center gap-1">
                     <Feather color={muted} name="layers" size={12} />
-                    <Text className="font-inter text-[11.5px] text-muted-foreground">
-                      {workout.totalSets} sets
+                    <Text className="font-inter text-[11px] text-muted-foreground">
+                      {workout.totalSets} Sets
                     </Text>
                   </View>
                 </View>

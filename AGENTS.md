@@ -1,167 +1,187 @@
-# MyWorkout AI — Project Instructions
+# MyWorkout — Project Instructions
 
 ## Product
 
-MyWorkout is an AI-assisted workout planning and tracking app. It helps users discover workouts, create routines, track sets and progress, and receive useful workout recommendations.
+MyWorkout is an AI-assisted workout planning and tracking app. Users create workout routines, complete their sets in a live session, and review progress (history, calendar, and statistics). The experience should feel modern, energetic, simple, and encouraging. Never shame users for their body, fitness level, or missed workouts. AI suggestions must be reviewable, explainable, and never presented as medical advice.
 
-The experience should feel modern, energetic, simple, and encouraging. Never shame users for their body, fitness level, or missed workouts. AI suggestions must be reviewable and must not be presented as medical advice.
+Keep the first version small: email authentication, onboarding, a shared exercise catalogue, custom workouts, active-workout sessions, history, calendar, and basic statistics.
 
-## Source of truth
+## What this repository is
 
-- Read this file and the relevant design before changing product UI.
-- Onboarding reference: `designs/app-onboarding-flow-screen.png`.
-- Main workout reference: `designs/app-workout-flow.png`.
-- The designs define the flow, hierarchy, content, and visual direction, but implementations must remain responsive and reusable.
-- Before writing Expo code, read the exact Expo SDK 57 documentation at `https://docs.expo.dev/versions/v57.0.0/`.
-- Treat `package.json` and `package-lock.json` as authoritative. Do not upgrade dependencies casually.
-- Preserve existing user changes and avoid unrelated rewrites.
+This is a **single repository** containing the whole app: the Expo mobile client **and** the server it talks to.
 
-## Repository boundary
+- `src/app/api/**/*+api.ts` — HTTP API routes (Expo Router file-based API routes). There is **no** separate Next.js project and **no** separate server repository.
+- `src/db/` — Drizzle schema + a Neon Postgres connection (`@neondatabase/serverless`).
+- `src/lib/auth.ts` — Better Auth **server** configuration.
+- `src/lib/auth-client.ts` — Better Auth **Expo client** used by screens.
+- `src/app/` — Expo Router screens (the mobile UI), grouped into `(public)`, `(app)`, etc.
 
-This repository contains only the Expo mobile application. It is not a monorepo.
+Do not introduce Next.js, Prisma, MongoDB, or a second backend. The app must never connect to Postgres from a screen/component — the DB is only reachable from API routes and the auth server. Never commit database credentials, Better Auth secrets, AI provider secrets, or admin credentials.
 
-The Next.js admin/API server and its MongoDB/Prisma implementation belong in a separate project. Do not add Next.js, Prisma, MongoDB drivers, database schemas, migrations, admin pages, or server secrets to this Expo repository.
+## Stack (authoritative versions in `package.json`)
 
-The Expo app communicates with the backend only through authenticated HTTP APIs. It must never connect directly to MongoDB or contain database credentials, Better Auth server secrets, AI provider secrets, or admin credentials.
+- Expo SDK 57, React Native 0.86, React 19, Expo Router (`typedRoutes` and `reactCompiler` experiments are ON in `app.json`).
+- NativeWind v4 + Tailwind CSS v3 (do not mix in NativeWind v5, Tailwind v4, or `react-native-css`).
+- Better Auth v1 + `@better-auth/expo` client; `expo-secure-store` for native auth session storage.
+- Drizzle ORM + `drizzle-kit` against Neon Postgres (snake_case columns).
+- TanStack Query for remote data; `react-hook-form` + `zod` for forms; `date-fns` for dates.
+- Fonts: Inter (`@expo-google-fonts/inter`); icons: `@expo/vector-icons` (Feather).
 
-## Mobile stack
+Use one library per responsibility. Do not duplicate server-owned data into other state.
 
-- Expo SDK 57, React Native, TypeScript, and Expo Router;
-- NativeWind v4 with Tailwind CSS v3;
-- Zustand for local workflow state;
-- TanStack Query for remote API data and mutations;
-- React Hook Form with Zod for validated forms;
-- Better Auth with `@better-auth/expo` for the mobile auth client;
-- `expo-secure-store` for native auth session storage.
+## Getting started
 
-Use one library for each responsibility. Do not duplicate TanStack Query server data inside Zustand.
+```bash
+npm install
+# set env vars (see below)
+npx expo start          # run the app
+```
 
-## Product flow
+Environment (loaded from `.env`, see `drizzle.config.ts` / auth):
+`DATABASE_URL` (Neon), `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `EXPO_PUBLIC_API_URL`, `IMAGEKIT_PRIVATE_KEY`.
 
-### Entry and onboarding
+Useful scripts: `npm run lint`, `npm run db:generate`, `npm run db:migrate`, `npm run db:seed`, `npm run db:studio`, `npx tsc --noEmit`.
 
-1. Native splash screen with the MyWorkout logo.
-2. Welcome screen.
-3. Sign in with email/password or Google.
-4. Sign up with name/email/password or Google.
-5. Select gender.
-6. Select goal: Build Muscle, Lose Fat, or Maintain.
-7. Select experience: Beginner, Intermediate, or Advanced.
-8. Review onboarding summary.
-9. Show the optional Pro offer with a working Continue Free action.
-10. Enter the main app.
+## Auth
 
-The native splash and welcome screen are separate. Configure the splash with `expo-splash-screen`; do not create a timed splash route or add an artificial delay.
+- Server: `src/lib/auth.ts` — `betterAuth()` with `drizzleAdapter(db, { provider: "pg", schema })`, email/password (min 8 chars), the `expo()` plugin, and a `trustedOrigins` list containing the app scheme (`aiworkouttrackerapp://`) plus `exp://` hosts in development.
+- The `before`/`after` hooks validate the onboarding answers (`zod`) and insert the user's `profiles` row at `/sign-up/email`.
+- Client: `src/lib/auth-client.ts` — `createAuthClient` with `expoClient({ scheme, storage: SecureStore, storagePrefix })`. `apiURL` comes from `EXPO_PUBLIC_API_URL`, but the host part is rewritten to the Expo host URI when running on a physical device so the phone can reach the dev server.
+- The root `src/app/_layout.tsx` calls `authClient.useSession()` and hides the native splash once fonts are loaded and the session resolves. It renders `<Stack.Protected guard={!session}><Stack.Screen name="(public)" /></Stack.Protected>` and the same pattern for `(app)` when signed in. There is no timed splash screen.
+- API routes authenticate with `auth.api.getSession({ headers: request.headers })` and return `401` when there is no session.
+- The client fetch functions send the cookie manually: `fetch(url, { credentials: "omit", headers: { Cookie: authClient.getCookie() } })`.
 
-Keep onboarding in one Expo Router route with internal steps. Use a small persisted Zustand store for the current step and answers so unfinished onboarding can resume. Do not create one route per question.
+## Routing structure
 
-### Main tabs
+```text
+src/app/
+  _layout.tsx                  fonts, splash, QueryClient, KeyboardProvider, auth guard
+  (public)/                    welcome, sign-in, sign-up, onboarding/[step]
+  (app)/_layout.tsx            Stack: (tabs), (modal)/workout, (modal)/history
+  (app)/(tabs)/                index (Home), workouts, create, history, profile
+  (app)/(modal)/workout/       create, [id]/index, [id]/active, exercises/index, exercises/[id]
+  (app)/(modal)/history/       [id]
+  api/                         all HTTP API routes (*+api.ts)
+```
 
-The authenticated application has five tabs:
+- Keep route files thin. Reusable code goes in `src/components/`, `src/hooks/`, `src/lib/`, `src/contexts/`, `src/theme/`, `src/constants/`.
+- Use the `@/*` alias for imports from `src`. TypeScript strict mode; avoid `any`; validate unknown data with zod.
 
-- **Home:** training stats, weekly progress, saved workouts, recent workout, templates, and Start Workout.
-- **Discover:** search, templates, muscle filters, exercises, and exercise details.
-- **Workouts:** saved and custom workouts, workout details, and workout creation.
-- **History:** completed sessions, calendar, duration, volume, and history details.
-- **Profile:** account, units, notifications, appearance, help, legal, Pro status, and sign out.
+### Modal stack (important)
 
-### Workout flow
+Workout detail, active workout, history detail, exercise list/detail, and create-workout are **not** tab screens. They live in `(app)/(modal)/` so the tab bar never interrupts these flows and so back always returns to the originating list (avoids stale screen state).
 
-1. Open a template, exercise, or saved workout.
-2. Review the workout and exercise order.
-3. Create or customize a workout when needed.
-4. Add exercises and configure sets, reps, weight, rest time, and notes.
-5. Start the workout.
-6. Record completed sets, actual reps, and weight.
-7. Show elapsed time and rest timers.
-8. Confirm before cancelling or discarding an active workout.
-9. Finish and show duration, exercises, sets, volume, and muscles trained.
-10. Save the session to History and allow repeating it.
+Presentations per screen in `(modal)/workout/_layout.tsx`:
+- `create` and `[id]/active` — `animation: "slide_from_bottom"`, `presentation: "fullScreenModal"`.
+- `[id]/index`, `exercises/index`, `exercises/[id]`, and `(modal)/history` — `animation: "slide_from_right"`.
 
-Active workout state must survive navigation and temporary app backgrounding. Use timestamps for elapsed and rest time instead of assuming JavaScript intervals continue in the background.
+The center Create tab button is a raised primary circle that intercepts `tabPress` and does `router.push("/workout/create")`.
+
+## Onboarding
+
+One dynamic route per step: `(public)/onboarding/[step].tsx`. Steps are declared in `src/constants/onboarding.ts` (`gender`, `goal`, `experience`), each rendered by a step component that receives `value`/`onChange`. Answers are accumulated in a module-level `answers` object (`resetOnboardingAnswers()` clears it before sign-in/sign-up), and sign-up posts them through the Better Auth hook which creates the `profiles` row. The progress bar width is derived from the current step index.
 
 ## State and data rules
 
-- **Zustand:** onboarding draft, active workout draft, short-lived UI workflows, and explicit persisted preferences.
-- **TanStack Query:** profile, exercises, templates, saved workouts, history, subscription status, and all other server-owned data.
-- **React Hook Form:** authentication, profile editing, workout metadata, and exercise configuration forms.
-- **Zod:** form values, API requests/responses, route parameters, and AI structured results.
-- **Component state:** temporary state owned by one component.
+- **Server-owned data** (profile, exercises, workouts, sessions, history, stats) → **TanStack Query**, keyed by the entity + id (e.g. `["workouts", id]`, `["home-stats", selectedDate]`). Mutations invalidate/refetch the relevant keys.
+- **Short-lived workflow state** → local component state or React context (`src/contexts/workout-draft-context.tsx` provides `useWorkoutDraft()` for the exercise list during workout creation).
+- **Forms** → `react-hook-form` + `zod` (resolvers), schemas in `src/lib/validation/`.
+- **Timing** → see the timer section below; never rely on `setInterval` counting.
+- **Persisted preferences** → only what is required for recovery; auth tokens go through SecureStore via the Better Auth client, never AsyncStorage.
 
-Persist only what is required for recovery. Never store passwords or auth cookies in AsyncStorage. Use SecureStore through the Better Auth Expo client.
+All API data is untrusted until validated (zod on the server; typed on the client). Remote screens must handle loading (skeleton), error (retry), empty, and success states.
 
-All API data is untrusted until validated. Show loading, refreshing, empty, offline, error, and success states for remote screens. Use stable request IDs for workout mutations so retries do not create duplicate sessions.
-
-## Routes and files
-
-Use Expo Router route groups for public, auth, onboarding, and authenticated areas. Keep route files thin; reusable screens, components, stores, hooks, schemas, and API logic must live outside `src/app`.
+## Database schema (`src/db/schema.ts`)
 
 ```text
-src/
-  app/
-    _layout.tsx
-    (public)/
-    (auth)/
-    (onboarding)/
-    (app)/
-      (tabs)/
-  components/
-    ui/
-    workout/
-  screens/
-  hooks/
-  stores/
-  lib/
-    api/
-    auth/
-    validation/
-  theme/
-  types/
+profiles          userId FK → user.id (cascade), gender, goal, experience, weightUnit (kg|lb), timestamps
+exercises         id (uuid), slug (unique), name, image?, muscles, description, equipment?,
+                  difficulty, forceType?, mechanics?, category, createdAt
+workouts          id, userId FK → user.id (cascade), name, description?, image?,
+                  isTemplate (default false), createdAt
+workout_exercises id, workoutId FK → workouts.id (cascade), exerciseId FK → exercises.id,
+                  sets (default 3), reps (default 10), targetWeight?, restSeconds (default 90), position
+workout_sessions  id, userId FK → user.id (cascade), workoutId FK → workouts.id,
+                  startedAt, completedAt, durationSeconds
+workout_session_sets id, sessionId FK → workout_sessions.id (cascade), exerciseId FK → exercises.id,
+                  setNumber, reps, weight?
 ```
 
-This is a guide, not permission to create empty folders. Use the `@/*` alias for imports from `src`. Use TypeScript strict mode, avoid `any`, and validate unknown data.
+- Planned values in `workout_exercises` prefill the Active Workout screen; changing them during a session never mutates the saved workout routine.
+- One completed workout = one `workout_sessions` row (History is just the list of sessions; there is no separate history table).
+- Only completed sets are saved to `workout_session_sets`. Empty weight is allowed and is excluded from volume calculations.
+- `exercises` are seeded (`npm run db:seed`) from 20 public-domain exercises with hosted images; instructions are generated on request by AI, not stored.
+
+## API conventions (`src/app/api/**/*+api.ts`)
+
+Every route:
+1. Authenticates: `const session = await auth.api.getSession({ headers: request.headers }); if (!session) return Response.json({ message: "Unauthorized" }, { status: 401 });`
+2. Validates input with zod — query params via `z.coerce...safeParse(...)`, bodies via `schema.safeParse(await request.json().catch(() => null))`; returns `400` on failure. UUID path params are validated with `z.uuid()` (`404` if invalid).
+3. Scopes every query to `session.user.id` so users can only read/write their own data.
+4. Uses `db.batch([...])` for multi-table writes (one round trip). Example: create workout inserts the `workouts` row + all `workout_exercises` rows; finish workout inserts the session + its sets.
+5. Returns `Response.json(...)`.
+
+Existing endpoints: `api/auth/[...auth]`, `api/exercises`, `api/exercises/[id]`, `api/workouts`, `api/workouts/[id]`, `api/home-stats`, `api/workout-sessions`. All API data is untrusted until validated.
+
+Client query functions live in `src/lib/api.ts` (e.g. `getWorkoutQueryFn(id)`, `getHomeStatsQueryFn(date)`, `createWorkoutSessionQueryFn(input)`) — typed `fetch` wrappers that throw on `!response.ok` and return `response.json()`.
+
+## Workout flow
+
+1. Open a workout (list/detail) → `router.push("/workout/[id]")`.
+2. Detail screen fetches via `getWorkoutQueryFn(id)` (skeleton while loading, error state with retry).
+3. **Start Workout** → `router.push("/workout/[id]/active")`.
+4. **Active Workout** (`(modal)/workout/[id]/active.tsx`):
+   - Fetches the same workout (gives real exercise ids for saving sets).
+   - Tracks completed sets in local state keyed by `` `${exercise.id}-${set}` ``.
+   - Weight/reps `TextInput`s are uncontrolled (`defaultValue`); edits are captured into a ref map and only read at save time.
+   - **Timer**: timestamp-based (see below). Display uses `formatTime` (`new Date(seconds * 1000).toISOString().slice(11, 19)`).
+   - **Pause/resume** freezes elapsed; **rest timer** is a small overlay circle that counts down after each completed set with a Skip action.
+   - **Leave/back**: a `beforeRemove` navigation listener `event.preventDefault()`s every dismissal (back button, gesture, swipe) and shows an Alert — **Save progress?** with Cancel / Discard / **Save & Leave** when any set is done, or **Leave workout?** when nothing is done. A `allowLeave` ref is set to `true` right before dispatching the pending navigation action so the guard releases.
+   - **Finish**: Alert → `saveSession()` → on success `allowLeave.current = true; router.replace("/history")`.
+   - `saveSession()` builds the payload and calls `createWorkoutSessionQueryFn`: `{ workoutId, startedAt (from timer), completedAt, durationSeconds, sets: [{ exerciseId, setNumber, reps, weight? }] }`.
+5. History shows the saved sessions.
+
+## Timer rule
+
+Do **not** count elapsed time by incrementing a value inside `setInterval` — the OS suspends JS timers in the background and the count drifts. Instead (see `src/hooks/use-workout-timer.ts`):
+
+- Store `startedAt`, an accumulated `elapsedRef`, and a `lastResumeAt` wall-clock timestamp.
+- A short interval (500 ms) recomputes `elapsed = accumulated + (Date.now() - lastResumeAt) / 1000` from the clock, so missed ticks cost nothing.
+- Pausing folds the running segment into `accumulated`; resuming records a new `lastResumeAt`.
+- The rest timer stores an absolute `restEndsAt` timestamp and computes remaining time, so rest survives backgrounding too.
+- The hook exposes `startedAt` so the saved session's `startedAt`/`durationSeconds` are real.
+
+Note: the React Compiler is enabled, so `Date.now()`/ref reads are not allowed during render — initialize timestamps in lazy `useState`/effects and read refs only in effects and event handlers.
+
+## Home stats & calendar
+
+- `WeekCalendar` (`src/components/week-calendar.tsx`) is a horizontally paged calendar (3 weeks: 2 past + current) built with `eachWeekOfInterval`/`eachDayOfInterval`. It is **controlled** (`value`/`onChange`) so the parent owns the selected date.
+- The Home screen holds `selectedDate` in state and queries `getHomeStatsQueryFn(selectedDate)` keyed by `["home-stats", selectedDate]`, passing results down to the stat cards.
+- `api/home-stats?date=YYYY-MM-DD` filters `workout_sessions` where `startedAt` is `>=` that day 00:00 (local) and `<` the next day 00:00, returning `{ workouts, totalTimeSeconds, avgTimeSeconds }`.
 
 ## Design system
 
-Use semantic theme tokens instead of hard-coded colors in feature code. The design palette is:
+- Colors are semantic tokens, not hard-coded hex, in feature code. Light/dark palettes and the generated CSS variables live in `src/theme/app-theme.ts`; Tailwind classes use tokens like `bg-primary`, `text-muted-foreground`, `border-border`, `bg-card`, `bg-muted`, `bg-accent`.
+- `useAppThemeColor("primary" | "mutedForeground" | ...)` returns the hex for runtime-derived values (icons, chart colors). Inline styles are only for runtime values (timers, progress widths, animations).
+- Layout/spacing/typography via NativeWind utility classes. Typefaces: `font-inter`, `font-inter-medium`, `font-inter-semibold`, `font-inter-bold`.
+- Reuse primitives in `src/components/ui/` (Button, SafeAreaScreen, Skeleton, EmptyState, ErrorState, LoadingDialog) and composed sections in `src/components/home/`, `src/components/onboarding/`, `src/components/exercise/`. Use `cn()` for conditional classes.
+- Accessibility: labels/roles, `accessibilityState` for selection/disabled, 44×44 minimum touch targets, non-color status indicators, reduced-motion aware, dynamic type.
 
-- primary: `#2563EB`;
-- primary-light: `#3B82F6`;
-- text: `#0F172A`;
-- secondary text: `#64748B`;
-- border: `#E2E8F0`;
-- success: `#22C55E`;
-- danger: `#EF4444`;
-- background: `#FFFFFF`;
-- card: `#F8FAFC`.
+## Code conventions
 
-Use NativeWind for layout, spacing, typography, responsive states, and theme-aware styling. Inline styles are acceptable only for runtime-derived values such as animation, chart, timer, or progress-ring calculations.
-
-The repository uses NativeWind v4 and Tailwind CSS v3. Do not mix in NativeWind v5 preview, Tailwind v4, or `react-native-css` instructions without an explicitly approved migration.
-
-Build reusable primitives for buttons, inputs, cards, option selectors, progress rings, workout cards, exercise rows, set rows, timers, and loading/error/empty states. Screens should compose these primitives instead of recreating their visual styles.
-
-Use accessible labels, roles, logical focus order, dynamic type, non-color status indicators, reduced-motion behavior, and minimum 44×44 point touch targets.
+- API route logic is written with a brief comment per logical line/section so the data flow is obvious (see `api/workouts/[id]+api.ts`, `api/home-stats`, `api/workout-sessions`). Feature code prefers comments only where the intent is non-obvious.
+- Run `npx tsc --noEmit` and `npm run lint`. The lint config enforces React Compiler rules: no impure calls (`Date.now()`, `Math.random()`) during render, no ref `.current` access during render, no `setState` synchronously in an effect body. Fix violations by splitting components or moving work into effects/handlers. The only tolerated pre-existing warning is the unused `seed` in `src/db/seed/index.ts`.
+- Format changed files before finishing.
 
 ## UI verification
 
 For every design-driven screen:
 
-1. Implement the correct hierarchy, safe areas, spacing, typography, imagery, and shared components.
-2. Run the screen at the reference size and compare the rendered result side by side with the design.
-3. Correct measurable differences, then verify small and large screens, keyboard behavior, loading/error states, accessibility, Android, and iOS.
+1. Implement correct hierarchy, safe areas, spacing, typography, imagery, and shared components (reference: `designs/`).
+2. Run the screen at the reference size and compare side by side with the design; correct measurable differences.
+3. Re-check small and large screens, keyboard behavior, loading/error/empty states, accessibility, and both Android and iOS.
 
-Do not claim visual accuracy from code inspection alone.
-
-## Auth, AI, and security boundaries
-
-The backend owns Better Auth configuration, authorization, MongoDB, Prisma, admin roles, AI provider calls, billing verification, and all secrets.
-
-The Expo app owns the public API URL, application scheme, Better Auth client, secure session storage, UI, and local recoverable workflow state.
-
-AI recommendations must come from a trusted backend, match a validated Zod schema, explain the recommendation, and require confirmation before changing a workout. Never let AI silently overwrite user-entered workout data or provide injury diagnoses.
-
-Client redirects and hidden UI are not security controls. The backend must authorize every protected read and write.
+Do not claim visual accuracy from code inspection alone. "Works in Expo Go" is not release verification — test native behavior in development builds and release-sensitive behavior on physical devices.
 
 ## Before handing off work
 
@@ -173,4 +193,9 @@ Client redirects and hidden UI are not security controls. The backend must autho
 6. Check accessibility and platform differences.
 7. Do not add secrets or unrelated backend code.
 
-“Works in Expo Go” alone is not release verification. Test native behavior in development builds and release-sensitive behavior on physical Android and iOS devices.
+## Version-one boundaries
+
+- Ready-made workouts are `isTemplate: true` rows populated through `workout_exercises`; copying a template into the user's workouts is a planned follow-up.
+- Exercise bookmarks can stay local until a saved-exercises feature is implemented.
+- Workout cover images must eventually be uploaded to a provider (ImageKit via `src/lib/imagekit.ts`); the DB stores the resulting URL, never a device file URI.
+- Analytics (streaks, volume, averages) are computed from `workout_sessions`/`workout_session_sets` at request time; there is no analytics table.

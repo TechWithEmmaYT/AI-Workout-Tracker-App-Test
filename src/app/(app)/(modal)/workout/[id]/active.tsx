@@ -1,6 +1,7 @@
 import { Feather } from "@expo/vector-icons";
-import { useLocalSearchParams, useRouter } from "expo-router";
-import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Alert,
   Pressable,
@@ -9,63 +10,224 @@ import {
   TextInput,
   View,
 } from "react-native";
+
 import Button from "@/components/ui/button";
+import ErrorState from "@/components/ui/error-state";
+import LoadingDialog from "@/components/ui/loading-dialog";
 import SafeAreaScreen from "@/components/ui/safe-area-screen";
-import { getWorkout } from "@/constants/workouts";
+import Skeleton from "@/components/ui/skeleton";
 import { useWorkoutTimer } from "@/hooks/use-workout-timer";
+import type { SaveSessionSet, WorkoutDetail, WorkoutExercise } from "@/lib/api";
+import { createWorkoutSessionQueryFn, getWorkoutQueryFn } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { useAppThemeColor } from "@/theme/app-theme";
 
 const formatTime = (seconds: number) =>
   new Date(seconds * 1000).toISOString().slice(11, 19);
 
-export default function ActiveWorkoutModal() {
-  const { id = "push-day" } = useLocalSearchParams<{ id: string }>();
-  const router = useRouter();
-  const muted = useAppThemeColor("mutedForeground");
-  const primary = useAppThemeColor("primary");
-  const workout = getWorkout(id);
-  const {
-    elapsed,
-    isPaused,
-    rest,
-    skipRest,
-    startRest,
-    togglePause,
-  } = useWorkoutTimer();
-  const [expanded, setExpanded] = useState<string>(
-    workout.exercises[0].name,
-  );
-  const [completed, setCompleted] = useState<string[]>([]);
+type Timer = ReturnType<typeof useWorkoutTimer>;
 
-  const toggleSet = (key: string, restSeconds: number) => {
+export default function ActiveWorkoutModal() {
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const router = useRouter();
+  const navigation = useNavigation();
+  const timer = useWorkoutTimer();
+  const [completed, setCompleted] = useState<string[]>([]);
+  const [isSaving, setIsSaving] = useState(false);
+  const valuesRef = useRef<Record<string, { reps?: string; weight?: string }>>(
+    {},
+  );
+  const allowLeave = useRef(false);
+
+  const {
+    data: workout,
+    isError,
+    isPending,
+    refetch,
+  } = useQuery({
+    queryKey: ["workouts", id],
+    queryFn: () => getWorkoutQueryFn(id),
+    enabled: Boolean(id),
+  });
+
+  const totalSets = (workout?.exercises ?? []).reduce(
+    (sum, exercise) => sum + (exercise.sets ?? 0),
+    0,
+  );
+
+  const saveSession = useCallback(async () => {
+    if (!workout) return;
+    setIsSaving(true);
+    try {
+      const sets: SaveSessionSet[] = [];
+      workout.exercises.forEach((exercise) => {
+        for (let set = 1; set <= (exercise.sets ?? 0); set++) {
+          const key = `${exercise.id}-${set}`;
+          if (!completed.includes(key)) continue;
+          const values = valuesRef.current[key];
+          const weight = Number(values?.weight);
+          sets.push({
+            exerciseId: exercise.id,
+            setNumber: set,
+            reps: parseInt(values?.reps ?? "", 10) || exercise.reps || 0,
+            weight: weight > 0 ? weight : undefined,
+          });
+        }
+      });
+      await createWorkoutSessionQueryFn({
+        workoutId: workout.id,
+        startedAt: new Date(timer.startedAt).toISOString(),
+        completedAt: new Date().toISOString(),
+        durationSeconds: Math.round(timer.elapsed),
+        sets,
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  }, [completed, timer, workout]);
+
+  const saveSessionRef = useRef(saveSession);
+
+  useEffect(() => {
+    saveSessionRef.current = saveSession;
+  });
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("beforeRemove", (event) => {
+      if (allowLeave.current) return;
+      event.preventDefault();
+      const leave = () => {
+        allowLeave.current = true;
+        navigation.dispatch(event.data.action);
+      };
+      if (completed.length === 0) {
+        Alert.alert("Leave workout?", "Your progress will not be saved.", [
+          { text: "Cancel", style: "cancel" },
+          { text: "Leave", style: "destructive", onPress: leave },
+        ]);
+        return;
+      }
+      Alert.alert(
+        "Save progress?",
+        `You completed ${completed.length} of ${totalSets} sets.`,
+        [
+          { text: "Cancel", style: "cancel" },
+          { text: "Discard", style: "destructive", onPress: leave },
+          {
+            text: "Save & Leave",
+            onPress: () =>
+              saveSessionRef
+                .current()
+                .then(leave)
+                .catch(() =>
+                  Alert.alert("Could not save", "Check your connection."),
+                ),
+          },
+        ],
+      );
+    });
+    return unsubscribe;
+  }, [completed, navigation, totalSets]);
+
+  const finishWorkout = () => {
+    Alert.alert(
+      "Finish workout?",
+      `${completed.length} of ${totalSets} sets completed.`,
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Finish",
+          onPress: () =>
+            saveSession()
+              .then(() => {
+                allowLeave.current = true;
+                router.replace("/history");
+              })
+              .catch(() =>
+                Alert.alert("Could not save", "Check your connection."),
+              ),
+        },
+      ],
+    );
+  };
+
+  const toggleSet = (exercise: WorkoutExercise, set: number) => {
+    const key = `${exercise.id}-${set}`;
     const isDone = completed.includes(key);
     setCompleted((current) =>
       isDone ? current.filter((item) => item !== key) : [...current, key],
     );
-    if (!isDone) startRest(restSeconds);
+    if (!isDone) timer.startRest(exercise.rest ?? 0);
   };
 
+  const recordValue = (
+    key: string,
+    field: "reps" | "weight",
+    value: string,
+  ) => {
+    valuesRef.current[key] = { ...valuesRef.current[key], [field]: value };
+  };
+
+  if (isPending)
+    return (
+      <>
+        <ActiveSkeleton />
+        <LoadingDialog message="Saving workout..." visible={isSaving} />
+      </>
+    );
+
+  if (isError || !workout)
+    return (
+      <>
+        <ErrorState message="Could not load this workout" onRetry={refetch} />
+        <LoadingDialog message="Saving workout..." visible={isSaving} />
+      </>
+    );
+
+  return (
+    <>
+      <ActiveSession
+        completed={completed}
+        onFinish={finishWorkout}
+        onLeave={router.back}
+        recordValue={recordValue}
+        timer={timer}
+        toggleSet={toggleSet}
+        workout={workout}
+      />
+      <LoadingDialog message="Saving workout..." visible={isSaving} />
+    </>
+  );
+}
+
+type ActiveSessionProps = {
+  completed: string[];
+  onFinish: () => void;
+  onLeave: () => void;
+  recordValue: (key: string, field: "reps" | "weight", value: string) => void;
+  timer: Timer;
+  toggleSet: (exercise: WorkoutExercise, set: number) => void;
+  workout: WorkoutDetail;
+};
+
+function ActiveSession({
+  completed,
+  onFinish,
+  onLeave,
+  recordValue,
+  timer,
+  toggleSet,
+  workout,
+}: ActiveSessionProps) {
+  const muted = useAppThemeColor("mutedForeground");
+  const primary = useAppThemeColor("primary");
+  const [expanded, setExpanded] = useState(workout.exercises[0]?.name ?? "");
+
   const completedExercises = workout.exercises.filter((exercise) =>
-    Array.from({ length: exercise.sets }, (_, index) => index + 1).every(
-      (set) => completed.includes(`${exercise.name}-${set}`),
+    Array.from({ length: exercise.sets ?? 0 }, (_, index) => index + 1).every(
+      (set) => completed.includes(`${exercise.id}-${set}`),
     ),
   ).length;
-
-  const leaveWorkout = () =>
-    Alert.alert("Leave workout?", "Your progress will not be saved.", [
-      { text: "Cancel", style: "cancel" },
-      { text: "Leave", style: "destructive", onPress: router.back },
-    ]);
-
-  const finishWorkout = () =>
-    Alert.alert("Finish workout?", "Your completed sets will be saved.", [
-      { text: "Cancel", style: "cancel" },
-      {
-        text: "Finish",
-        onPress: () => router.replace("/history"),
-      },
-    ]);
 
   return (
     <SafeAreaScreen edges={["top", "bottom"]}>
@@ -77,13 +239,13 @@ export default function ActiveWorkoutModal() {
         <View className="flex-row items-start justify-between pt-4">
           <View>
             <Text className="font-inter-bold text-[24px] text-foreground">
-              {workout.title}
+              {workout.name}
             </Text>
             <Text className="mt-1 font-inter text-[12px] text-muted-foreground">
               {completedExercises}/{workout.exercises.length} exercises
             </Text>
           </View>
-          <Pressable onPress={leaveWorkout}>
+          <Pressable accessibilityRole="button" onPress={onLeave}>
             <Text className="font-inter-semibold text-[13px] text-primary">
               Leave
             </Text>
@@ -93,20 +255,22 @@ export default function ActiveWorkoutModal() {
         <View className="my-7 flex-row items-center justify-between">
           <View>
             <Text className="font-inter-bold text-[38px] tracking-[-1px] text-foreground">
-              {formatTime(elapsed)}
+              {formatTime(timer.elapsed)}
             </Text>
             <Text className="mt-1 font-inter text-[12px] text-muted-foreground">
               Elapsed Time
             </Text>
           </View>
           <Pressable
-            accessibilityLabel={isPaused ? "Resume workout" : "Pause workout"}
+            accessibilityLabel={
+              timer.isPaused ? "Resume workout" : "Pause workout"
+            }
             className="h-16 w-16 items-center justify-center rounded-full bg-primary"
-            onPress={togglePause}
+            onPress={timer.togglePause}
           >
             <Feather
               color="white"
-              name={isPaused ? "play" : "pause"}
+              name={timer.isPaused ? "play" : "pause"}
               size={26}
             />
           </Pressable>
@@ -118,7 +282,7 @@ export default function ActiveWorkoutModal() {
             return (
               <View
                 className="overflow-hidden rounded-xl border border-border bg-card"
-                key={exercise.name}
+                key={exercise.id}
               >
                 <Pressable
                   className="flex-row items-center px-4 py-4"
@@ -129,7 +293,8 @@ export default function ActiveWorkoutModal() {
                       {exercise.name}
                     </Text>
                     <Text className="mt-1 font-inter text-[12px] text-muted-foreground">
-                      {exercise.sets} sets • {exercise.reps} reps • {exercise.rest}s rest
+                      {exercise.sets} sets • {exercise.reps} reps •{" "}
+                      {exercise.rest}s rest
                     </Text>
                   </View>
                   <Feather
@@ -158,10 +323,10 @@ export default function ActiveWorkoutModal() {
                     </View>
 
                     {Array.from(
-                      { length: exercise.sets },
+                      { length: exercise.sets ?? 0 },
                       (_, index) => index + 1,
                     ).map((set) => {
-                      const key = `${exercise.name}-${set}`;
+                      const key = `${exercise.id}-${set}`;
                       const isDone = completed.includes(key);
                       return (
                         <View
@@ -178,23 +343,32 @@ export default function ActiveWorkoutModal() {
                             className="mx-1 h-10 flex-1 rounded-lg bg-muted 
                             text-center font-inter text-[13px] text-foreground"
                             keyboardType="decimal-pad"
-                            placeholder="kg"
+                            onChangeText={(value) =>
+                              recordValue(key, "weight", value)
+                            }
+                            placeholder={
+                              exercise.targetWeight
+                                ? String(exercise.targetWeight)
+                                : "kg"
+                            }
                             placeholderTextColor={muted}
                             selectionColor={primary}
                           />
                           <TextInput
                             className="mx-1 h-10 flex-1 rounded-lg bg-muted 
                             text-center font-inter text-[13px] text-foreground"
-                            keyboardType="number-pad"
                             defaultValue={String(exercise.reps)}
-                            placeholder="reps"
+                            keyboardType="number-pad"
+                            onChangeText={(value) =>
+                              recordValue(key, "reps", value)
+                            }
                             placeholderTextColor={muted}
                             selectionColor={primary}
                           />
                           <Pressable
                             accessibilityLabel={`Complete set ${set}`}
                             className="w-14 items-center"
-                            onPress={() => toggleSet(key, exercise.rest)}
+                            onPress={() => toggleSet(exercise, set)}
                           >
                             <Feather
                               color={isDone ? primary : muted}
@@ -212,24 +386,42 @@ export default function ActiveWorkoutModal() {
           })}
         </View>
 
-        <Button className="mt-5" onPress={finishWorkout} size="sm">
+        <Button className="mt-5" onPress={onFinish} size="sm">
           Finish Workout
         </Button>
       </ScrollView>
 
-      {rest > 0 && (
+      {timer.rest > 0 && (
         <View className="absolute bottom-5 right-5 h-28 w-28 items-center justify-center rounded-full border-4 border-slate-700 bg-slate-950 p-3 shadow-lg">
           <Text className="font-inter text-[10px] text-white">Rest Timer</Text>
           <Text className="mt-1 font-inter-bold text-[20px] text-blue-400">
-            {Math.floor(rest / 60)}:{String(rest % 60).padStart(2, "0")}
+            {Math.floor(timer.rest / 60)}:
+            {String(Math.floor(timer.rest % 60)).padStart(2, "0")}
           </Text>
-          <Pressable onPress={skipRest}>
+          <Pressable onPress={timer.skipRest}>
             <Text className="mt-1 font-inter-semibold text-[10px] text-blue-400">
               Skip
             </Text>
           </Pressable>
         </View>
       )}
+    </SafeAreaScreen>
+  );
+}
+
+function ActiveSkeleton() {
+  return (
+    <SafeAreaScreen edges={["top", "bottom"]}>
+      <View className="flex-1 px-5 pt-4">
+        <Skeleton className="h-8 w-2/3 rounded-lg" />
+        <Skeleton className="mt-2 h-4 w-24 rounded-md" />
+        <Skeleton className="mt-7 h-12 w-44 rounded-lg" />
+        <View className="mt-8 gap-3">
+          {Array.from({ length: 3 }).map((_, index) => (
+            <Skeleton className="h-16 w-full rounded-xl" key={index} />
+          ))}
+        </View>
+      </View>
     </SafeAreaScreen>
   );
 }

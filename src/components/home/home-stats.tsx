@@ -1,10 +1,12 @@
 import { Feather } from "@expo/vector-icons";
 import { Text, View } from "react-native";
 
+import Skeleton from "@/components/ui/skeleton";
 import { useAppThemeColor } from "@/theme/app-theme";
 
 type HomeStatsProps = {
   avgTimeSeconds?: number;
+  isPending?: boolean;
   totalTimeSeconds?: number;
   workouts?: number;
 };
@@ -19,6 +21,7 @@ const formatAvg = (seconds: number) => `${Math.round(seconds / 60)} min`;
 
 export default function HomeStats({
   avgTimeSeconds = 0,
+  isPending = false,
   totalTimeSeconds = 0,
   workouts = 0,
 }: HomeStatsProps) {
@@ -32,7 +35,18 @@ export default function HomeStats({
 
   return (
     <View className="mt-3 flex-row gap-2">
-      {stats.map((stat) => (
+      {isPending
+        ? stats.map((stat) => (
+            <View
+              className="min-h-[112px] flex-1 rounded-2xl border border-border bg-card px-3 py-4 shadow-sm"
+              key={stat.label}
+            >
+              <Skeleton className="h-7 w-16 rounded-md" />
+              <Skeleton className="mt-2 h-3 w-12 rounded-md" />
+              <Skeleton className="mt-auto h-8 w-8 rounded-full" />
+            </View>
+          ))
+        : stats.map((stat) => (
         <View
           className="min-h-[112px] flex-1 rounded-2xl border border-border bg-card px-3 py-4 shadow-sm"
           key={stat.label}

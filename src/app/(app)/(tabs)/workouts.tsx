@@ -13,6 +13,7 @@ import {
 } from "react-native";
 
 import SafeAreaScreen from "@/components/ui/safe-area-screen";
+import ErrorState from "@/components/ui/error-state";
 import Skeleton from "@/components/ui/skeleton";
 import { getWorkoutsQueryFn } from "@/lib/api";
 import { useAppThemeColor } from "@/theme/app-theme";
@@ -55,17 +56,10 @@ export default function WorkoutsPage() {
                 <Skeleton className="h-24 rounded-xl" key={index} />
               ))}
             </View>
+          ) : isError ? (
+            <ErrorState message="Could not load workouts" onRetry={refetch} />
           ) : (
-            <View className="items-center py-16">
-              <Feather
-                color={mutedForeground}
-                name={isError ? "wifi-off" : "activity"}
-                size={28}
-              />
-              <Text className="mt-3 font-inter-semibold text-foreground">
-                {isError ? "Could not load workouts" : "No workouts found"}
-              </Text>
-            </View>
+            <ErrorState icon="activity" message="No workouts found" />
           )
         }
         ListHeaderComponent={
@@ -96,7 +90,7 @@ export default function WorkoutsPage() {
             className="flex-row items-center rounded-xl border border-border bg-card p-3 active:bg-muted"
             onPress={() =>
               router.push({
-                pathname: "/workouts/[id]",
+                pathname: "/workout/[id]",
                 params: { id: item.id },
               })
             }

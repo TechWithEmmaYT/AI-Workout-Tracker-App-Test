@@ -67,7 +67,7 @@ export default function MyWorkouts() {
               key={workout.id}
               onPress={() =>
                 router.push({
-                  pathname: "/workouts/[id]",
+                  pathname: "/workout/[id]",
                   params: { id: workout.id },
                 })
               }
@@ -97,7 +97,7 @@ export default function MyWorkouts() {
                   <View className="flex-row items-center gap-1">
                     <FontAwesome6 color={muted} name="dumbbell" size={11} />
                     <Text className="font-inter text-[11.5px] text-muted-foreground">
-                      {workout.exerciseCount}
+                      {workout.exerciseCount} exe
                     </Text>
                   </View>
                   <View className="flex-row items-center gap-1">

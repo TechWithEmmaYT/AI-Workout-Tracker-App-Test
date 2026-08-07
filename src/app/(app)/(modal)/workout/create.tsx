@@ -19,7 +19,7 @@ import Button from "@/components/ui/button";
 import LoadingDialog from "@/components/ui/loading-dialog";
 import SafeAreaScreen from "@/components/ui/safe-area-screen";
 import { useWorkoutDraft } from "@/contexts/workout-draft-context";
-import { apiURL, authClient } from "@/lib/auth-client";
+import { createWorkoutQueryFn } from "@/lib/api";
 import { useAppThemeColor } from "@/theme/app-theme";
 
 const formSchema = z.object({
@@ -45,28 +45,18 @@ export default function CreateWorkoutModal() {
   const coverSource = coverImage ? { uri: coverImage.uri } : null;
 
   const createWorkout = useMutation({
-    mutationFn: async () => {
-      const response = await fetch(`${apiURL}/api/workouts`, {
-        body: JSON.stringify({
-          description: description.trim() || undefined,
-          exercises: selected.map(({ id, reps, rest, sets }) => ({
-            id,
-            reps,
-            rest,
-            sets,
-          })),
-          image: coverImage?.base64,
-          name: name.trim(),
-        }),
-        credentials: "omit",
-        headers: {
-          "Content-Type": "application/json",
-          Cookie: authClient.getCookie(),
-        },
-        method: "POST",
-      });
-      if (!response.ok) throw new Error("Could not create workout");
-    },
+    mutationFn: () =>
+      createWorkoutQueryFn({
+        description: description.trim() || undefined,
+        exercises: selected.map(({ id, reps, rest, sets }) => ({
+          id,
+          reps,
+          rest,
+          sets,
+        })),
+        image: coverImage?.base64,
+        name: name.trim(),
+      }),
     onError: () => Alert.alert("Could not create workout", "Please try again."),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["workouts"] });

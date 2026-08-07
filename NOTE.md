@@ -31,3 +31,25 @@ npx expo run:android --variant release
 ## upload store key password
 
 1fb9a436b6c001a3dedbdb1de6404b023ae0ba1e7445ea75e912c0c10804e611
+
+##
+
+npx expo export --platform web
+
+## only api to be build
+
+npx expo export --platform web --no-ssg
+
+##
+
+eas deploy --alias testapi
+
+eas env:create
+
+eas env:create --scope project --name BETTER_AUTH_URL --value https://ai-workout-tracker-app--testapi.expo.app --environment production --visibility plaintext
+
+eas env:create --scope project --name BETTER_AUTH_SECRET --value replace-with-at-least-32-random-characters --environment production --visibility secret
+
+eas env:create --scope project --name DATABASE_URL --value <your-db-url> --environment production --visibility secret
+
+eas env:create --scope project --name IMAGEKIT_PRIVATE_KEY --value <your-imagekit-private-key> --environment production --visibility secret

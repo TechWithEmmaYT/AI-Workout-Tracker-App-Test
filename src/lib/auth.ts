@@ -16,10 +16,26 @@ const getOnboarding = (body: unknown) => {
   }
   return result.data;
 };
+console.log(process.env.BETTER_AUTH_URL, "process.env.BETTER_AUTH_URL");
+
+const AUTH_URL = process.env.BETTER_AUTH_URL!;
 
 export const auth = betterAuth({
   appName: "MyWorkout",
+  baseURL: AUTH_URL,
+  secret: process.env.BETTER_AUTH_SECRET!,
   database: drizzleAdapter(db, { provider: "pg", schema }),
+  trustedOrigins: [
+    "aiworkouttrackerapp://",
+    "aiworkouttrackerapp://*",
+    "exp://",
+    "exp://*",
+    "exp://**",
+    "exp://192.168.*.*:*/**",
+    "http://localhost:*",
+    "http://192.168.*.*:*",
+    AUTH_URL,
+  ].filter(Boolean),
   emailAndPassword: {
     enabled: true,
     minPasswordLength: 8,
@@ -38,12 +54,6 @@ export const auth = betterAuth({
   },
   socialProviders: {},
   plugins: [expo()],
-  trustedOrigins: [
-    "aiworkouttrackerapp://",
-    ...(process.env.NODE_ENV === "development"
-      ? ["exp://", "exp://**", "exp://192.168.*.*:*/**"]
-      : []),
-  ],
 });
 
 export type AuthSession = typeof auth.$Infer.Session;

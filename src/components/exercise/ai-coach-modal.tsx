@@ -1,13 +1,17 @@
 import { Feather } from "@expo/vector-icons";
+import { useQuery } from "@tanstack/react-query";
 import { Modal, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import Button from "@/components/ui/button";
+import Skeleton from "@/components/ui/skeleton";
+import { getExerciseInstructionsQueryFn } from "@/lib/api";
 import { useAppThemeColor } from "@/theme/app-theme";
 
 type AiCoachModalProps = {
   exercise: {
     description: string;
+    id: string;
     instructions?: readonly string[];
     name: string;
   };
@@ -21,7 +25,15 @@ export default function AiCoachModal({
   visible,
 }: AiCoachModalProps) {
   const foreground = useAppThemeColor("foreground");
-  const instructions = exercise.instructions ?? [exercise.description];
+
+  const { data, isPending } = useQuery({
+    enabled: visible && Boolean(exercise.id),
+    queryFn: () => getExerciseInstructionsQueryFn(exercise.id),
+    queryKey: ["exercise-instructions", exercise.id],
+  });
+
+  const instructions =
+    data?.instructions ?? exercise.instructions ?? [exercise.description];
 
   return (
     <Modal
@@ -63,20 +75,32 @@ export default function AiCoachModal({
               <Text className="font-inter-semibold text-[14px] text-foreground">
                 Step-by-step guidance
               </Text>
-              <View className="mt-4 gap-4">
-                {instructions.map((instruction, index) => (
-                  <View className="flex-row" key={instruction}>
-                    <View className="h-7 w-7 items-center justify-center rounded-full bg-secondary">
-                      <Text className="font-inter-semibold text-[12px] text-secondary-foreground">
-                        {index + 1}
+
+              {isPending ? (
+                <View className="mt-4 gap-3">
+                  <Skeleton className="h-10 w-full" />
+                  <Skeleton className="h-10 w-full" />
+                  <Skeleton className="h-10 w-full" />
+                </View>
+              ) : (
+                <View className="mt-4 gap-4">
+                  {instructions.map((instruction, index) => (
+                    <View
+                      className="flex-row"
+                      key={`${index}-${instruction.slice(0, 15)}`}
+                    >
+                      <View className="h-7 w-7 items-center justify-center rounded-full bg-secondary">
+                        <Text className="font-inter-semibold text-[12px] text-secondary-foreground">
+                          {index + 1}
+                        </Text>
+                      </View>
+                      <Text className="ml-3 flex-1 font-inter text-[13px] leading-5 text-foreground">
+                        {instruction}
                       </Text>
                     </View>
-                    <Text className="ml-3 flex-1 font-inter text-[13px] leading-5 text-foreground">
-                      {instruction}
-                    </Text>
-                  </View>
-                ))}
-              </View>
+                  ))}
+                </View>
+              )}
             </View>
 
             <View className="mt-4 flex-row rounded-2xl bg-muted p-4">

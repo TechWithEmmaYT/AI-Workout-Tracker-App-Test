@@ -37,10 +37,9 @@ export default function WelcomePage() {
   return (
     <ImageBackground className="flex-1" resizeMode="cover" source={background}>
       <View className="absolute inset-0 bg-black/20" />
-
       <SafeAreaView className="flex-1">
         <ScrollView
-          contentContainerClassName="min-h-full flex-grow px-5 pb-4 pt-2"
+          contentContainerClassName="flex-grow px-5 pb-4 pt-2"
           showsVerticalScrollIndicator={false}
         >
           <View className="items-center">
@@ -60,10 +59,10 @@ export default function WelcomePage() {
             </Text>
           </View>
 
-          <View className="min-h-[320px] -mt-2 flex-1 items-center overflow-hidden">
+          <View className="relative -mt-2 h-[300px] flex-grow items-center overflow-hidden">
             <Image
               accessibilityLabel="MyWorkout app preview"
-              className="h-full w-full scale-100"
+              className="absolute w-full h-full inset-0 scale-110"
               resizeMode="contain"
               source={mockup}
             />

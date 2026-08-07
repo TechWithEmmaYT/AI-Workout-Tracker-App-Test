@@ -95,7 +95,7 @@ export default function SignUpPage() {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        <View className="min-h-full flex-1 px-5 pb-5 pt-12">
+        <View className="flex-grow px-5 pb-5 pt-12">
           <View>
             <Text
               accessibilityRole="header"

@@ -15,25 +15,8 @@ import {
 import SafeAreaScreen from "@/components/ui/safe-area-screen";
 import Skeleton from "@/components/ui/skeleton";
 import { useWorkoutDraft } from "@/contexts/workout-draft-context";
-import { apiURL, authClient } from "@/lib/auth-client";
+import { ExerciseItem, getExercisesQueryFn } from "@/lib/api";
 import { useAppThemeColor } from "@/theme/app-theme";
-
-type Exercise = {
-  id: string;
-  image: string | null;
-  muscles: string;
-  name: string;
-};
-
-const getExercises = async (search: string): Promise<Exercise[]> => {
-  const query = search ? `?search=${encodeURIComponent(search)}` : "";
-  const response = await fetch(`${apiURL}/api/exercises${query}`, {
-    credentials: "omit",
-    headers: { Cookie: authClient.getCookie() },
-  });
-  if (!response.ok) throw new Error("Could not load exercises");
-  return response.json();
-};
 
 export default function ExerciseListPage() {
   const router = useRouter();
@@ -51,11 +34,11 @@ export default function ExerciseListPage() {
     isRefetching,
     refetch,
   } = useQuery({
-    queryFn: () => getExercises(search),
+    queryFn: () => getExercisesQueryFn(search),
     queryKey: ["exercises", search],
     staleTime: Infinity,
   });
-  const toggleExercise = (exercise: Exercise) =>
+  const toggleExercise = (exercise: ExerciseItem) =>
     setSelected((current) =>
       current.some(({ id }) => id === exercise.id)
         ? current.filter(({ id }) => id !== exercise.id)

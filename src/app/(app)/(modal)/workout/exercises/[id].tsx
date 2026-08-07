@@ -10,32 +10,10 @@ import AiCoachModal from "@/components/exercise/ai-coach-modal";
 import Button from "@/components/ui/button";
 import SafeAreaScreen from "@/components/ui/safe-area-screen";
 import Skeleton from "@/components/ui/skeleton";
-import { apiURL, authClient } from "@/lib/auth-client";
+import { getExerciseQueryFn } from "@/lib/api";
 import { useAppThemeColor } from "@/theme/app-theme";
 
 const exerciseParamsSchema = z.object({ id: z.string().min(1) });
-
-type Exercise = {
-  category: string;
-  description: string;
-  difficulty: string;
-  equipment: string | null;
-  forceType: string | null;
-  id: string;
-  image: string | null;
-  mechanics: string | null;
-  muscles: string;
-  name: string;
-};
-
-const getExercise = async (id: string): Promise<Exercise> => {
-  const response = await fetch(`${apiURL}/api/exercises/${id}`, {
-    credentials: "omit",
-    headers: { Cookie: authClient.getCookie() },
-  });
-  if (!response.ok) throw new Error("Could not load exercise");
-  return response.json();
-};
 
 export default function ExerciseDetailPage() {
   const params = useLocalSearchParams<{ id?: string | string[] }>();
@@ -54,7 +32,7 @@ export default function ExerciseDetailPage() {
     isPending,
   } = useQuery({
     enabled: Boolean(id),
-    queryFn: () => getExercise(id),
+    queryFn: () => getExerciseQueryFn(id),
     queryKey: ["exercise", id],
   });
 

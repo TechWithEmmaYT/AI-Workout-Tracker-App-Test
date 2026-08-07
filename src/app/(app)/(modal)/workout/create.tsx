@@ -8,7 +8,6 @@ import {
   Image,
   Linking,
   Pressable,
-  ScrollView,
   Text,
   TextInput,
   View,
@@ -21,6 +20,10 @@ import SafeAreaScreen from "@/components/ui/safe-area-screen";
 import { useWorkoutDraft } from "@/contexts/workout-draft-context";
 import { createWorkoutQueryFn } from "@/lib/api";
 import { useAppThemeColor } from "@/theme/app-theme";
+import {
+  KeyboardAwareScrollView,
+  KeyboardToolbar,
+} from "react-native-keyboard-controller";
 
 const formSchema = z.object({
   exercises: z.array(z.unknown()).min(1, "Add at least one exercise"),
@@ -118,175 +121,183 @@ export default function CreateWorkoutModal() {
   };
 
   return (
-    <SafeAreaScreen edges={["top"]}>
-      <ScrollView
-        contentContainerClassName="px-5 pt-3 pb-8"
+    <SafeAreaScreen>
+      <KeyboardAwareScrollView
+        bottomOffset={24}
+        contentContainerClassName="flex-grow"
+        keyboardDismissMode="interactive"
         keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
       >
-        <View className="h-14 flex-row items-center justify-between">
-          <Pressable onPress={router.back}>
-            <Text className="font-inter-medium text-[13px] text-destructive">
-              Cancel
-            </Text>
-          </Pressable>
-          <Text className="font-inter-bold text-[16px] text-foreground">
-            Create Workout
-          </Text>
-          <Pressable disabled={createWorkout.isPending} onPress={saveWorkout}>
-            <Text className="font-inter-medium text-[13px] text-primary">
-              Save
-            </Text>
-          </Pressable>
-        </View>
-
-        <View className="mt-4 gap-5">
-          <Pressable
-            className="h-44 items-center justify-center overflow-hidden rounded-xl border border-input-border bg-muted"
-            onPress={pickImage}
-          >
-            {coverSource ? (
-              <Image className="h-full w-full" source={coverSource} />
-            ) : (
-              <>
-                <Feather color={muted} name="image" size={28} />
-                <Text className="mt-2 font-inter-medium text-[13px] text-muted-foreground">
-                  Choose Cover Image
-                </Text>
-              </>
-            )}
-            {coverSource && (
-              <View className="absolute bottom-3 rounded-full bg-black/60 px-4 py-2">
-                <Text className="font-inter-semibold text-[12px] text-white">
-                  Change Image
-                </Text>
-              </View>
-            )}
-          </Pressable>
-
-          <View className="gap-2">
-            <Text className="font-inter-medium text-[14px] text-foreground">
-              Workout Name
-            </Text>
-            <TextInput
-              className="h-14 rounded-xl border border-input-border bg-input px-4 font-inter text-[14px] text-foreground"
-              onChangeText={setName}
-              maxLength={80}
-              placeholder="e.g. Push Day"
-              placeholderTextColor={muted}
-              selectionColor={primary}
-              value={name}
-            />
-          </View>
-
-          <View className="gap-2">
-            <Text className="font-inter-medium text-[14px] text-foreground">
-              Description (Optional)
-            </Text>
-            <TextInput
-              className="h-24 rounded-xl border border-input-border bg-input px-4 py-3 font-inter text-[14px] text-foreground"
-              multiline
-              onChangeText={setDescription}
-              maxLength={500}
-              placeholder="Add a description..."
-              placeholderTextColor={muted}
-              selectionColor={primary}
-              textAlignVertical="top"
-              value={description}
-            />
-          </View>
-
-          <View>
+        <View className="flex-grow px-5 pt-3 pb-8">
+          <View className="h-14 flex-row items-center justify-between">
+            <Pressable onPress={router.back}>
+              <Text className="font-inter-medium text-[13px] text-destructive">
+                Cancel
+              </Text>
+            </Pressable>
             <Text className="font-inter-bold text-[16px] text-foreground">
-              Exercises
+              Create Workout
             </Text>
-            <Text className="mb-3 mt-1 font-inter text-[12px] text-muted-foreground">
-              {selected.length} exercises added
-            </Text>
+            <Pressable disabled={createWorkout.isPending} onPress={saveWorkout}>
+              <Text className="font-inter-medium text-[13px] text-primary">
+                Save
+              </Text>
+            </Pressable>
+          </View>
 
-            {selected.map((exercise) => (
-              <View
-                className="mb-3 rounded-xl border border-border bg-card p-3"
-                key={exercise.id}
-              >
-                <View className="flex-row items-center">
-                  {exercise.image ? (
-                    <Image
-                      className="h-11 w-12 rounded-lg bg-muted"
-                      source={{ uri: exercise.image }}
-                    />
-                  ) : (
-                    <View className="h-11 w-12 items-center justify-center rounded-lg bg-muted">
-                      <Feather color={muted} name="image" size={17} />
-                    </View>
-                  )}
-                  <View className="ml-3 flex-1">
-                    <Text className="font-inter-semibold text-[13px] text-foreground">
-                      {exercise.name}
-                    </Text>
-                    <Text className="mt-1 font-inter text-[11px] text-muted-foreground">
-                      {exercise.muscles}
-                    </Text>
-                  </View>
-                  <Pressable
-                    onPress={() =>
-                      setSelected((current) =>
-                        current.filter(({ id }) => id !== exercise.id),
-                      )
-                    }
-                  >
-                    <Feather color={muted} name="x" size={20} />
-                  </Pressable>
-                </View>
-
-                {(
-                  [
-                    ["Sets", "sets", exercise.sets, 1],
-                    ["Reps", "reps", exercise.reps, 1],
-                    ["Rest Time", "rest", `${exercise.rest} sec`, 15],
-                  ] as const
-                ).map(([label, field, value, step]) => (
-                  <View
-                    className="mt-3 flex-row items-center justify-between"
-                    key={field}
-                  >
-                    <Text className="font-inter text-[12px] text-muted-foreground">
-                      {label}
-                    </Text>
-                    <View className="flex-row items-center gap-3">
-                      <Pressable
-                        className="h-8 w-8 items-center justify-center rounded-lg bg-muted"
-                        onPress={() =>
-                          updateExercise(exercise.id, field, -step)
-                        }
-                      >
-                        <Feather color={muted} name="minus" size={15} />
-                      </Pressable>
-                      <Text className="w-14 text-center font-inter-semibold text-[12px] text-foreground">
-                        {value}
-                      </Text>
-                      <Pressable
-                        className="h-8 w-8 items-center justify-center rounded-lg bg-muted"
-                        onPress={() => updateExercise(exercise.id, field, step)}
-                      >
-                        <Feather color={muted} name="plus" size={15} />
-                      </Pressable>
-                    </View>
-                  </View>
-                ))}
-              </View>
-            ))}
-
-            <Button
-              leftIcon={<Feather color={primary} name="plus" size={18} />}
-              onPress={() => router.push("/workout/exercises")}
-              size="sm"
-              variant="outline"
+          <View className="mt-4 gap-5">
+            <Pressable
+              className="h-44 items-center justify-center overflow-hidden rounded-xl border border-input-border bg-muted"
+              onPress={pickImage}
             >
-              Add Exercise
-            </Button>
+              {coverSource ? (
+                <Image className="h-full w-full" source={coverSource} />
+              ) : (
+                <>
+                  <Feather color={muted} name="image" size={28} />
+                  <Text className="mt-2 font-inter-medium text-[13px] text-muted-foreground">
+                    Choose Cover Image
+                  </Text>
+                </>
+              )}
+              {coverSource && (
+                <View className="absolute bottom-3 rounded-full bg-black/60 px-4 py-2">
+                  <Text className="font-inter-semibold text-[12px] text-white">
+                    Change Image
+                  </Text>
+                </View>
+              )}
+            </Pressable>
+
+            <View className="gap-2">
+              <Text className="font-inter-medium text-[14px] text-foreground">
+                Workout Name
+              </Text>
+              <TextInput
+                className="h-14 rounded-xl border border-input-border bg-input px-4 font-inter text-[14px] text-foreground"
+                onChangeText={setName}
+                maxLength={80}
+                placeholder="e.g. Push Day"
+                placeholderTextColor={muted}
+                selectionColor={primary}
+                value={name}
+              />
+            </View>
+
+            <View className="gap-2">
+              <Text className="font-inter-medium text-[14px] text-foreground">
+                Description (Optional)
+              </Text>
+              <TextInput
+                className="h-24 rounded-xl border border-input-border bg-input px-4 py-3 font-inter text-[14px] text-foreground"
+                multiline
+                onChangeText={setDescription}
+                maxLength={500}
+                placeholder="Add a description..."
+                placeholderTextColor={muted}
+                selectionColor={primary}
+                textAlignVertical="top"
+                value={description}
+              />
+            </View>
+
+            <View>
+              <Text className="font-inter-bold text-[16px] text-foreground">
+                Exercises
+              </Text>
+              <Text className="mb-3 mt-1 font-inter text-[12px] text-muted-foreground">
+                {selected.length} exercises added
+              </Text>
+
+              {selected.map((exercise) => (
+                <View
+                  className="mb-3 rounded-xl border border-border bg-card p-3"
+                  key={exercise.id}
+                >
+                  <View className="flex-row items-center">
+                    {exercise.image ? (
+                      <Image
+                        className="h-11 w-12 rounded-lg bg-muted"
+                        source={{ uri: exercise.image }}
+                      />
+                    ) : (
+                      <View className="h-11 w-12 items-center justify-center rounded-lg bg-muted">
+                        <Feather color={muted} name="image" size={17} />
+                      </View>
+                    )}
+                    <View className="ml-3 flex-1">
+                      <Text className="font-inter-semibold text-[13px] text-foreground">
+                        {exercise.name}
+                      </Text>
+                      <Text className="mt-1 font-inter text-[11px] text-muted-foreground">
+                        {exercise.muscles}
+                      </Text>
+                    </View>
+                    <Pressable
+                      onPress={() =>
+                        setSelected((current) =>
+                          current.filter(({ id }) => id !== exercise.id),
+                        )
+                      }
+                    >
+                      <Feather color={muted} name="x" size={20} />
+                    </Pressable>
+                  </View>
+
+                  {(
+                    [
+                      ["Sets", "sets", exercise.sets, 1],
+                      ["Reps", "reps", exercise.reps, 1],
+                      ["Rest Time", "rest", `${exercise.rest} sec`, 15],
+                    ] as const
+                  ).map(([label, field, value, step]) => (
+                    <View
+                      className="mt-3 flex-row items-center justify-between"
+                      key={field}
+                    >
+                      <Text className="font-inter text-[12px] text-muted-foreground">
+                        {label}
+                      </Text>
+                      <View className="flex-row items-center gap-3">
+                        <Pressable
+                          className="h-8 w-8 items-center justify-center rounded-lg bg-muted"
+                          onPress={() =>
+                            updateExercise(exercise.id, field, -step)
+                          }
+                        >
+                          <Feather color={muted} name="minus" size={15} />
+                        </Pressable>
+                        <Text className="w-14 text-center font-inter-semibold text-[12px] text-foreground">
+                          {value}
+                        </Text>
+                        <Pressable
+                          className="h-8 w-8 items-center justify-center rounded-lg bg-muted"
+                          onPress={() =>
+                            updateExercise(exercise.id, field, step)
+                          }
+                        >
+                          <Feather color={muted} name="plus" size={15} />
+                        </Pressable>
+                      </View>
+                    </View>
+                  ))}
+                </View>
+              ))}
+
+              <Button
+                leftIcon={<Feather color={primary} name="plus" size={18} />}
+                onPress={() => router.push("/workout/exercises")}
+                size="sm"
+                variant="outline"
+              >
+                Add Exercise
+              </Button>
+            </View>
           </View>
         </View>
-      </ScrollView>
+      </KeyboardAwareScrollView>
+      <KeyboardToolbar />
 
       <LoadingDialog
         message="Saving workout..."

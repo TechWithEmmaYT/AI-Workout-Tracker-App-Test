@@ -56,7 +56,7 @@ export default function ProfilePage() {
     );
 
   return (
-    <SafeAreaScreen edges={["top"]}>
+    <SafeAreaScreen>
       <ScrollView contentContainerClassName="px-5 pb-8">
         <Text className="pt-3 font-inter-bold text-[24px] text-foreground">
           Profile

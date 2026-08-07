@@ -4,13 +4,14 @@ import { useRouter } from "expo-router";
 import { useDeferredValue, useState } from "react";
 import {
   FlatList,
-  Image,
   Pressable,
   RefreshControl,
   Text,
   TextInput,
   View,
 } from "react-native";
+
+import { Image } from "expo-image";
 
 import SafeAreaScreen from "@/components/ui/safe-area-screen";
 import Skeleton from "@/components/ui/skeleton";

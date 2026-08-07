@@ -12,11 +12,12 @@ import * as SplashScreen from "expo-splash-screen";
 
 import { useColorScheme } from "nativewind";
 import { useEffect, useState } from "react";
-import { StatusBar, View } from "react-native";
-import { KeyboardProvider } from "react-native-keyboard-controller";
-
+//import { StatusBar, View } from "react-native";
 import { authClient } from "@/lib/auth-client";
 import { appThemeColors, appThemes } from "@/theme/app-theme";
+import { StatusBar } from "expo-status-bar";
+import { View } from "react-native";
+import { KeyboardProvider } from "react-native-keyboard-controller";
 
 import "../global.css";
 
@@ -73,11 +74,12 @@ export default function RootLayout() {
       <KeyboardProvider>
         <ThemeProvider value={navigationThemes[scheme]}>
           <View style={[appThemes[scheme], { backgroundColor, flex: 1 }]}>
-            <StatusBar
+            {/* <StatusBar
               backgroundColor={backgroundColor}
               barStyle={scheme === "dark" ? "light-content" : "dark-content"}
               translucent={true}
-            />
+            /> */}
+            <StatusBar style={scheme === "dark" ? "light" : "dark"} />
             <Stack screenOptions={{ headerShown: false }}>
               <Stack.Protected guard={!session}>
                 <Stack.Screen name="(public)" />

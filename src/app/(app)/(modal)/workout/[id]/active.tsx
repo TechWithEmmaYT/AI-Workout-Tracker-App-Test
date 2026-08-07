@@ -22,6 +22,7 @@ import type { SaveSessionSet, WorkoutDetail, WorkoutExercise } from "@/lib/api";
 import { createWorkoutSessionQueryFn, getWorkoutQueryFn } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { useAppThemeColor } from "@/theme/app-theme";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const formatTime = (seconds: number) =>
   new Date(seconds * 1000).toISOString().slice(11, 19);
@@ -224,6 +225,8 @@ function ActiveSession({
   toggleSet,
   workout,
 }: ActiveSessionProps) {
+  const insets = useSafeAreaInsets();
+
   const muted = useAppThemeColor("mutedForeground");
   const primary = useAppThemeColor("primary");
   const [expanded, setExpanded] = useState(workout.exercises[0]?.name ?? "");
@@ -235,7 +238,7 @@ function ActiveSession({
   ).length;
 
   return (
-    <SafeAreaScreen edges={["top", "bottom"]}>
+    <SafeAreaScreen>
       <ScrollView
         contentContainerClassName="px-5 pb-32"
         keyboardShouldPersistTaps="handled"
@@ -397,7 +400,10 @@ function ActiveSession({
       </ScrollView>
 
       {timer.rest > 0 && (
-        <View className="absolute bottom-5 right-5 h-28 w-28 items-center justify-center rounded-full border-4 border-slate-700 bg-slate-950 p-3 shadow-lg">
+        <View
+          className="absolute right-5 h-28 w-28 items-center justify-center rounded-full border-4 border-slate-700 bg-slate-950 p-3 shadow-lg"
+          style={{ bottom: insets.bottom + 20 }}
+        >
           <Text className="font-inter text-[10px] text-white">Rest Timer</Text>
           <Text className="mt-1 font-inter-bold text-[20px] text-blue-400">
             {Math.floor(timer.rest / 60)}:

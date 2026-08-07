@@ -19,7 +19,11 @@ import {
 
 import Button from "@/components/ui/button";
 import SafeAreaScreen from "@/components/ui/safe-area-screen";
-import { answers, resetOnboardingAnswers } from "@/constants/onboarding";
+import {
+  answers,
+  resetOnboardingAnswers,
+  setHasOnboarded,
+} from "@/constants/onboarding";
 import { authClient } from "@/lib/auth-client";
 import { onboardingValuesSchema } from "@/lib/validation/onboarding-schema";
 import {
@@ -35,10 +39,14 @@ export default function SignUpPage() {
   const foreground = useAppThemeColor("foreground");
   const iconColor = useAppThemeColor("mutedForeground");
   const primaryForeground = useAppThemeColor("primaryForeground");
+
   const emailInputRef = useRef<TextInput>(null);
   const passwordInputRef = useRef<TextInput>(null);
+
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isPending, setIsPending] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+
   const {
     control,
     handleSubmit,
@@ -72,6 +80,7 @@ export default function SignUpPage() {
         Alert.alert("Could not create account", error.message);
         return;
       }
+      setHasOnboarded(true);
       resetOnboardingAnswers();
     } catch (error) {
       Alert.alert(
@@ -82,6 +91,29 @@ export default function SignUpPage() {
       setIsPending(false);
     }
   });
+
+  const handleGoogleSignUp = async () => {
+    setIsGoogleLoading(true);
+    try {
+      const { error } = await authClient.signIn.social({
+        callbackURL: "/",
+        provider: "google",
+      });
+      if (error) {
+        Alert.alert("Could not sign up with Google", error.message);
+        return;
+      }
+      setHasOnboarded(true);
+      resetOnboardingAnswers();
+    } catch (error) {
+      Alert.alert(
+        "Google sign up failed",
+        error instanceof Error ? error.message : "Please try again",
+      );
+    } finally {
+      setIsGoogleLoading(false);
+    }
+  };
 
   const showComingSoon = (provider: "Apple" | "Google") =>
     Alert.alert(`${provider} sign up is coming next`);
@@ -150,6 +182,7 @@ export default function SignUpPage() {
                   <TextInput
                     ref={emailInputRef}
                     autoCapitalize="none"
+                    textContentType="emailAddress"
                     autoComplete="email"
                     className={`h-14 rounded-xl border bg-input px-4 font-inter text-[14px] text-foreground ${errors.email ? "border-destructive" : "border-input-border"}`}
                     inputMode="email"
@@ -160,7 +193,6 @@ export default function SignUpPage() {
                     placeholderTextColor={iconColor}
                     returnKeyType="next"
                     selectionColor={foreground}
-                    textContentType="emailAddress"
                     value={value}
                   />
                   {errors.email && (
@@ -187,6 +219,7 @@ export default function SignUpPage() {
                       ref={passwordInputRef}
                       autoCapitalize="none"
                       autoComplete="new-password"
+                      textContentType="newPassword"
                       className="h-full flex-1 font-inter text-[14px] text-foreground"
                       onBlur={onBlur}
                       onChangeText={onChange}
@@ -196,7 +229,6 @@ export default function SignUpPage() {
                       returnKeyType="done"
                       secureTextEntry={!isPasswordVisible}
                       selectionColor={foreground}
-                      textContentType="newPassword"
                       value={value}
                     />
                     <Pressable
@@ -227,9 +259,8 @@ export default function SignUpPage() {
             />
           </View>
           <Button
-            accessibilityLabel="Create account"
             className="mt-10"
-            disabled={isPending}
+            disabled={isPending || isGoogleLoading}
             leftIcon={
               isPending ? (
                 <ActivityIndicator color={primaryForeground} />
@@ -250,8 +281,8 @@ export default function SignUpPage() {
 
           <View className="gap-3">
             <Button
-              accessibilityLabel="Continue with Google"
               className="shadow-sm"
+              disabled={isGoogleLoading || isPending}
               leftIcon={
                 <View className="absolute left-5">
                   <Image
@@ -261,15 +292,23 @@ export default function SignUpPage() {
                   />
                 </View>
               }
-              onPress={() => showComingSoon("Google")}
+              rightIcon={
+                isGoogleLoading && (
+                  <ActivityIndicator
+                    className="absolute right-5"
+                    color={foreground}
+                  />
+                )
+              }
+              onPress={handleGoogleSignUp}
               variant="outline"
             >
               Continue with Google
             </Button>
 
             <Button
-              accessibilityLabel="Continue with Apple"
               className="shadow-sm"
+              disabled={isGoogleLoading || isPending}
               leftIcon={
                 <View className="absolute left-5">
                   <FontAwesome color={foreground} name="apple" size={22} />

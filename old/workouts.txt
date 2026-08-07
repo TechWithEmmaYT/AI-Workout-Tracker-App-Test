@@ -11,7 +11,7 @@ const exercise = (name: string, sets = 3, reps = 10, rest = 90) => ({
   sets,
 });
 
-export const workoutData = {
+export const  = {
   push: {
     title: "Push Day",
     muscles: "Chest • Shoulders • Triceps",

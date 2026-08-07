@@ -46,6 +46,8 @@ export default function SignInPage() {
 
   const passwordInputRef = useRef<TextInput>(null);
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [isPending, setIsPending] = useState(false);
 
   const {
     control,
@@ -62,12 +64,38 @@ export default function SignInPage() {
   });
 
   const onSubmit = handleSubmit(async ({ email, password }) => {
-    const { error } = await authClient.signIn.email({ email, password });
-    if (error) {
-      Alert.alert("Could not sign in", error.message);
-      return;
+    try {
+      setIsPending(true);
+      const { error } = await authClient.signIn.email({ email, password });
+      if (error) {
+        Alert.alert("Could not sign in", error.message);
+        return;
+      }
+    } catch (error) {
+    } finally {
+      setIsPending(false);
     }
   });
+
+  const handleGoogleSignIn = async () => {
+    setIsGoogleLoading(true);
+    try {
+      const { error } = await authClient.signIn.social({
+        callbackURL: "/",
+        provider: "google",
+      });
+      if (error) {
+        Alert.alert("Could not sign in with Google", error.message);
+      }
+    } catch (error) {
+      Alert.alert(
+        "Google sign in failed",
+        error instanceof Error ? error.message : "Please try again",
+      );
+    } finally {
+      setIsGoogleLoading(false);
+    }
+  };
 
   const showComingSoon = (feature: string) =>
     Alert.alert(`${feature} is coming next`);
@@ -106,6 +134,7 @@ export default function SignInPage() {
                   <TextInput
                     autoCapitalize="none"
                     autoComplete="email"
+                    textContentType="emailAddress"
                     className={`h-14 rounded-xl border bg-input px-4 font-inter text-[14px] text-foreground ${errors.email ? "border-destructive" : "border-input-border"}`}
                     inputMode="email"
                     onBlur={onBlur}
@@ -115,7 +144,6 @@ export default function SignInPage() {
                     placeholderTextColor={iconColor}
                     returnKeyType="next"
                     selectionColor={foreground}
-                    textContentType="emailAddress"
                     value={value}
                   />
                   {errors.email && (
@@ -143,6 +171,7 @@ export default function SignInPage() {
                         ref={passwordInputRef}
                         autoCapitalize="none"
                         autoComplete="current-password"
+                        textContentType="password"
                         className="h-full flex-1 font-inter text-[14px] text-foreground"
                         onBlur={onBlur}
                         onChangeText={onChange}
@@ -152,13 +181,9 @@ export default function SignInPage() {
                         returnKeyType="done"
                         secureTextEntry={!isPasswordVisible}
                         selectionColor={foreground}
-                        textContentType="password"
                         value={value}
                       />
                       <Pressable
-                        accessibilityLabel={
-                          isPasswordVisible ? "Hide password" : "Show password"
-                        }
                         accessibilityRole="button"
                         className="-mr-3 h-11 w-11 items-center justify-center"
                         hitSlop={4}
@@ -183,7 +208,6 @@ export default function SignInPage() {
               />
 
               <Pressable
-                accessibilityLabel="Reset forgotten password"
                 accessibilityRole="button"
                 className="mt-3 min-h-11 self-end justify-center"
                 onPress={() => showComingSoon("Password reset")}
@@ -198,7 +222,7 @@ export default function SignInPage() {
           <Button
             accessibilityLabel="Sign in"
             className="mt-6"
-            disabled={isSubmitting}
+            disabled={isSubmitting || isGoogleLoading}
             leftIcon={
               isSubmitting ? (
                 <ActivityIndicator color={primaryForeground} />
@@ -206,7 +230,7 @@ export default function SignInPage() {
             }
             onPress={onSubmit}
           >
-            {isSubmitting ? null : "Sign In"}
+            {isPending ? null : "Sign In"}
           </Button>
 
           <View className="my-7 flex-row items-center gap-4">
@@ -219,8 +243,8 @@ export default function SignInPage() {
 
           <View className="gap-3">
             <Button
-              accessibilityLabel="Continue with Google"
               className="shadow-sm"
+              disabled={isGoogleLoading || isPending}
               leftIcon={
                 <View className="absolute left-5">
                   <Image
@@ -230,7 +254,15 @@ export default function SignInPage() {
                   />
                 </View>
               }
-              onPress={() => showComingSoon("Google sign in")}
+              rightIcon={
+                isGoogleLoading && (
+                  <ActivityIndicator
+                    className="absolute right-5"
+                    color={foreground}
+                  />
+                )
+              }
+              onPress={handleGoogleSignIn}
               variant="outline"
             >
               Continue with Google
@@ -239,6 +271,7 @@ export default function SignInPage() {
             <Button
               accessibilityLabel="Continue with Apple"
               className="shadow-sm"
+              disabled={isGoogleLoading || isPending}
               leftIcon={
                 <View className="absolute left-5">
                   <FontAwesome color={foreground} name="apple" size={22} />

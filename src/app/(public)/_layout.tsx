@@ -1,12 +1,14 @@
 import { Stack } from "expo-router";
 
-// export const unstable_settings = {
-//   initialRouteName: "welcome",
-// };
+import { useHasOnboarded } from "@/hooks/use-has-onboarded";
 
 export default function PublicLayout() {
+  const hasOnboarded = useHasOnboarded();
   return (
-    <Stack screenOptions={{ headerShown: false }}>
+    <Stack
+      initialRouteName={hasOnboarded ? "sign-in" : "welcome"}
+      screenOptions={{ headerShown: false }}
+    >
       <Stack.Screen name="welcome" options={{ headerShown: false }} />
       <Stack.Screen name="sign-in" options={{ headerShown: false }} />
       <Stack.Screen name="sign-up" options={{ headerShown: false }} />

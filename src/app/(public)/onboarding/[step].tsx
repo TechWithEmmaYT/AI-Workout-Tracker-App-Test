@@ -3,7 +3,12 @@ import GenderStep from "@/components/onboarding/gender-step";
 import GoalStep from "@/components/onboarding/goal-step";
 import Button from "@/components/ui/button";
 import SafeAreaScreen from "@/components/ui/safe-area-screen";
-import { answers, stepIndex, steps } from "@/constants/onboarding";
+import {
+  answers,
+  saveOnboardingAnswer,
+  stepIndex,
+  steps,
+} from "@/constants/onboarding";
 import type { OnboardingValues } from "@/lib/validation/onboarding-schema";
 import { useAppThemeColor } from "@/theme/app-theme";
 import { Feather } from "@expo/vector-icons";
@@ -25,7 +30,7 @@ export default function OnboardingStepPage() {
 
   const select = (nextValue: OnboardingValues[typeof step.field]) => {
     const nextValues = { ...values, [step.field]: nextValue };
-    Object.assign(answers, nextValues);
+    saveOnboardingAnswer(step.field, nextValue);
     setValues(nextValues);
   };
 

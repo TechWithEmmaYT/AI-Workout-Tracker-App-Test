@@ -6,7 +6,6 @@ import type { ComponentProps, ReactNode } from "react";
 import { Alert, Pressable, ScrollView, Switch, Text, View } from "react-native";
 
 import SafeAreaScreen from "@/components/ui/safe-area-screen";
-import { resetOnboardingAnswers } from "@/constants/onboarding";
 import type { AuthSession } from "@/lib/auth";
 import { authClient } from "@/lib/auth-client";
 import { useAppThemeColor } from "@/theme/app-theme";
@@ -14,57 +13,6 @@ import { useAppThemeColor } from "@/theme/app-theme";
 const LEGAL_ORIGIN = "https://bulky-ai-legal-demo.pages.dev";
 const PRIVACY_URL = `${LEGAL_ORIGIN}/privacy`;
 const TERMS_URL = `${LEGAL_ORIGIN}/terms`;
-
-type RowProps = {
-  danger?: boolean;
-  icon: ComponentProps<typeof Feather>["name"];
-  label: string;
-  onPress?: () => void;
-  right?: ReactNode;
-  value?: string;
-};
-
-function Row({ danger, icon, label, onPress, right, value }: RowProps) {
-  const muted = useAppThemeColor("mutedForeground");
-  const color = danger ? "#EF4444" : muted;
-
-  return (
-    <Pressable
-      className="min-h-16 flex-row items-center border-b border-border px-4 active:bg-muted"
-      disabled={!onPress}
-      onPress={onPress}
-    >
-      <Feather color={color} name={icon} size={19} />
-      <Text
-        className={`ml-3 flex-1 font-inter-medium text-[14px] ${danger ? "text-destructive" : "text-foreground"}`}
-      >
-        {label}
-      </Text>
-      {value && (
-        <Text className="font-inter text-[12px] text-muted-foreground">
-          {value}
-        </Text>
-      )}
-      {right}
-      {onPress && !right && (
-        <Feather color={muted} name="chevron-right" size={19} />
-      )}
-    </Pressable>
-  );
-}
-
-function Section({ children, title }: { children: ReactNode; title: string }) {
-  return (
-    <View className="mt-6">
-      <Text className="mb-2 ml-1 font-inter-semibold text-[12px] uppercase tracking-wide text-muted-foreground">
-        {title}
-      </Text>
-      <View className="overflow-hidden rounded-xl border border-border bg-card">
-        {children}
-      </View>
-    </View>
-  );
-}
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -84,12 +32,11 @@ export default function ProfilePage() {
 
   const signOut = async () => {
     const { error } = await authClient.signOut();
+    router.replace("/sign-in");
+    // resetOnboardingAnswers();
     if (error) {
       Alert.alert("Could not sign out", error.message);
-      return;
     }
-    resetOnboardingAnswers();
-    router.replace("/sign-in");
   };
 
   const confirmDelete = () =>
@@ -182,5 +129,56 @@ export default function ProfilePage() {
         </Section>
       </ScrollView>
     </SafeAreaScreen>
+  );
+}
+
+type RowProps = {
+  danger?: boolean;
+  icon: ComponentProps<typeof Feather>["name"];
+  label: string;
+  onPress?: () => void;
+  right?: ReactNode;
+  value?: string;
+};
+
+function Row({ danger, icon, label, onPress, right, value }: RowProps) {
+  const muted = useAppThemeColor("mutedForeground");
+  const color = danger ? "#EF4444" : muted;
+
+  return (
+    <Pressable
+      className="min-h-16 flex-row items-center border-b border-border px-4 active:bg-muted"
+      disabled={!onPress}
+      onPress={onPress}
+    >
+      <Feather color={color} name={icon} size={19} />
+      <Text
+        className={`ml-3 flex-1 font-inter-medium text-[14px] ${danger ? "text-destructive" : "text-foreground"}`}
+      >
+        {label}
+      </Text>
+      {value && (
+        <Text className="font-inter text-[12px] text-muted-foreground">
+          {value}
+        </Text>
+      )}
+      {right}
+      {onPress && !right && (
+        <Feather color={muted} name="chevron-right" size={19} />
+      )}
+    </Pressable>
+  );
+}
+
+function Section({ children, title }: { children: ReactNode; title: string }) {
+  return (
+    <View className="mt-6">
+      <Text className="mb-2 ml-1 font-inter-semibold text-[12px] uppercase tracking-wide text-muted-foreground">
+        {title}
+      </Text>
+      <View className="overflow-hidden rounded-xl border border-border bg-card">
+        {children}
+      </View>
+    </View>
   );
 }

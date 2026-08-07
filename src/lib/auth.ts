@@ -40,6 +40,12 @@ export const auth = betterAuth({
     enabled: true,
     minPasswordLength: 8,
   },
+  socialProviders: {
+    google: {
+      clientId: process.env.GOOGLE_CLIENT_ID as string,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+    },
+  },
   hooks: {
     before: createAuthMiddleware(async (ctx) => {
       if (ctx.path === "/sign-up/email") getOnboarding(ctx.body);
@@ -52,7 +58,6 @@ export const auth = betterAuth({
       });
     }),
   },
-  socialProviders: {},
   plugins: [expo()],
 });
 

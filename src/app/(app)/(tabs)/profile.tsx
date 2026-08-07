@@ -1,5 +1,4 @@
 import { Feather } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
 import { openBrowserAsync } from "expo-web-browser";
 import { useColorScheme } from "nativewind";
 import type { ComponentProps, ReactNode } from "react";
@@ -15,7 +14,6 @@ const PRIVACY_URL = `${LEGAL_ORIGIN}/privacy`;
 const TERMS_URL = `${LEGAL_ORIGIN}/terms`;
 
 export default function ProfilePage() {
-  const router = useRouter();
   const { data } = authClient.useSession();
   const session = data as AuthSession | null;
   const { colorScheme, setColorScheme } = useColorScheme();
@@ -32,7 +30,7 @@ export default function ProfilePage() {
 
   const signOut = async () => {
     const { error } = await authClient.signOut();
-    router.replace("/sign-in");
+    //router.replace("/sign-in");
     // resetOnboardingAnswers();
     if (error) {
       Alert.alert("Could not sign out", error.message);

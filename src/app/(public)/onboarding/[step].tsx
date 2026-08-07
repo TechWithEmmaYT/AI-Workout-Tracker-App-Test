@@ -20,11 +20,13 @@ export default function OnboardingStepPage() {
   const { step: key = "" } = useLocalSearchParams<{ step: string }>();
   const router = useRouter();
   const foreground = useAppThemeColor("foreground");
-  const index = stepIndex(key);
-  const step = steps[index];
+
   const [values, setValues] = useState<Partial<OnboardingValues>>(() => ({
     ...answers,
   }));
+
+  const index = stepIndex(key);
+  const step = steps[index];
 
   if (!step) return <Redirect href="/welcome" />;
 
@@ -51,6 +53,8 @@ export default function OnboardingStepPage() {
       router.push("/sign-up");
     }
   };
+
+  console.log(JSON.stringify(answers, null, 2));
 
   return (
     <SafeAreaScreen>

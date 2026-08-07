@@ -19,9 +19,8 @@ import {
 
 import Button from "@/components/ui/button";
 import SafeAreaScreen from "@/components/ui/safe-area-screen";
-import { answers } from "@/constants/onboarding";
+import { isOnboardingCompleted } from "@/constants/onboarding";
 import { authClient } from "@/lib/auth-client";
-import { onboardingValuesSchema } from "@/lib/validation/onboarding-schema";
 import {
   signInSchema,
   type SignInFormValues,
@@ -35,8 +34,9 @@ export default function SignInPage() {
   const iconColor = useAppThemeColor("mutedForeground");
   const primaryForeground = useAppThemeColor("primaryForeground");
 
-  const hasCompletedOnboarding =
-    onboardingValuesSchema.safeParse(answers).success;
+  const { isPending: sessionLoading } = authClient.useSession();
+
+  const hasCompletedOnboarding = isOnboardingCompleted();
   const signUpHref = hasCompletedOnboarding
     ? ("/sign-up" as const)
     : ({
@@ -52,7 +52,7 @@ export default function SignInPage() {
   const {
     control,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<SignInFormValues>({
     defaultValues: {
       email: "",
@@ -71,7 +71,6 @@ export default function SignInPage() {
         Alert.alert("Could not sign in", error.message);
         return;
       }
-    } catch (error) {
     } finally {
       setIsPending(false);
     }
@@ -86,12 +85,8 @@ export default function SignInPage() {
       });
       if (error) {
         Alert.alert("Could not sign in with Google", error.message);
+        return;
       }
-    } catch (error) {
-      Alert.alert(
-        "Google sign in failed",
-        error instanceof Error ? error.message : "Please try again",
-      );
     } finally {
       setIsGoogleLoading(false);
     }
@@ -222,15 +217,15 @@ export default function SignInPage() {
           <Button
             accessibilityLabel="Sign in"
             className="mt-6"
-            disabled={isSubmitting || isGoogleLoading}
+            disabled={isPending || isGoogleLoading || sessionLoading}
             leftIcon={
-              isSubmitting ? (
+              isPending || sessionLoading ? (
                 <ActivityIndicator color={primaryForeground} />
               ) : undefined
             }
             onPress={onSubmit}
           >
-            {isPending ? null : "Sign In"}
+            Sign In
           </Button>
 
           <View className="my-7 flex-row items-center gap-4">
@@ -244,7 +239,7 @@ export default function SignInPage() {
           <View className="gap-3">
             <Button
               className="shadow-sm"
-              disabled={isGoogleLoading || isPending}
+              disabled={isGoogleLoading || isPending || sessionLoading}
               leftIcon={
                 <View className="absolute left-5">
                   <Image

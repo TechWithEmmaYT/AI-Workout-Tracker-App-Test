@@ -15,7 +15,6 @@ import { useEffect, useState } from "react";
 import { StatusBar, View } from "react-native";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 
-import AuthLoadingScreen from "@/components/auth-loading-screen";
 import { authClient } from "@/lib/auth-client";
 import { appThemeColors, appThemes } from "@/theme/app-theme";
 
@@ -49,6 +48,7 @@ export default function RootLayout() {
   const backgroundColor = appThemeColors[scheme].background;
 
   const { data: session, isPending } = authClient.useSession();
+
   const [loaded, error] = useFonts({
     ...Feather.font,
     ...FontAwesome.font,
@@ -66,7 +66,7 @@ export default function RootLayout() {
     }
   }, [appReady, fontsReady, isPending]);
 
-  if (!fontsReady || !appReady) return null;
+  if (!appReady) return null;
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -86,8 +86,6 @@ export default function RootLayout() {
                 <Stack.Screen name="(app)" />
               </Stack.Protected>
             </Stack>
-
-            {isPending && <AuthLoadingScreen />}
           </View>
         </ThemeProvider>
       </KeyboardProvider>

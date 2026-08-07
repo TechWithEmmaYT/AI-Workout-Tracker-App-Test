@@ -20,12 +20,10 @@ import {
 import Button from "@/components/ui/button";
 import SafeAreaScreen from "@/components/ui/safe-area-screen";
 import {
-  answers,
+  getOnboardingAnswers,
   resetOnboardingAnswers,
-  setHasOnboarded,
 } from "@/constants/onboarding";
 import { authClient } from "@/lib/auth-client";
-import { onboardingValuesSchema } from "@/lib/validation/onboarding-schema";
 import {
   signUpSchema,
   type SignUpFormValues,
@@ -63,7 +61,7 @@ export default function SignUpPage() {
   });
 
   const onSubmit = handleSubmit(async ({ email, fullName, password }) => {
-    const result = onboardingValuesSchema.safeParse(answers);
+    const result = getOnboardingAnswers();
     if (!result.success) {
       router.replace("/welcome");
       return;
@@ -80,13 +78,7 @@ export default function SignUpPage() {
         Alert.alert("Could not create account", error.message);
         return;
       }
-      setHasOnboarded(true);
       resetOnboardingAnswers();
-    } catch (error) {
-      Alert.alert(
-        "Connection failed",
-        error instanceof Error ? error.message : "Please try again",
-      );
     } finally {
       setIsPending(false);
     }
@@ -103,13 +95,7 @@ export default function SignUpPage() {
         Alert.alert("Could not sign up with Google", error.message);
         return;
       }
-      setHasOnboarded(true);
       resetOnboardingAnswers();
-    } catch (error) {
-      Alert.alert(
-        "Google sign up failed",
-        error instanceof Error ? error.message : "Please try again",
-      );
     } finally {
       setIsGoogleLoading(false);
     }

@@ -10,10 +10,10 @@ import {
   Text,
   View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 import Button from "@/components/ui/button";
 import { useAppThemeColor } from "@/theme/app-theme";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 const background = require("../../../assets/images/app-images/welcome-background.png");
 const logo = require("../../../assets/images/app-images/logo.png");
@@ -62,7 +62,7 @@ export default function WelcomePage() {
           <View className="relative -mt-2 h-[300px] flex-grow items-center overflow-hidden">
             <Image
               accessibilityLabel="MyWorkout app preview"
-              className="absolute w-full h-full inset-0 scale-110"
+              className="absolute inset-0 h-full w-full scale-110"
               resizeMode="contain"
               source={mockup}
             />

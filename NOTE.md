@@ -1,3 +1,5 @@
+https://gist.github.com/chirag-chhajed/d0bc667325544c3e7cccc04e03b5d1dc
+
 npx expo start --clear
 
 ## run this after table created
@@ -27,6 +29,7 @@ https://ai-workout-tracker-app--1yh9zv4h89.expo.app
 //https://ai-workout-tracker-app--tbuskumtq9.expo.app
 
 npx expo run:android --variant release
+npx react-native build-android --mode=release
 
 ## upload store key password
 

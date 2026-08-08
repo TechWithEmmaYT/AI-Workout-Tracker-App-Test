@@ -89,6 +89,7 @@ export default function ExerciseDetailPage() {
             </View>
           )}
           <View className="absolute inset-0 bg-black/20" />
+
           <SafeAreaView className="absolute inset-x-0 top-0" edges={["top"]}>
             <View className="h-14 flex-row items-center justify-between px-4">
               <Pressable

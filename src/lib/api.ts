@@ -195,13 +195,16 @@ export type HistoryItem = {
   workoutName: string;
 };
 
+export type HistorySet = {
+  reps: number;
+  weight: number | null;
+};
+
 export type HistoryExercise = {
   id: string;
-  image: string | null;
   name: string;
-  reps: number;
-  setCount: number;
-  weight: number | null;
+  image: string | null;
+  sets: HistorySet[];
 };
 
 export type HistoryDetail = {

@@ -40,7 +40,7 @@ export default function WorkoutDetailScreen() {
   if (isPending) return <WorkoutDetailSkeleton />;
 
   return (
-    <SafeAreaScreen>
+    <SafeAreaScreen edges={["bottom"]}>
       <ScrollView
         className="flex-1"
         contentInsetAdjustmentBehavior="never"

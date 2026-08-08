@@ -4,14 +4,13 @@ import { useRouter } from "expo-router";
 import { useDeferredValue, useState } from "react";
 import {
   FlatList,
+  Image,
   Pressable,
   RefreshControl,
   Text,
   TextInput,
   View,
 } from "react-native";
-
-import { Image } from "expo-image";
 
 import SafeAreaScreen from "@/components/ui/safe-area-screen";
 import Skeleton from "@/components/ui/skeleton";
@@ -146,7 +145,7 @@ export default function ExerciseListPage() {
                 {item.image ? (
                   <View className="h-[60px] w-[70px] rounded-lg bg-muted">
                     <Image
-                      className="size-full rounded-lg"
+                      className="w-full h-full rounded-lg"
                       source={{ uri: item.image }}
                     />
                   </View>

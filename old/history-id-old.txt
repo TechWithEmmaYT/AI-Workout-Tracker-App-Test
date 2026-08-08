@@ -88,17 +88,13 @@ export default function HistoryDetailModal() {
                 <Text className="font-inter-semibold text-[13px] text-foreground">
                   {exercise.name}
                 </Text>
-                {/* e.g. "80×8  85×6  90×5" — real progression instead of a max */}
-                <View className="mt-1 flex-row flex-wrap gap-1">
-                  {exercise.sets.map((set, i) => (
-                    <View key={i} className="rounded-md bg-muted px-1.5 py-0.5">
-                      <Text className="font-inter text-[10px] text-muted-foreground">
-                        {(set.weight || 0) ?? "—"}kg × {set.reps}
-                      </Text>
-                    </View>
-                  ))}
-                </View>
+                <Text className="mt-1 font-inter text-[11.5px] text-muted-foreground">
+                  {exercise.setCount} sets • {exercise.reps} reps
+                </Text>
               </View>
+              <Text className="font-inter-medium text-[11.5px] text-muted-foreground">
+                {exercise.weight !== null ? `${exercise.weight} kg` : "—"}
+              </Text>
             </View>
           ))}
         </View>
@@ -128,6 +124,7 @@ function StatCard({ label, value }: { label: string; value: string }) {
     </View>
   );
 }
+
 function HistoryDetailSkeleton() {
   return (
     <SafeAreaScreen edges={["top"]}>
